@@ -4,8 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PacienteResource\Pages;
 use App\Filament\Resources\PacienteResource\RelationManagers;
+use App\Forms\Components\Cep;
 use App\Models\Paciente;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -23,15 +29,67 @@ class PacienteResource extends Resource
     {
         return $form
             ->schema([
-                //
-            ]);
+                TextInput::make('nome')
+                    ->required()
+                    ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
+                DatePicker::make('nascimento')
+                    ->required(),
+                Select::make('sexo')
+                    ->label('Sexo Biológico')
+                    ->options([
+                        'M' => 'Masculino',
+                        'F' => 'Feminino',
+                    ])
+                    ->required(),
+                TextInput::make('cpf')
+                    ->required()
+                    ->unique(ignorable: fn (?Paciente $record): ?Paciente => $record)
+                    ->mask('999.999.999-99')
+                    ->placeholder('000.000.000-00')
+                    ->minLength(14),
+                TextInput::make('email')
+                    ->email()
+                    ->dehydrateStateUsing(function ($state) {
+                        return strtolower($state) ?? null;
+                    }),
+                TextInput::make('celular')
+                    ->tel()
+                    ->mask('(99) 99999-9999')
+                    ->placeholder('(00) 00000-0000')
+                    ->dehydrateStateUsing(function ($state) {
+                        return preg_replace('/[^0-9]/', '', $state) ?? null;
+                    }),
+                Textarea::make('observacao')->rows(4)->columnSpanFull(),
+                Fieldset::make('Endereço')->schema([
+                    Cep::make('cep')->viaCep(
+                        setFields: [
+                            'logradouro' => 'logradouro',
+                            'numero' => 'numero',
+                            'bairro' => 'bairro'
+                        ],
+                    ),
+                    TextInput::make('logradouro'),
+                    TextInput::make('numero'),
+                    TextInput::make('complemento'),
+                    TextInput::make('bairro'),
+                    // TextInput::make('cidade'),
+                ])->columns(['md' => 2]),
+
+
+
+            ])->columns(['md' => 2]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nome'),
+                Tables\Columns\TextColumn::make('nascimento'),
+                Tables\Columns\TextColumn::make('sexo'),
+                Tables\Columns\TextColumn::make('cpf'),
+                Tables\Columns\TextColumn::make('email'),
+                Tables\Columns\TextColumn::make('celular'),
             ])
             ->filters([
                 //

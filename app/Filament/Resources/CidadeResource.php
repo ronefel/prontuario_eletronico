@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Validator;
 
 class CidadeResource extends Resource
 {
@@ -26,9 +27,12 @@ class CidadeResource extends Resource
         return $form
             ->schema([
                 TextInput::make('nome')
+                    ->required()
+                    ->unique('cidades', 'nome', fn (?Cidade $record) => $record)
                     ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                 TextInput::make('uf')
-                    ->dehydrateStateUsing(fn (string $state): string => strtoupper($state)),
+                    ->required()
+                    ->dehydrateStateUsing(fn (string $state): string => strtoupper($state))
             ])->columns(['md' => 2]);
     }
 
@@ -36,15 +40,17 @@ class CidadeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nome'),
+                Tables\Columns\TextColumn::make('nome')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('uf'),
             ])
+            ->defaultSort('nome', 'asc')
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('nome');
             $table->string('uf');
             $table->timestamps();
+
+            $table->unique(['nome', 'uf']);
         });
     }
 
