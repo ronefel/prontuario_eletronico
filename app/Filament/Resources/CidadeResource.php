@@ -6,15 +6,19 @@ use App\Filament\Resources\CidadeResource\Pages;
 use App\Filament\Resources\CidadeResource\RelationManagers;
 use App\Models\Cidade;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Unique;
 
 class CidadeResource extends Resource
 {
@@ -28,11 +32,49 @@ class CidadeResource extends Resource
             ->schema([
                 TextInput::make('nome')
                     ->required()
-                    ->unique('cidades', 'nome', fn (?Cidade $record) => $record)
-                    ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
-                TextInput::make('uf')
+                    ->debounce(500)
+                    ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
+                    ->unique(
+                        ignoreRecord: true,
+                        modifyRuleUsing: function (Unique $rule,  Get $get) {
+                            return $rule->where('uf', $get('uf'));
+                        }
+                    )
+                    ->validationMessages([
+                        'unique' => 'A cidade informada já existe na base de dados.',
+                    ]),
+                Select::make('uf')
+                    ->label('UF')
                     ->required()
-                    ->dehydrateStateUsing(fn (string $state): string => strtoupper($state))
+                    ->options([
+                        'AC' => 'Acre',
+                        'AL' => 'Alagoas',
+                        'AM' => 'Amazonas',
+                        'AP' => 'Amapá',
+                        'BA' => 'Bahia',
+                        'CE' => 'Ceará',
+                        'DF' => 'Distrito Federal',
+                        'ES' => 'Espírito Santo',
+                        'GO' => 'Goiás',
+                        'MA' => 'Maranhão',
+                        'MG' => 'Minas Gerais',
+                        'MS' => 'Mato Grosso do Sul',
+                        'MT' => 'Mato Grosso',
+                        'PA' => 'Pará',
+                        'PB' => 'Paraíba',
+                        'PE' => 'Pernambuco',
+                        'PI' => 'Piauí',
+                        'PR' => 'Paraná',
+                        'RJ' => 'Rio de Janeiro',
+                        'RN' => 'Rio Grande do Norte',
+                        'RO' => 'Rondônia',
+                        'RR' => 'Roraima',
+                        'RS' => 'Rio Grande do Sul',
+                        'SC' => 'Santa Catarina',
+                        'SE' => 'Sergipe',
+                        'SP' => 'São Paulo',
+                        'TO' => 'Tocantins',
+                    ])->searchable()
             ])->columns(['md' => 2]);
     }
 
