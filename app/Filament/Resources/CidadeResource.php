@@ -29,53 +29,7 @@ class CidadeResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('nome')
-                    ->required()
-                    ->debounce(500)
-                    ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
-                    ->unique(
-                        ignoreRecord: true,
-                        modifyRuleUsing: function (Unique $rule,  Get $get) {
-                            return $rule->where('uf', $get('uf'));
-                        }
-                    )
-                    ->validationMessages([
-                        'unique' => 'A cidade informada já existe na base de dados.',
-                    ]),
-                Select::make('uf')
-                    ->label('UF')
-                    ->required()
-                    ->options([
-                        'AC' => 'Acre',
-                        'AL' => 'Alagoas',
-                        'AM' => 'Amazonas',
-                        'AP' => 'Amapá',
-                        'BA' => 'Bahia',
-                        'CE' => 'Ceará',
-                        'DF' => 'Distrito Federal',
-                        'ES' => 'Espírito Santo',
-                        'GO' => 'Goiás',
-                        'MA' => 'Maranhão',
-                        'MG' => 'Minas Gerais',
-                        'MS' => 'Mato Grosso do Sul',
-                        'MT' => 'Mato Grosso',
-                        'PA' => 'Pará',
-                        'PB' => 'Paraíba',
-                        'PE' => 'Pernambuco',
-                        'PI' => 'Piauí',
-                        'PR' => 'Paraná',
-                        'RJ' => 'Rio de Janeiro',
-                        'RN' => 'Rio Grande do Norte',
-                        'RO' => 'Rondônia',
-                        'RR' => 'Roraima',
-                        'RS' => 'Rio Grande do Sul',
-                        'SC' => 'Santa Catarina',
-                        'SE' => 'Sergipe',
-                        'SP' => 'São Paulo',
-                        'TO' => 'Tocantins',
-                    ])->searchable()
-            ])->columns(['md' => 2]);
+            ->schema(self::formFields())->columns(['md' => 2]);
     }
 
     public static function table(Table $table): Table
@@ -105,6 +59,57 @@ class CidadeResource extends Resource
     {
         return [
             'index' => Pages\ManageCidades::route('/'),
+        ];
+    }
+
+    public static function formFields(): array
+    {
+        return [
+            TextInput::make('nome')
+                ->required()
+                ->debounce(500)
+                ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
+                ->unique(
+                    ignoreRecord: true,
+                    modifyRuleUsing: function (Unique $rule,  Get $get) {
+                        return $rule->where('uf', $get('uf'));
+                    }
+                )
+                ->validationMessages([
+                    'unique' => 'A cidade informada já existe na base de dados.',
+                ]),
+            Select::make('uf')
+                ->label('UF')
+                ->required()
+                ->options([
+                    'AC' => 'Acre',
+                    'AL' => 'Alagoas',
+                    'AM' => 'Amazonas',
+                    'AP' => 'Amapá',
+                    'BA' => 'Bahia',
+                    'CE' => 'Ceará',
+                    'DF' => 'Distrito Federal',
+                    'ES' => 'Espírito Santo',
+                    'GO' => 'Goiás',
+                    'MA' => 'Maranhão',
+                    'MG' => 'Minas Gerais',
+                    'MS' => 'Mato Grosso do Sul',
+                    'MT' => 'Mato Grosso',
+                    'PA' => 'Pará',
+                    'PB' => 'Paraíba',
+                    'PE' => 'Pernambuco',
+                    'PI' => 'Piauí',
+                    'PR' => 'Paraná',
+                    'RJ' => 'Rio de Janeiro',
+                    'RN' => 'Rio Grande do Norte',
+                    'RO' => 'Rondônia',
+                    'RR' => 'Roraima',
+                    'RS' => 'Rio Grande do Sul',
+                    'SC' => 'Santa Catarina',
+                    'SE' => 'Sergipe',
+                    'SP' => 'São Paulo',
+                    'TO' => 'Tocantins',
+                ])->searchable()
         ];
     }
 }

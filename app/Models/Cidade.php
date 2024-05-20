@@ -9,4 +9,9 @@ use Illuminate\Validation\Rule;
 class Cidade extends Model
 {
     use HasFactory;
+
+    public function pacientes()
+    {
+        return $this->hasMany(Paciente::class);
+    }
 }
