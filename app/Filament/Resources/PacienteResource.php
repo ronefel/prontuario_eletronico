@@ -3,11 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PacienteResource\Pages;
-use App\Filament\Resources\PacienteResource\RelationManagers;
 use App\Forms\Components\Cep;
 use App\Models\Cidade;
 use App\Models\Paciente;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -17,11 +15,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PacienteResource extends Resource
 {
@@ -39,9 +37,12 @@ class PacienteResource extends Resource
                         ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                     Grid::make()->schema([
                         DatePicker::make('nascimento')
-                            ->required(),
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
+                            ->afterStateHydrated(fn (Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
                         TextInput::make('idade')
-                            ->readOnly()
+                            ->disabled(),
                     ])->columns(['md' => 2])
                         ->columnSpan(1),
 
@@ -91,13 +92,14 @@ class PacienteResource extends Resource
                     TextInput::make('numero'),
                     TextInput::make('complemento'),
                     TextInput::make('bairro'),
+
                     Select::make('cidade_id')
                         ->relationship(
                             name: 'cidade',
                             modifyQueryUsing: fn (Builder $query) => $query->orderBy('nome')->orderBy('uf')
                         )
                         ->getOptionLabelFromRecordUsing(fn (?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
-                        ->searchable(['nome'])
+                        ->searchable()
                         ->preload()
                         ->createOptionForm(CidadeResource::formFields())
                 ])->columns(['md' => 2]),

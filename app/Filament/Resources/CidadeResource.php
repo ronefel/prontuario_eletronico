@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CidadeResource\Pages;
-use App\Filament\Resources\CidadeResource\RelationManagers;
 use App\Models\Cidade;
-use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -14,10 +12,6 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Unique;
 
 class CidadeResource extends Resource
@@ -67,7 +61,7 @@ class CidadeResource extends Resource
         return [
             TextInput::make('nome')
                 ->required()
-                ->debounce(500)
+                ->live(onBlur: true)
                 ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
                 ->unique(
                     ignoreRecord: true,
