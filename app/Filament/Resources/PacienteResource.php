@@ -10,14 +10,17 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Filament\Tables\Columns\Layout\Panel;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -113,12 +116,31 @@ class PacienteResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nome'),
-                Tables\Columns\TextColumn::make('nascimento'),
-                Tables\Columns\TextColumn::make('sexo'),
-                Tables\Columns\TextColumn::make('cpf'),
-                Tables\Columns\TextColumn::make('email'),
-                Tables\Columns\TextColumn::make('celular'),
+                Split::make([
+                    TextColumn::make('nome')
+                        ->weight(FontWeight::Bold)
+                        ->searchable(),
+                    Split::make([
+                        TextColumn::make('nascimento')->grow(false)
+                            ->formatStateUsing(fn (string $state): string => Paciente::calcularIdade($state)),
+                        TextColumn::make('sexo')
+                    ]),
+                ])->from('xl'),
+                Split::make([
+                    Panel::make([
+                        Split::make([
+                            TextColumn::make('email')
+                                ->icon('heroicon-m-envelope')
+                                ->copyable()
+                                ->copyMessage('Email copiado para a área de transferência')
+                                ->copyMessageDuration(1500),
+                            TextColumn::make('celular')
+                                ->url(fn (string $state): string => "https://wa.me/+55{$state}")
+                                ->openUrlInNewTab()
+                                ->icon('heroicon-m-phone')
+                        ])->from('xl'),
+                    ])
+                ])->from('xl')->collapsible()
             ])
             ->filters([
                 //
