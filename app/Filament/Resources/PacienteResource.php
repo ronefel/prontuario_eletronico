@@ -37,6 +37,7 @@ class PacienteResource extends Resource
                 Fieldset::make('Dados pessoais')->schema([
                     TextInput::make('nome')
                         ->required()
+                        ->acoff()
                         ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                     Grid::make()->schema([
                         DatePicker::make('nascimento')
@@ -60,6 +61,7 @@ class PacienteResource extends Resource
                         ->required(),
                     TextInput::make('cpf')
                         ->required()
+                        ->acoff()
                         ->unique(ignorable: fn (?Paciente $record): ?Paciente => $record)
                         ->mask('999.999.999-99')
                         ->placeholder('000.000.000-00')
@@ -69,11 +71,13 @@ class PacienteResource extends Resource
                 Fieldset::make('Contato')->schema([
                     TextInput::make('email')
                         ->email()
+                        ->acoff()
                         ->dehydrateStateUsing(function ($state) {
                             return strtolower($state) ?? null;
                         }),
                     TextInput::make('celular')
                         ->tel()
+                        ->acoff()
                         ->mask('(99) 99999-9999')
                         ->placeholder('(00) 00000-0000')
                         ->dehydrateStateUsing(function ($state) {
@@ -83,7 +87,7 @@ class PacienteResource extends Resource
 
                 Fieldset::make('Endereço')->schema([
                     Cep::make('cep')
-                        ->label('CEP')
+                        ->acoff()
                         ->viaCep(
                             setFields: [
                                 'logradouro' => 'logradouro',
@@ -91,10 +95,14 @@ class PacienteResource extends Resource
                                 'localidade' => 'cidade_id',
                             ],
                         ),
-                    TextInput::make('logradouro'),
-                    TextInput::make('numero'),
-                    TextInput::make('complemento'),
-                    TextInput::make('bairro'),
+                    TextInput::make('logradouro')
+                        ->acoff(),
+                    TextInput::make('numero')
+                        ->acoff(),
+                    TextInput::make('complemento')
+                        ->acoff(),
+                    TextInput::make('bairro')
+                        ->acoff(),
 
                     Select::make('cidade_id')
                         ->relationship(
@@ -108,9 +116,10 @@ class PacienteResource extends Resource
                         ->editOptionForm(CidadeResource::formFields())->editOptionModalHeading('Editar Cidade'),
                 ])->columns(['md' => 2]),
 
-                Textarea::make('observacao')->rows(4)->columnSpanFull(),
+                Textarea::make('observacao')
+                    ->acoff()->rows(4)->columnSpanFull(),
 
-            ])->extraAttributes(['autocomplete' => 'off']);
+            ]);
     }
 
     public static function table(Table $table): Table
