@@ -87,8 +87,8 @@ class PacienteResource extends Resource
                         ->viaCep(
                             setFields: [
                                 'logradouro' => 'logradouro',
-                                'numero' => 'numero',
-                                'bairro' => 'bairro'
+                                'bairro'     => 'bairro',
+                                'localidade' => 'cidade_id',
                             ],
                         ),
                     TextInput::make('logradouro'),
@@ -104,12 +104,13 @@ class PacienteResource extends Resource
                         ->getOptionLabelFromRecordUsing(fn (?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
                         ->searchable()
                         ->preload()
-                        ->createOptionForm(CidadeResource::formFields())
+                        ->createOptionForm(CidadeResource::formFields())->createOptionModalHeading('Criar Cidade')
+                        ->editOptionForm(CidadeResource::formFields())->editOptionModalHeading('Editar Cidade'),
                 ])->columns(['md' => 2]),
 
                 Textarea::make('observacao')->rows(4)->columnSpanFull(),
 
-            ]);
+            ])->extraAttributes(['autocomplete' => 'off']);
     }
 
     public static function table(Table $table): Table

@@ -2,6 +2,7 @@
 
 namespace App\Forms\Components;
 
+use App\Models\Cidade;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
@@ -37,9 +38,17 @@ class Cep extends TextInput
             $livewire->validateOnly($component->getKey());
 
             $request = Http::get('viacep.com.br/ws/' . $state . '/json/')->json();
+            if (!$request) return;
 
             foreach ($setFields as $key => $value) {
-                $set($key, $request[$value] ?? null);
+                if ($key === 'localidade') {
+                    $cidade = Cidade::where('uf', $request['uf'])->where('nome', $request['localidade'])->first();
+                    if ($cidade) {
+                        $set($value, $cidade->id);
+                        return;
+                    }
+                }
+                $set($value, $request[$key] ?? null);
             }
 
             if (Arr::has($request, 'erro')) {
