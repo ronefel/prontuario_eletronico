@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -27,7 +28,13 @@ class Prontuario extends Page implements HasForms
             ->schema([
                 TextInput::make('title')
                     ->required(),
-                RichEditor::make('content'),
+                TinyEditor::make('content')
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsVisibility('uploads')
+                    ->fileAttachmentsDirectory('uploads')
+                    ->profile('default')
+                    ->columnSpan('full')
+                    ->required(),
                 // ...
             ])
             ->statePath('data');
