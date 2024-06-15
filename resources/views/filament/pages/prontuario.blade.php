@@ -76,7 +76,7 @@
                     </span>
                     <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">2 de dezembro de 2021</time>
                     <div class="mce-content-body">
-                        <p style="text-align: center;" data-mce-style="text-align: center;"><span style="text-decoration: underline; font-size: 14pt;" data-mce-style="text-decoration: underline; font-size: 14pt;"><strong>Histórico Clínico:</strong></span></p>
+                        <p ><span style="font-size: 14pt;" data-mce-style="font-size: 14pt;"><strong>Histórico Clínico:</strong></span></p>
                         <ul>
                             <li><strong>Condição Principal:</strong> Lesão no joelho direito (lesão do ligamento cruzado anterior - LCA) ocorrida há 3 meses.</li>
                             <li><strong>Histórico Médico:</strong> Avaliação ortopédica inicial recomendou cirurgia, mas paciente optou por explorar terapias alternativas antes de decidir.</li>
@@ -104,9 +104,9 @@
 
 
         </div>
-        <div class="flex flex-col mt-8 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10" style="align-self: flex-start;">
-            <div class="flex p-4">
-                <span class="dark:text-gray-300 font-bold text-lg">
+        <div class="flex flex-col mt-8 p-4 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10" style="align-self: flex-start;">
+            <div class="flex">
+                <span class="dark:text-gray-300 font-bold text-2xl">
                     <x-filament::link size="2xl" :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)" tooltip="Editar paciente">
                         {{$this->paciente->nome}}
                     </x-filament::link>
@@ -115,16 +115,17 @@
             </div>
             <div class="flex py-2">
                 <!-- <x-heroicon-s-cake class="w-5 h-5 text-gray-400 dark:text-gray-300 mr-2 ml-4" /> -->
-                <span class="dark:text-gray-300 ml-4">Idade: {{$this->paciente->idade()}}</span>
+                <span class="dark:text-gray-300">Idade: {{$this->paciente->idade()}}</span>
             </div>
             <div class="flex py-2">
-                <span class="dark:text-gray-300 ml-4">Sexo: {{$this->paciente->sexo()}}</span>
+                <span class="dark:text-gray-300">Sexo: {{$this->paciente->sexo()}}</span>
             </div>
             <div class="flex py-2">
-                <span class="dark:text-gray-300 ml-4">Celular: <x-filament::link size="xl" href="https://wa.me/+55{{$this->paciente->celular}}" target="_blank">{{$this->paciente->celular}}</x-filament::link></span>
+                <span class="dark:text-gray-300">Celular: <x-filament::link size="xl" href="https://wa.me/+55{{$this->paciente->celular}}" target="_blank">{{$this->paciente->celular}}</x-filament::link></span>
             </div>
-            <div class="flex py-2">
-                {{$this->paciente->observacao}}
+            <div class="flex py-2 whitespace-pre-wrap">
+                <span class="dark:text-gray-300">{{$this->paciente->observacao}}</span>
+
             </div>
         </div>
     </div>

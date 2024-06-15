@@ -27,7 +27,7 @@ class ProntuarioPaciente extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $title = 'História Clinica';
+    protected static ?string $title = 'Protuário';
 
     protected static string $view = 'filament.pages.prontuario';
 

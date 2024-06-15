@@ -10,9 +10,17 @@ class EditPaciente extends EditRecord
 {
     protected static string $resource = PacienteResource::class;
 
+    public function getTitle(): string
+    {
+        return $this->record->nome;
+    }
+
+
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('História Clinica')
+                ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->record->id])),
             Actions\DeleteAction::make(),
         ];
     }
