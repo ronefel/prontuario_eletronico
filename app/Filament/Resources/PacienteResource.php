@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Pages\Prontuario;
 use App\Filament\Resources\PacienteResource\Pages;
+use App\Filament\Resources\PacienteResource\Pages\ProntuarioPaciente;
 use App\Forms\Components\Cep;
 use App\Models\Cidade;
 use App\Models\Paciente;
@@ -23,6 +25,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class PacienteResource extends Resource
 {
@@ -162,7 +165,10 @@ class PacienteResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->recordUrl(
+                fn (Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+            );
     }
 
     public static function getRelations(): array
@@ -178,6 +184,7 @@ class PacienteResource extends Resource
             'index' => Pages\ListPacientes::route('/'),
             'create' => Pages\CreatePaciente::route('/create'),
             'edit' => Pages\EditPaciente::route('/{record}/edit'),
+            'protuario' => Pages\ProntuarioPaciente::route('/{record}/prontuario'),
         ];
     }
 }

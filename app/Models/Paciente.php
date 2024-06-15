@@ -15,6 +15,16 @@ class Paciente extends Model
         return $this->belongsTo(Cidade::class);
     }
 
+    public function idade()
+    {
+        return Paciente::calcularIdade($this->nascimento);
+    }
+
+    public function sexo()
+    {
+        return $this->sexo === 'M' ? 'Masculino' : 'Feminino';
+    }
+
     public static function calcularIdade(?string $nascimento): string
     {
         if ($nascimento) {
@@ -23,11 +33,11 @@ class Paciente extends Model
             $intervalo = $hoje->diff($nascimento);
 
             if ($intervalo->y >= 1) {
-                return $intervalo->y . 'A';
+                return $intervalo->y . ' Anos';
             } else if ($intervalo->m >= 1) {
-                return $intervalo->m . 'M' . $intervalo->d - 1 . 'D';
+                return $intervalo->m . ' Meses' . $intervalo->d - 1 . 'Dias';
             } else {
-                return $intervalo->d - 1 . 'D';
+                return $intervalo->d - 1 . ' Dias';
             }
         }
 
