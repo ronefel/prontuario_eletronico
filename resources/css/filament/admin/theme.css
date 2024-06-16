@@ -1,3 +1,4 @@
 @import '/vendor/filament/filament/resources/css/theme.css';
+@import '/public/css/amidesfahani/filament-tinyeditor/document-format.css';
 
 @config 'tailwind.config.js';

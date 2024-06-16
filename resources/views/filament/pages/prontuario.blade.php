@@ -63,10 +63,12 @@
                         </svg>
                     </span>
                     <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">7 de dezembro de 2021</time>
-                    <h3 class="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Primeira Sessão:</h3>
-                    <p>Procedimento: Aplicação de ozônio nas articulações metacarpofalângicas e interfalângicas proximais.</p>
-                    <br>
-                    <p>Observações: Paciente relatou leve melhora na dor.</p>
+                    <div class="mce-content-body">
+                        <h3 class="mb-1 text-lg font-semibold text-gray-900 dark:text-white">Primeira Sessão:</h3>
+                        <p>Procedimento: Aplicação de ozônio nas articulações metacarpofalângicas e interfalângicas proximais.</p>
+                        <br>
+                        <p>Observações: Paciente relatou leve melhora na dor.</p>
+                    </div>
                 </li>
                 <li class="ms-6 pt-1 mt-4">
                     <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
@@ -76,7 +78,7 @@
                     </span>
                     <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">2 de dezembro de 2021</time>
                     <div class="mce-content-body">
-                        <p ><span style="font-size: 14pt;" data-mce-style="font-size: 14pt;"><strong>Histórico Clínico:</strong></span></p>
+                        <p><span style="font-size: 14pt;" data-mce-style="font-size: 14pt;"><strong>Histórico Clínico:</strong></span></p>
                         <ul>
                             <li><strong>Condição Principal:</strong> Lesão no joelho direito (lesão do ligamento cruzado anterior - LCA) ocorrida há 3 meses.</li>
                             <li><strong>Histórico Médico:</strong> Avaliação ortopédica inicial recomendou cirurgia, mas paciente optou por explorar terapias alternativas antes de decidir.</li>

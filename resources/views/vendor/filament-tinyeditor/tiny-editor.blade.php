@@ -19,7 +19,7 @@ $statePath = $getStatePath();
             max_height: {{ $getMaxHeight() }},
             min_height: {{ $getMinHeight() }},
 			skin: 'oxide-dark',
-			content_css: '../../../css/amidesfahani/filament-tinyeditor/tiny-css.css?v=2.0.3.0',
+			content_css: '../../../css/amidesfahani/filament-tinyeditor/document-format.css?v=0001',
             toolbar_sticky: {{ $getToolbarSticky() ? 'true' : 'false' }},
             templates: '{{ $getTemplates() }}',
             menubar: {{ $getShowMenuBar() ? 'true' : 'false' }},
