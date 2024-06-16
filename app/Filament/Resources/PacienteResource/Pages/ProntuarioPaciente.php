@@ -4,14 +4,13 @@ namespace App\Filament\Resources\PacienteResource\Pages;
 
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Models\Paciente;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\PageRegistration;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Route;
@@ -37,26 +36,32 @@ class ProntuarioPaciente extends Page implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('titulo')
-                    ->label('Título')
-                    ->required(),
-                TinyEditor::make('content')
+                Grid::make()->schema([
+                    DatePicker::make('data')
+                        ->native(false)
+                        ->timezone('America/Porto_Velho')
+                        ->displayFormat('d/m/Y')
+                        ->firstDayOfWeek(7)
+                        ->closeOnDateSelection()
+                        ->maxDate(now()->timezone('America/Porto_Velho'))
+                        ->required()
+                ])->columns(['sm' => 2]),
+                TinyEditor::make('prontuario')
                     ->hiddenLabel()
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsVisibility('uploads')
                     ->fileAttachmentsDirectory('uploads')
                     ->profile('default')
-                    ->columnSpan('full')
                     ->required(),
                 // ...
             ])
             ->statePath('data');
     }
 
-    public function getMaxContentWidth(): MaxWidth
-    {
-        return MaxWidth::Full;
-    }
+    // public function getMaxContentWidth(): MaxWidth
+    // {
+    //     return MaxWidth::Full;
+    // }
 
     public static function route(string $path): PageRegistration
     {
@@ -71,5 +76,9 @@ class ProntuarioPaciente extends Page implements HasForms
     public function mount(int | string $record): void
     {
         $this->paciente = Paciente::find($record);
+
+        $this->form->fill([
+            'data' => now(),
+        ]);
     }
 }

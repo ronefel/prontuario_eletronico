@@ -1,6 +1,49 @@
 <x-filament-panels::page>
-    <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-2" x-data="{ open: false }">
+
+    <div x-data="{ drawerOpen: false }" class="md:hidden">
+        <!-- Botão para abrir o drawer -->
+        <span @click="drawerOpen = true" class="dark:text-gray-300 font-bold text-1xl">
+            <x-filament::link size="1xl" icon="heroicon-m-information-circle">
+                {{$this->paciente->nome}}
+            </x-filament::link>
+        </span>
+
+        <!-- Overlay do Drawer -->
+        <div x-show="drawerOpen" @click="drawerOpen = false" class="fixed inset-0 bg-gray-950/50 dark:bg-gray-950/75 z-40" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+        <!-- Drawer -->
+        <div x-show="drawerOpen" class="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-900 z-50 transform shadow-xl" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
+            <div class="flex flex-col mt-8 p-4  bg-white dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10" style="align-self: flex-start;">
+                <div class="flex">
+                    <span class="dark:text-gray-300 font-bold text-2xl">
+                        <x-filament::link size="2xl" :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)" tooltip="Editar paciente">
+                            {{$this->paciente->nome}} <x-heroicon-c-arrow-top-right-on-square class="w-5 h-5 " style="display: initial;" />
+                        </x-filament::link>
+                    </span>
+                </div>
+                <div class="flex py-2">
+                    <!-- <x-heroicon-s-cake class="w-5 h-5 text-gray-400 dark:text-gray-300 mr-2 ml-4" /> -->
+                    <span class="dark:text-gray-300">Idade: {{$this->paciente->idade()}}</span>
+                </div>
+                <div class="flex py-2">
+                    <span class="dark:text-gray-300">Sexo: {{$this->paciente->sexo()}}</span>
+                </div>
+                <div class="flex py-2">
+                    <span class="dark:text-gray-300">Celular: <x-filament::link size="xl" href="https://wa.me/+55{{$this->paciente->celular}}" target="_blank">{{$this->paciente->celular}}</x-filament::link></span>
+                </div>
+                <div class="flex py-2 whitespace-pre-wrap">
+                    <span class="dark:text-gray-300">{{$this->paciente->observacao}}</span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="grid sm:grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="col-span-2" x-data="{ open: true }">
             <x-filament::button x-show="!open" x-on:click="open = ! open">
                 Novo Evento
             </x-filament::button>
@@ -106,14 +149,13 @@
 
 
         </div>
-        <div class="flex flex-col mt-8 p-4 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10" style="align-self: flex-start;">
+        <div class="invisible md:visible flex flex-col mt-8 p-4 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10" style="align-self: flex-start;">
             <div class="flex">
                 <span class="dark:text-gray-300 font-bold text-2xl">
                     <x-filament::link size="2xl" :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)" tooltip="Editar paciente">
-                        {{$this->paciente->nome}}
+                        {{$this->paciente->nome}} <x-heroicon-c-arrow-top-right-on-square class="w-5 h-5 " style="display: initial;" />
                     </x-filament::link>
                 </span>
-
             </div>
             <div class="flex py-2">
                 <!-- <x-heroicon-s-cake class="w-5 h-5 text-gray-400 dark:text-gray-300 mr-2 ml-4" /> -->
