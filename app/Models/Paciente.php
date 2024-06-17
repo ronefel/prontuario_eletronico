@@ -15,6 +15,11 @@ class Paciente extends Model
         return $this->belongsTo(Cidade::class);
     }
 
+    public function prontuarios()
+    {
+        return $this->hasMany(Prontuario::class);
+    }
+
     public function idade()
     {
         return Paciente::calcularIdade($this->nascimento);
