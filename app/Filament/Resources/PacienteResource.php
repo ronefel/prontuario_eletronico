@@ -2,9 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Pages\Prontuario;
 use App\Filament\Resources\PacienteResource\Pages;
-use App\Filament\Resources\PacienteResource\Pages\ProntuarioPaciente;
 use App\Forms\Components\Cep;
 use App\Models\Cidade;
 use App\Models\Paciente;

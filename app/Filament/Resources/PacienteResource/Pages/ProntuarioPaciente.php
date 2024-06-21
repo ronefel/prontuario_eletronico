@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PacienteResource\Pages;
 
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
+use App\Filament\Resources\PacienteResource;
 use App\Models\Paciente;
 use App\Models\Prontuario;
 use Filament\Forms\Components\DatePicker;
@@ -25,13 +26,22 @@ class ProntuarioPaciente extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $title = 'Protuário';
+    protected static ?string $title = ' ';
 
     protected static string $view = 'filament.pages.prontuario';
 
     public bool $formClosed = true;
 
     public ?array $data = [];
+
+    public function getBreadcrumbs(): array
+    {
+        return [
+            PacienteResource::getUrl() => 'Pacientes',
+            PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
+            'Prontuário'
+        ];
+    }
 
     public function mount(int | string $record): void
     {
