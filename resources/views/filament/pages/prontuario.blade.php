@@ -56,20 +56,25 @@
 
 
     <div class="grid sm:grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="col-span-2" x-data="{ open: false }" x-init="@this.on('formClosed', () => { open = false })">
-
+        <div class="col-span-2">
 
             <x-filament::button style="{{ $this->formClosed ? '' : 'display: none;' }}" wire:click="showForm()">
-                Novo Evento
+                Novo Prontuário
             </x-filament::button>
 
 
             <x-filament-panels::form style="{{ $this->formClosed ? 'display: none;' : '' }}" wire:submit="create">
                 {{ $this->form }}
 
-                <x-filament::button type="submit" form="submit" wire:loading.attr="disabled" wire:target="create">
-                    Salvar
-                </x-filament::button>
+                <div class="fi-ac gap-3 flex flex-wrap items-center justify-start">
+                    <x-filament::button type="submit" form="submit" wire:loading.attr="disabled" wire:target="create">
+                        Salvar Prontuário
+                    </x-filament::button>
+
+                    <x-filament::button color="danger" type="button" wire:click="cancel()">
+                        Cancelar
+                    </x-filament::button>
+                </div>
             </x-filament-panels::form>
 
             <p><br></p>
@@ -85,9 +90,14 @@
                                 d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                         </svg>
                     </span>
-                    <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
-                        {{ $prontuario->data->format('d \d\e F \d\e Y') }}
-                    </time>
+                    <div class="flex group">
+                        <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
+                            {{ $prontuario->data->format('d \d\e F \d\e Y') }}
+                        </time>
+                        <div class="ml-2 {{ !$this->isMobile ? 'hidden group-hover:block' : '' }} ">
+                            {{($this->editAction)(['prontuario' => $prontuario->id])}}
+                        </div>
+                    </div>
                     <div class="mce-content-body">
                         {!! $prontuario->descricao !!}
                     </div>
