@@ -19,7 +19,7 @@ class EditPaciente extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('História Clinica')
+            Actions\Action::make('Prontuário')
                 ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->record->id])),
             Actions\DeleteAction::make(),
         ];

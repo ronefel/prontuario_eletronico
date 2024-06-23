@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "codeium.codeium",
+        "editorconfig.editorconfig",
+        "eamodio.gitlens",
+        "robertostermann.inline-parameters-extended",
+        "shufo.vscode-blade-formatter",
+        "onecentlin.laravel-blade",
+        "bmewburn.vscode-intelephense-client",
+        "bradlc.vscode-tailwindcss"
+    ]
+}

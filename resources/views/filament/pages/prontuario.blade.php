@@ -4,13 +4,12 @@
         <!-- Botão para abrir o drawer -->
         <span @click="drawerOpen = true" class="dark:text-gray-300 font-bold text-1xl">
             <x-filament::link size="1xl" icon="heroicon-m-information-circle" class="cursor-pointer">
-                {{$this->paciente->nome}}
+                {{ $this->paciente->nome }}
             </x-filament::link>
         </span>
 
         <!-- Overlay do Drawer -->
-        <div x-show="drawerOpen" @click="drawerOpen = false"
-            class="fixed inset-0 bg-gray-950/50 dark:bg-gray-950/75 z-40"
+        <div x-show="drawerOpen" @click="drawerOpen = false" class="fixed inset-0 bg-gray-950/50 dark:bg-gray-950/75 z-40"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-300"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
@@ -24,28 +23,28 @@
                 style="align-self: flex-start;">
                 <div class="flex">
                     <span class="dark:text-gray-300 font-bold text-2xl">
-                        <x-filament::link size="2xl"
-                            :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)"
-                            tooltip="Editar paciente">
-                            {{$this->paciente->nome}}
+                        <x-filament::link size="2xl" :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)" tooltip="Editar paciente">
+                            {{ $this->paciente->nome }}
                             <x-heroicon-c-arrow-top-right-on-square class="w-5 h-5 " style="display: initial;" />
                         </x-filament::link>
                     </span>
                 </div>
                 <div class="flex py-2">
                     <!-- <x-heroicon-s-cake class="w-5 h-5 text-gray-400 dark:text-gray-300 mr-2 ml-4" /> -->
-                    <span class="dark:text-gray-300">Idade: {{$this->paciente->idade()}}</span>
+                    <span class="dark:text-gray-300">Idade:
+                        {{ $this->paciente->idade() }}</span>
                 </div>
                 <div class="flex py-2">
-                    <span class="dark:text-gray-300">Sexo: {{$this->paciente->sexo()}}</span>
+                    <span class="dark:text-gray-300">Sexo:
+                        {{ $this->paciente->sexo() }}</span>
                 </div>
                 <div class="flex py-2">
                     <span class="dark:text-gray-300">Celular: <x-filament::link size="xl"
-                            href="https://wa.me/+55{{$this->paciente->celular}}" target="_blank">
-                            {{$this->paciente->celular}}</x-filament::link></span>
+                            href="https://wa.me/+55{{ $this->paciente->celular }}" target="_blank">
+                            {{ $this->paciente->celular }}</x-filament::link></span>
                 </div>
                 <div class="flex py-2 whitespace-pre-wrap">
-                    <span class="dark:text-gray-300">{{$this->paciente->observacao}}</span>
+                    <span class="dark:text-gray-300">{{ $this->paciente->observacao }}</span>
 
                 </div>
             </div>
@@ -80,28 +79,29 @@
             <p><br></p>
 
             <ol class="relative border-s border-gray-200 dark:border-gray-700">
-                @foreach ($this->paciente->prontuarios->sortByDesc('created_at')->sortByDesc('data') as $prontuario )
-                <li class="ms-6 pt-1 mt-4">
-                    <span
-                        class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
-                        <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                        </svg>
-                    </span>
-                    <div class="flex group">
-                        <time class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
-                            {{ $prontuario->data->format('d \d\e F \d\e Y') }}
-                        </time>
-                        <div class="ml-2 {{ !$this->isMobile ? 'hidden group-hover:block' : '' }} ">
-                            {{($this->editAction)(['prontuario' => $prontuario->id])}}
+                @foreach ($this->paciente->prontuarios->sortByDesc('created_at')->sortByDesc('data') as $prontuario)
+                    <li class="ms-6 pt-1 mt-4">
+                        <span
+                            class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                            <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                            </svg>
+                        </span>
+                        <div class="flex group">
+                            <time
+                                class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
+                                {{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('d \d\e F \d\e Y') }}
+                            </time>
+                            <div class="ml-2 {{ !$this->isMobile ? 'hidden group-hover:block' : '' }} ">
+                                {{ ($this->editAction)(['prontuario' => $prontuario->id]) }}
+                            </div>
                         </div>
-                    </div>
-                    <div class="mce-content-body">
-                        {!! $prontuario->descricao !!}
-                    </div>
-                    {{-- <div class="mt-2">
+                        <div class="mce-content-body">
+                            {!! $prontuario->descricao !!}
+                        </div>
+                        {{-- <div class="mt-2">
                         <a href="#"
                             class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-100 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"><svg
                                 class="w-3.5 h-3.5 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +112,7 @@
                                     d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
                             </svg> Anexos</a>
                     </div> --}}
-                </li>
+                    </li>
                 @endforeach
             </ol>
 
@@ -122,28 +122,28 @@
             style="align-self: flex-start;">
             <div class="flex">
                 <span class="dark:text-gray-300 font-bold text-2xl">
-                    <x-filament::link size="2xl"
-                        :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)"
-                        tooltip="Editar paciente">
-                        {{$this->paciente->nome}}
+                    <x-filament::link size="2xl" :href="route('filament.admin.resources.pacientes.edit', $this->paciente->id)" tooltip="Editar paciente">
+                        {{ $this->paciente->nome }}
                         <x-heroicon-c-arrow-top-right-on-square class="w-5 h-5 " style="display: initial;" />
                     </x-filament::link>
                 </span>
             </div>
             <div class="flex py-2">
                 <!-- <x-heroicon-s-cake class="w-5 h-5 text-gray-400 dark:text-gray-300 mr-2 ml-4" /> -->
-                <span class="dark:text-gray-300">Idade: {{$this->paciente->idade()}}</span>
+                <span class="dark:text-gray-300">Idade:
+                    {{ $this->paciente->idade() }}</span>
             </div>
             <div class="flex py-2">
-                <span class="dark:text-gray-300">Sexo: {{$this->paciente->sexo()}}</span>
+                <span class="dark:text-gray-300">Sexo:
+                    {{ $this->paciente->sexo() }}</span>
             </div>
             <div class="flex py-2">
                 <span class="dark:text-gray-300">Celular: <x-filament::link size="xl"
-                        href="https://wa.me/+55{{$this->paciente->celular}}" target="_blank">
-                        {{$this->paciente->celular}}</x-filament::link></span>
+                        href="https://wa.me/+55{{ $this->paciente->celular }}" target="_blank">
+                        {{ $this->paciente->celular }}</x-filament::link></span>
             </div>
             <div class="flex py-2 whitespace-pre-wrap">
-                <span class="dark:text-gray-300">{{$this->paciente->observacao}}</span>
+                <span class="dark:text-gray-300">{{ $this->paciente->observacao }}</span>
 
             </div>
         </div>

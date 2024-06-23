@@ -7,6 +7,7 @@ use App\Filament\Resources\PacienteResource;
 use App\Http\Helpers\AgentHelper;
 use App\Models\Paciente;
 use App\Models\Prontuario;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -67,9 +68,11 @@ class ProntuarioPaciente extends Page
             ->schema([
                 Grid::make()->schema([
                     DatePicker::make('data')
-                        ->native(false)
+                        ->native(AgentHelper::isMobile())
                         ->displayFormat('d/m/Y')
+                        ->timezone('America/Porto_Velho')
                         ->firstDayOfWeek(7)
+                        ->seconds(false)
                         ->closeOnDateSelection()
                         ->maxDate(now()->timezone('America/Porto_Velho')->endOfDay())
                         ->required()
@@ -115,6 +118,8 @@ class ProntuarioPaciente extends Page
     public function create(): void
     {
         $data = $this->form->getState();
+        $data['data'] = Carbon::parse($data['data'])->setTimezone('America/Porto_Velho')->format('Y-m-d');
+
         $prontuario = new Prontuario($data);
 
         $this->paciente->prontuarios()->save($prontuario);
@@ -183,7 +188,7 @@ class ProntuarioPaciente extends Page
                 Hidden::make('id'),
                 Grid::make()->schema([
                     DatePicker::make('data')
-                        ->native(false)
+                        ->native(AgentHelper::isMobile())
                         ->displayFormat('d/m/Y')
                         ->firstDayOfWeek(7)
                         ->closeOnDateSelection()
@@ -206,12 +211,8 @@ class ProntuarioPaciente extends Page
                     'descricao' => $this->prontuario->descricao
                 ];
             })
-            ->action(function (array $data, array $arguments): void {
-                if ($arguments['excluir']) {
-                    dd($arguments);
-                } else {
-                    $this->edit($data);
-                }
+            ->action(function (array $data): void {
+                $this->edit($data);
             })
             ->extraModalFooterActions([
                 Action::make('Excluir')
