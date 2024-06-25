@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PacienteResource\Pages;
 
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Filament\Resources\PacienteResource;
+use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
 use App\Models\Paciente;
 use App\Models\Prontuario;
@@ -77,13 +78,15 @@ class ProntuarioPaciente extends Page
                         ->maxDate(now()->timezone('America/Porto_Velho')->endOfDay())
                         ->required()
                 ])->columns(['sm' => 2]),
-                TinyEditor::make('descricao')
-                    ->hiddenLabel()
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsVisibility('uploads')
-                    ->fileAttachmentsDirectory('uploads')
-                    ->profile('default')
+                CKEditor::make('descricao')
                     ->required(),
+                // TinyEditor::make('descricao')
+                //     ->hiddenLabel()
+                //     ->fileAttachmentsDisk('public')
+                //     ->fileAttachmentsVisibility('uploads')
+                //     ->fileAttachmentsDirectory('uploads')
+                //     ->profile('default')
+                //     ->required(),
                 // ...
             ])
             ->statePath('data');
