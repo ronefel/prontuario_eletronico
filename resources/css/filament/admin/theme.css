@@ -1,4 +1,10 @@
 @import '/vendor/filament/filament/resources/css/theme.css';
-@import '/public/css/amidesfahani/filament-tinyeditor/document-format.css';
+
+/* para usar com o plugin tiny editor */
+/* @import '/public/css/amidesfahani/filament-tinyeditor/document-format.css'; */
+
+/* para usar com o plugin ckeditor */
+@import '/public/vendor/ckeditor/document-content.css';
+
 
 @config 'tailwind.config.js';

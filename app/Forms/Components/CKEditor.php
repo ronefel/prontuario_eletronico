@@ -11,8 +11,5 @@ class CKEditor extends Field
     protected function setUp(): void
     {
         parent::setUp();
-        $this->default('');
-        $this->dehydrated(false);
-        $this->hiddenLabel();
     }
 }

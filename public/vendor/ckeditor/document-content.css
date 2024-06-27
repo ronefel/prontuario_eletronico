@@ -1,0 +1,210 @@
+/*
+Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
+For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+.document-content {
+    line-height: 1.5;
+    font-family: 'Inter';
+    font-size: 16px;
+    word-wrap: break-word;
+}
+
+.document-content blockquote {
+    font-style: italic;
+    font-family: Georgia, Times, "Times New Roman", serif;
+    padding: 2px 0;
+    border-style: solid;
+    border-color: #ccc;
+    border-width: 0;
+    padding-left: 20px;
+    padding-right: 8px;
+    border-left-width: 5px;
+}
+
+.document-content a {
+    color: #0782C1;
+}
+
+.document-content p {
+    margin: 0;
+}
+
+.document-content p {
+    display: block;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+.document-content ul {
+    display: block;
+    list-style-type: disc;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+}
+
+.document-content ol {
+    display: block;
+    list-style-type: decimal;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+}
+
+.document-content figure.image {
+    display: inline-block;
+    border: 1px solid gray;
+    margin: 0 2px 0 1px;
+    background: #f5f2f0;
+}
+
+.document-content ol,
+.document-content ul,
+.document-content dl {
+    /* IE7: reset rtl list margin. (#7334) */
+    *margin-right: 0px;
+    /* Preserved spaces for list items with text direction different than the list. (#6249,#8049)*/
+    padding: 0 40px;
+}
+
+.document-content h1,
+.document-content h2,
+.document-content h3,
+.document-content h4,
+.document-content h5,
+.document-content h6 {
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+.document-content hr {
+    border: 0px;
+    border-top: 1px solid #ccc;
+}
+
+.document-content img.right {
+    border: 1px solid #ccc;
+    float: right;
+    margin-left: 15px;
+    padding: 5px;
+}
+
+.document-content img.left {
+    border: 1px solid #ccc;
+    float: left;
+    margin-right: 15px;
+    padding: 5px;
+}
+
+.document-content pre {
+    white-space: pre-wrap;
+    /* CSS 2.1 */
+    word-wrap: break-word;
+    /* IE7 */
+    -moz-tab-size: 4;
+    tab-size: 4;
+}
+
+.document-content .marker {
+    background-color: Yellow;
+}
+
+.document-content span[lang] {
+    font-style: italic;
+}
+
+.document-content figure {
+    text-align: center;
+    outline: solid 1px #ccc;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    margin: 10px 20px;
+    display: inline-block;
+}
+
+.document-content figure>figcaption {
+    text-align: center;
+    display: block;
+    /* For IE8 */
+}
+
+.document-content a>img {
+    padding: 1px;
+    margin: 1px;
+    border: none;
+    outline: 1px solid #0782C1;
+}
+
+/* Widget Styles */
+.document-content .code-featured {
+    border: 5px solid red;
+}
+
+.document-content .math-featured {
+    padding: 20px;
+    box-shadow: 0 0 2px rgba(200, 0, 0, 1);
+    background-color: rgba(255, 0, 0, 0.05);
+    margin: 10px;
+}
+
+.document-content .image-clean {
+    border: 0;
+    background: none;
+    padding: 0;
+}
+
+.document-content .image-clean>figcaption {
+    font-size: .9em;
+    text-align: right;
+}
+
+.document-content .image-grayscale {
+    background-color: white;
+    color: #666;
+}
+
+.document-content .image-grayscale img,
+.document-content img.image-grayscale {
+    filter: grayscale(100%);
+}
+
+.document-content .embed-240p {
+    max-width: 426px;
+    max-height: 240px;
+    margin: 0 auto;
+}
+
+.document-content .embed-360p {
+    max-width: 640px;
+    max-height: 360px;
+    margin: 0 auto;
+}
+
+.document-content .embed-480p {
+    max-width: 854px;
+    max-height: 480px;
+    margin: 0 auto;
+}
+
+.document-content .embed-720p {
+    max-width: 1280px;
+    max-height: 720px;
+    margin: 0 auto;
+}
+
+.document-content .embed-1080p {
+    max-width: 1920px;
+    max-height: 1080px;
+    margin: 0 auto;
+}

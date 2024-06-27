@@ -79,6 +79,7 @@ class ProntuarioPaciente extends Page
                         ->required()
                 ])->columns(['sm' => 2]),
                 CKEditor::make('descricao')
+                    ->hiddenLabel()
                     ->required(),
                 // TinyEditor::make('descricao')
                 //     ->hiddenLabel()
@@ -182,6 +183,7 @@ class ProntuarioPaciente extends Page
         $this->form->fill([
             'data' => now(),
         ]);
+        $this->dispatch('formReseted');
     }
 
     public function editAction(): Action
@@ -198,12 +200,8 @@ class ProntuarioPaciente extends Page
                         ->maxDate(now()->timezone('America/Porto_Velho')->endOfDay())
                         ->required()
                 ])->columns(['sm' => 2]),
-                TinyEditor::make('descricao')
+                CKEditor::make('descricao')
                     ->hiddenLabel()
-                    ->fileAttachmentsDisk('public')
-                    ->fileAttachmentsVisibility('uploads')
-                    ->fileAttachmentsDirectory('uploads')
-                    ->profile('default')
                     ->required(),
             ])
             ->fillForm(function (array $arguments) {

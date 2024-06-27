@@ -98,7 +98,7 @@
                                 {{ ($this->editAction)(['prontuario' => $prontuario->id]) }}
                             </div>
                         </div>
-                        <div class="mce-content-body">
+                        <div class="document-content">
                             {!! $prontuario->descricao !!}
                         </div>
                         {{-- <div class="mt-2">
