@@ -59,12 +59,16 @@ x-data="initializeCKEditor('{{ $getStatePath() }}')">	</textarea>
                                 {
                                     name: 'editing',
                                     items: ['Scayt']
+                                },
+                                {
+                                    name: 'exame',
+                                    items: ['Exame']
                                 }
                             ],
                             filebrowserUploadMethod: 'form',
                             disallowedContent: 'img{width,height,float}',
                             extraAllowedContent: 'img[width,height,align]',
-                            extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak',
+                            extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak,exame',
                             contentsCss: ['/vendor/ckeditor/document-content.css'],
                             // contentsCss: ['/vendor/ckeditor/contents.css', '/vendor/ckeditor/document.css'],
                             bodyClass: 'document-content',
