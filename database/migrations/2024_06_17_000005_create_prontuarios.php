@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('paciente_id')->references('id')->on('pacientes');
             $table->string('descricao');
             $table->date('data');
+            $table->string('tipo');
             $table->timestamps();
         });
     }

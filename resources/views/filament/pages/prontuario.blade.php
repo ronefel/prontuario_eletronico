@@ -58,7 +58,7 @@
         <div class="col-span-2">
 
             <x-filament::button style="{{ $this->formClosed ? '' : 'display: none;' }}" wire:click="showForm()">
-                Novo Prontuário
+                Novo Evento
             </x-filament::button>
 
 

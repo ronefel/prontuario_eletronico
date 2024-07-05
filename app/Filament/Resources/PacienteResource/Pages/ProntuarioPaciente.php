@@ -13,6 +13,9 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -43,6 +46,40 @@ class ProntuarioPaciente extends Page
 
     public ?array $data = [];
 
+    public array $defaultFormState = [];
+
+
+    public static function formFields(array $newField = []): array
+    {
+        $fields = [
+            ToggleButtons::make('tipo')
+                ->inline()
+                ->grouped()
+                ->required()
+                ->hiddenLabel()
+                ->options([
+                    'prontuario' => 'Prontuário',
+                    'receita' => 'Receita',
+                ]),
+            CKEditor::make('descricao')
+                ->hiddenLabel()
+                ->required(),
+            Grid::make()->schema([
+                DatePicker::make('data')
+                    ->native(AgentHelper::isMobile())
+                    ->displayFormat('d/m/Y H:i')
+                    ->firstDayOfWeek(7)
+                    ->seconds(false)
+                    ->closeOnDateSelection()
+                    ->maxDate(now()->endOfDay())
+                    ->hiddenLabel()
+                    ->required(),
+            ])->columns(['sm' => 2]),
+        ];
+
+        return array_merge($fields, $newField);
+    }
+
     public function getBreadcrumbs(): array
     {
         return [
@@ -58,38 +95,25 @@ class ProntuarioPaciente extends Page
 
         $this->isMobile = AgentHelper::isMobile();
 
-        $this->form->fill([
-            'data' => now(),
-        ]);
+        $this->defaultFormState = [
+            'data' => now()->startOfDay(),
+            'tipo' => 'prontuario',
+        ];
+
+        $this->form->fill($this->defaultFormState);
+    }    
+
+    private function resetarForm()
+    {
+        $this->data = [];
+        $this->form->fill($this->defaultFormState);
+        $this->dispatch('formReseted');
     }
 
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Grid::make()->schema([
-                    DatePicker::make('data')
-                        ->native(AgentHelper::isMobile())
-                        ->displayFormat('d/m/Y')
-                        ->timezone('America/Porto_Velho')
-                        ->firstDayOfWeek(7)
-                        ->seconds(false)
-                        ->closeOnDateSelection()
-                        ->maxDate(now()->timezone('America/Porto_Velho')->endOfDay())
-                        ->required()
-                ])->columns(['sm' => 2]),
-                CKEditor::make('descricao')
-                    ->hiddenLabel()
-                    ->required(),
-                // TinyEditor::make('descricao')
-                //     ->hiddenLabel()
-                //     ->fileAttachmentsDisk('public')
-                //     ->fileAttachmentsVisibility('uploads')
-                //     ->fileAttachmentsDirectory('uploads')
-                //     ->profile('default')
-                //     ->required(),
-                // ...
-            ])
+            ->schema(self::formFields())
             ->statePath('data');
     }
 
@@ -122,7 +146,7 @@ class ProntuarioPaciente extends Page
     public function create(): void
     {
         $data = $this->form->getState();
-        $data['data'] = Carbon::parse($data['data'])->setTimezone('America/Porto_Velho')->format('Y-m-d');
+        // $data['data'] = Carbon::parse($data['data'])->setTimezone('America/Porto_Velho')->format('Y-m-d');
 
         $prontuario = new Prontuario($data);
 
@@ -166,50 +190,28 @@ class ProntuarioPaciente extends Page
             $this->paciente->refresh();
 
             Notification::make()
-                ->title('Prontuário excluído com sucesso!')
+                ->title('Evento excluído com sucesso!')
                 ->success()
                 ->send();
         } else {
             Notification::make()
-                ->title('Prontuário não encontrado ou não pertence a este paciente.')
+                ->title('Evento não encontrado ou não pertence a este paciente.')
                 ->error()
                 ->send();
         }
     }
 
-    private function resetarForm()
-    {
-        $this->data = [];
-        $this->form->fill([
-            'data' => now(),
-        ]);
-        $this->dispatch('formReseted');
-    }
-
     public function editAction(): Action
     {
         return Action::make('edit')
-            ->form([
-                Hidden::make('id'),
-                Grid::make()->schema([
-                    DatePicker::make('data')
-                        ->native(AgentHelper::isMobile())
-                        ->displayFormat('d/m/Y')
-                        ->firstDayOfWeek(7)
-                        ->closeOnDateSelection()
-                        ->maxDate(now()->timezone('America/Porto_Velho')->endOfDay())
-                        ->required()
-                ])->columns(['sm' => 2]),
-                CKEditor::make('descricao')
-                    ->hiddenLabel()
-                    ->required(),
-            ])
+            ->form(self::formFields([Hidden::make('id')]))
             ->fillForm(function (array $arguments) {
                 $this->prontuario = Prontuario::find($arguments['prontuario']);
                 return [
                     'id' => $this->prontuario->id,
                     'data' => $this->prontuario->data,
-                    'descricao' => $this->prontuario->descricao
+                    'descricao' => $this->prontuario->descricao,
+                    'tipo' => $this->prontuario->tipo
                 ];
             })
             ->action(function (array $data): void {
@@ -219,8 +221,8 @@ class ProntuarioPaciente extends Page
                 Action::make('Excluir')
                     ->requiresConfirmation()
                     ->modalIcon('heroicon-o-trash')
-                    ->modalHeading('Excluir prontuário')
-                    ->modalDescription('Tem certeza de que deseja excluir este prontuário? Isto não pode ser desfeito.')
+                    ->modalHeading('Excluir evento')
+                    ->modalDescription('Tem certeza de que deseja excluir este evento? Isto não pode ser desfeito.')
                     ->modalSubmitActionLabel('Sim, exclua-o')
                     ->action(function () {
                         $this->delete($this->prontuario);
