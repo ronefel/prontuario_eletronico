@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PacienteResource\Pages;
 
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
+use App\Enums\ProntuarioTipoEnum;
 use App\Filament\Resources\PacienteResource;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
@@ -13,6 +14,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
@@ -46,38 +48,16 @@ class ProntuarioPaciente extends Page
 
     public ?array $data = [];
 
-    public array $defaultFormState = [];
-
-
-    public static function formFields(array $newField = []): array
+    public function mount(int | string $record): void
     {
-        $fields = [
-            ToggleButtons::make('tipo')
-                ->inline()
-                ->grouped()
-                ->required()
-                ->hiddenLabel()
-                ->options([
-                    'prontuario' => 'Prontuário',
-                    'receita' => 'Receita',
-                ]),
-            CKEditor::make('descricao')
-                ->hiddenLabel()
-                ->required(),
-            Grid::make()->schema([
-                DatePicker::make('data')
-                    ->native(AgentHelper::isMobile())
-                    ->displayFormat('d/m/Y H:i')
-                    ->firstDayOfWeek(7)
-                    ->seconds(false)
-                    ->closeOnDateSelection()
-                    ->maxDate(now()->endOfDay())
-                    ->hiddenLabel()
-                    ->required(),
-            ])->columns(['sm' => 2]),
-        ];
+        $this->paciente = Paciente::find($record);
 
-        return array_merge($fields, $newField);
+        $this->isMobile = AgentHelper::isMobile();
+
+        $this->form->fill([
+            'data' => now()->startOfDay(),
+            'tipo' => 'prontuario',
+        ]);
     }
 
     public function getBreadcrumbs(): array
@@ -89,25 +69,33 @@ class ProntuarioPaciente extends Page
         ];
     }
 
-    public function mount(int | string $record): void
+    public static function formFields(array $newField = []): array
     {
-        $this->paciente = Paciente::find($record);
-
-        $this->isMobile = AgentHelper::isMobile();
-
-        $this->defaultFormState = [
-            'data' => now()->startOfDay(),
-            'tipo' => 'prontuario',
+        $fields = [
+            Grid::make()->schema([
+                ToggleButtons::make('tipo')
+                    ->inline()
+                    ->grouped()
+                    ->required()
+                    ->hiddenLabel()
+                    ->options(ProntuarioTipoEnum::class)
+                    ->columnSpan(2),
+                DatePicker::make('data')
+                    ->native(AgentHelper::isMobile())
+                    ->displayFormat('d/m/Y')
+                    ->firstDayOfWeek(7)
+                    ->seconds(false)
+                    ->closeOnDateSelection()
+                    ->maxDate(now()->endOfDay())
+                    ->hiddenLabel()
+                    ->required(),
+            ])->columns(['sm' => 3, 'md' => 3, 'lg' => 3, 'xl' => 3, '2xl' => 3]),
+            CKEditor::make('descricao')
+                ->hiddenLabel()
+                ->required(),
         ];
 
-        $this->form->fill($this->defaultFormState);
-    }    
-
-    private function resetarForm()
-    {
-        $this->data = [];
-        $this->form->fill($this->defaultFormState);
-        $this->dispatch('formReseted');
+        return array_merge($fields, $newField);
     }
 
     public function form(Form $form): Form
@@ -115,6 +103,16 @@ class ProntuarioPaciente extends Page
         return $form
             ->schema(self::formFields())
             ->statePath('data');
+    }
+
+    private function resetarForm()
+    {
+        $this->data = [];
+        $this->form->fill([
+            'data' => now()->startOfDay(),
+            'tipo' => 'prontuario',
+        ]);
+        $this->dispatch('formReseted');
     }
 
     // public function getMaxContentWidth(): MaxWidth

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProntuarioTipoEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,7 @@ class Prontuario extends Model
 
     protected $casts = [
         'data' => 'date',
+        'tipo' => ProntuarioTipoEnum::class
     ];
 
 }

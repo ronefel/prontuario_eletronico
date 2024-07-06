@@ -67,7 +67,7 @@
 
                 <div class="fi-ac gap-3 flex flex-wrap items-center justify-start">
                     <x-filament::button type="submit" form="submit" wire:loading.attr="disabled" wire:target="create">
-                        Salvar Prontuário
+                        Salvar
                     </x-filament::button>
 
                     <x-filament::button color="danger" type="button" wire:click="cancel()">
@@ -79,8 +79,14 @@
             <p><br></p>
 
             <ol class="relative border-s border-gray-200 dark:border-gray-700">
-                @foreach ($this->paciente->prontuarios->sortByDesc('created_at')->sortByDesc('data') as $prontuario)
+
+                @php
+                    $previousDate = null;
+                @endphp
+                @foreach ($this->paciente->prontuarios->sortBy('created_at')->sortByDesc('data') as $prontuario)                
                     <li class="ms-6 pt-1 mt-4">
+
+                        @if ($previousDate != $prontuario->data)
                         <span
                             class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
                             <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
@@ -89,17 +95,21 @@
                                     d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                             </svg>
                         </span>
-                        <div class="flex group">
+                        <div class="flex">
                             <time
                                 class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
                                 {{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('d \d\e F \d\e Y') }}
                             </time>
+                            
+                        </div>
+                        @endif
+                        <div class="flex flex-row items-start justify-between mt-2 p-4 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10 group">
+                            <div class="document-content">
+                                {!! $prontuario->descricao !!}
+                            </div>
                             <div class="ml-2 {{ !$this->isMobile ? 'hidden group-hover:block' : '' }} ">
                                 {{ ($this->editAction)(['prontuario' => $prontuario->id]) }}
                             </div>
-                        </div>
-                        <div class="document-content">
-                            {!! $prontuario->descricao !!}
                         </div>
                         {{-- <div class="mt-2">
                         <a href="#"
@@ -113,6 +123,9 @@
                             </svg> Anexos</a>
                     </div> --}}
                     </li>
+                    @php
+                        $previousDate = $prontuario->data;
+                    @endphp
                 @endforeach
             </ol>
 
