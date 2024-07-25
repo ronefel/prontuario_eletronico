@@ -7,6 +7,7 @@
         "shufo.vscode-blade-formatter",
         "onecentlin.laravel-blade",
         "bmewburn.vscode-intelephense-client",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "hediet.vscode-drawio"
     ]
 }
