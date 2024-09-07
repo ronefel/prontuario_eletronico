@@ -20,5 +20,4 @@ class Prontuario extends Model
         'data' => 'date',
         'tipo' => ProntuarioTipoEnum::class
     ];
-
 }

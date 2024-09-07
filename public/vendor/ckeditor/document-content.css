@@ -2,13 +2,47 @@
 Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
 For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+
+/*
+LARGURA E ALTURA DA PAGINA A4:
+    width: 792px;
+    height: 1123px;
+*/
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+}
 
 .document-content {
     line-height: 1.5;
     font-family: 'Inter';
     font-size: 16px;
-    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+@media screen {
+    .document-content {
+        box-sizing: content-box;
+    }
+}
+
+.document-content-editor {
+    width: 196mm;
+    padding: 5mm 5mm 5mm 6mm;
+    margin: 0.5cm auto;
+    min-height: 210mm;
+    border: 1px #D3D3D3 solid;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.document-content-view {
+    max-width: 198mm;
+    margin: 0;
 }
 
 .document-content blockquote {

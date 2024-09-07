@@ -1,13 +1,15 @@
 @php
-$statePath = $getStatePath();
+    $statePath = $getStatePath();
 @endphp
 
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field" class="relative z-0">
     @php
-    $textareaID = 'tiny-editor-' . str_replace(['.', '#', '$'], '-', $getId()) . '-' . rand();
+        $textareaID = 'tiny-editor-' . str_replace(['.', '#', '$'], '-', $getId()) . '-' . rand();
     @endphp
 
-    <div wire:ignore x-ignore ax-load ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('tinyeditor', 'amidesfahani/filament-tinyeditor') }}" x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('tiny-css', package: 'amidesfahani/filament-tinyeditor'))]" x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc($getLanguageId(), package: 'amidesfahani/filament-tinyeditor'))]" x-data="tinyeditor({
+    <div wire:ignore x-ignore ax-load
+        ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('tinyeditor', 'amidesfahani/filament-tinyeditor') }}"
+        x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('tiny-css', package: 'amidesfahani/filament-tinyeditor'))]" x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc($getLanguageId(), package: 'amidesfahani/filament-tinyeditor'))]" x-data="tinyeditor({
             state: $wire.{{ $applyStateBindingModifiers("entangle('{$statePath}')", isOptimisticallyLive: false) }},
             statePath: '{{ $statePath }}',
             selector: '#{{ $textareaID }}',
@@ -18,8 +20,8 @@ $statePath = $getStatePath();
             directionality: '{{ $getDirection() }}',
             max_height: {{ $getMaxHeight() }},
             min_height: {{ $getMinHeight() }},
-			skin: 'oxide-dark',
-			content_css: '../../../css/amidesfahani/filament-tinyeditor/document-format.css?v=0001',
+            skin: 'oxide-dark',
+            content_css: '../../../css/amidesfahani/filament-tinyeditor/document-format.css?v=0001',
             toolbar_sticky: {{ $getToolbarSticky() ? 'true' : 'false' }},
             templates: '{{ $getTemplates() }}',
             menubar: {{ $getShowMenuBar() ? 'true' : 'false' }},
@@ -40,23 +42,23 @@ $statePath = $getStatePath();
             custom_configs: {{ $getCustomConfigs() }},
         })">
         @unless ($isDisabled())
-        <input id="{{ $textareaID }}" type="hidden" x-ref="tinymce" placeholder="{{ $getPlaceholder() }}">
+            <input id="{{ $textareaID }}" type="hidden" x-ref="tinymce" placeholder="{{ $getPlaceholder() }}">
         @else
-        <div x-html="state" @style(['max-height: ' . $getPreviewMaxHeight() . ' px'=> $getPreviewMaxHeight() > 0, 'min-height: ' . $getPreviewMinHeight() . 'px' => $getPreviewMinHeight() > 0])
-            class="block w-full p-3 overflow-y-auto prose transition duration-75 bg-white border border-gray-300 rounded-lg shadow-sm max-w-none opacity-70 dark:prose-invert dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-        </div>
+            <div x-html="state" @style(['max-height: ' . $getPreviewMaxHeight() . ' px' => $getPreviewMaxHeight() > 0, 'min-height: ' . $getPreviewMinHeight() . 'px' => $getPreviewMinHeight() > 0])
+                class="block w-full p-3 overflow-y-auto prose transition duration-75 bg-white border border-gray-300 rounded-lg shadow-sm max-w-none opacity-70 dark:prose-invert dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            </div>
         @endunless
     </div>
 </x-dynamic-component>
 
 @pushOnce('scripts')
-<script>
-    // window.addEventListener('beforeunload', (event) => {
-    //     if (tinymce.activeEditor.isDirty()) {
-    //         event.preventDefault();
-    // 		// Included for legacy support, e.g. Chrome/Edge < 119
-    // 		event.returnValue = '{{ __('Are you sure you want to leave?') }}';
-    //     }
-    // });
-</script>
+    <script>
+        // window.addEventListener('beforeunload', (event) => {
+        //     if (tinymce.activeEditor.isDirty()) {
+        //         event.preventDefault();
+        // 		// Included for legacy support, e.g. Chrome/Edge < 119
+        // 		event.returnValue = '{{ __('Are you sure you want to leave?') }}';
+        //     }
+        // });
+    </script>
 @endPushOnce

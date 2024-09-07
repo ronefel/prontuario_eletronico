@@ -39,13 +39,13 @@ class PacienteResource extends Resource
                     TextInput::make('nome')
                         ->required()
                         ->acoff()
-                        ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
+                        ->dehydrateStateUsing(fn(string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                     Grid::make()->schema([
                         DatePicker::make('nascimento')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
-                            ->afterStateHydrated(fn (Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
+                            ->afterStateUpdated(fn(Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
+                            ->afterStateHydrated(fn(Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
                         TextInput::make('idade')
                             ->disabled(),
                     ])->columns(['md' => 2])
@@ -63,7 +63,7 @@ class PacienteResource extends Resource
                     TextInput::make('cpf')
                         ->required()
                         ->acoff()
-                        ->unique(ignorable: fn (?Paciente $record): ?Paciente => $record)
+                        ->unique(ignorable: fn(?Paciente $record): ?Paciente => $record)
                         ->mask('999.999.999-99')
                         ->placeholder('000.000.000-00')
                         ->minLength(14),
@@ -108,9 +108,9 @@ class PacienteResource extends Resource
                     Select::make('cidade_id')
                         ->relationship(
                             name: 'cidade',
-                            modifyQueryUsing: fn (Builder $query) => $query->orderBy('nome')->orderBy('uf')
+                            modifyQueryUsing: fn(Builder $query) => $query->orderBy('nome')->orderBy('uf')
                         )
-                        ->getOptionLabelFromRecordUsing(fn (?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
+                        ->getOptionLabelFromRecordUsing(fn(?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
                         ->searchable()
                         ->preload()
                         ->createOptionForm(CidadeResource::formFields())->createOptionModalHeading('Criar Cidade')
@@ -133,7 +133,7 @@ class PacienteResource extends Resource
                         ->searchable(),
                     Split::make([
                         TextColumn::make('nascimento')->grow(false)
-                            ->formatStateUsing(fn (string $state): string => Paciente::calcularIdade($state)),
+                            ->formatStateUsing(fn($state) => Paciente::calcularIdade($state)),
                         TextColumn::make('sexo')
                     ]),
                 ])->from('xl'),
@@ -146,7 +146,7 @@ class PacienteResource extends Resource
                                 ->copyMessage('Email copiado para a área de transferência')
                                 ->copyMessageDuration(1500),
                             TextColumn::make('celular')
-                                ->url(fn (string $state): string => "https://wa.me/+55{$state}")
+                                ->url(fn($state) => "https://wa.me/+55{$state}")
                                 ->openUrlInNewTab()
                                 ->icon('heroicon-m-phone')
                         ])->from('xl'),
@@ -165,7 +165,7 @@ class PacienteResource extends Resource
                 ]),
             ])
             ->recordUrl(
-                fn (Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+                fn(Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
             );
     }
 

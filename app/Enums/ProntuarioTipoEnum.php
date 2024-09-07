@@ -8,13 +8,13 @@ use Filament\Support\Contracts\HasLabel;
 enum ProntuarioTipoEnum: string implements HasLabel, HasColor
 {
 
-    case PRONTUARIO = 'prontuario';
+    case ATENDIMENTO = 'atendimento';
     case RECEITA = 'receita';
 
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::PRONTUARIO => 'Prontuário',
+            self::ATENDIMENTO => 'Atendimento',
             self::RECEITA => 'Receita',
         };
     }
@@ -22,7 +22,7 @@ enum ProntuarioTipoEnum: string implements HasLabel, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::PRONTUARIO => 'primary',
+            self::ATENDIMENTO => 'primary',
             self::RECEITA => 'success',
         };
     }

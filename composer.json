@@ -12,7 +12,8 @@
         "amidesfahani/filament-tinyeditor": "^2.0",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "mpdf/mpdf": "^8.2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",

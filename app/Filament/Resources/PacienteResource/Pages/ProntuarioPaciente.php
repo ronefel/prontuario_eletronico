@@ -56,7 +56,7 @@ class ProntuarioPaciente extends Page
 
         $this->form->fill([
             'data' => now()->startOfDay(),
-            'tipo' => 'prontuario',
+            'tipo' => 'atendimento',
         ]);
     }
 
@@ -73,13 +73,13 @@ class ProntuarioPaciente extends Page
     {
         $fields = [
             Grid::make()->schema([
-                ToggleButtons::make('tipo')
-                    ->inline()
-                    ->grouped()
-                    ->required()
-                    ->hiddenLabel()
-                    ->options(ProntuarioTipoEnum::class)
-                    ->columnSpan(2),
+                // ToggleButtons::make('tipo')
+                //     ->inline()
+                //     ->grouped()
+                //     ->required()
+                //     ->hiddenLabel()
+                //     ->options(ProntuarioTipoEnum::class)
+                //     ->columnSpan(2),
                 DatePicker::make('data')
                     ->native(AgentHelper::isMobile())
                     ->displayFormat('d/m/Y')
@@ -110,15 +110,16 @@ class ProntuarioPaciente extends Page
         $this->data = [];
         $this->form->fill([
             'data' => now()->startOfDay(),
-            'tipo' => 'prontuario',
+            'tipo' => 'atendimento',
+            'descricao' => ''
         ]);
         $this->dispatch('formReseted');
     }
 
-    // public function getMaxContentWidth(): MaxWidth
-    // {
-    //     return MaxWidth::Full;
-    // }
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     public function showForm()
     {
@@ -135,7 +136,7 @@ class ProntuarioPaciente extends Page
     {
         return new PageRegistration(
             page: static::class,
-            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
+            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
                 ->middleware(static::getRouteMiddleware($panel))
                 ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
         );
@@ -209,7 +210,7 @@ class ProntuarioPaciente extends Page
                     'id' => $this->prontuario->id,
                     'data' => $this->prontuario->data,
                     'descricao' => $this->prontuario->descricao,
-                    'tipo' => $this->prontuario->tipo
+                    // 'tipo' => $this->prontuario->tipo
                 ];
             })
             ->action(function (array $data): void {
@@ -231,8 +232,21 @@ class ProntuarioPaciente extends Page
             ])
             ->icon('heroicon-m-pencil-square')
             ->iconButton()
-            ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::FourExtraLarge)
-            ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : [])
-            ->modalHeading(' ');
+            ->label('Editar')
+            ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::SixExtraLarge)
+            ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
+            ->modalHeading(' ')
+            ->extraAttributes(['style' => 'width: 20px']);
+    }
+
+    public function printAction(): Action
+    {
+        return Action::make('print')
+            ->icon('heroicon-o-printer')
+            ->iconButton()
+            ->label('Imprimir')
+            ->url(fn($arguments) => route('prontuario.print', ['id' => $arguments['prontuario']]))
+            ->openUrlInNewTab()
+            ->extraAttributes(['style' => 'width: 20px']);
     }
 }

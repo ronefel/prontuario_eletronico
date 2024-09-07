@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -114,
-    "scrollLeft": -800,
+    "scrollTop": -180,
+    "scrollLeft": -417.0526,
     "zoomLevel": 0.8,
     "show": 423,
     "database": 4,
@@ -208,25 +208,6 @@
         "meta": {
           "updateAt": 1723169051567,
           "createAt": 1721680679828
-        }
-      },
-      "o9sgomsr0x6nrBj-HHGlm": {
-        "id": "o9sgomsr0x6nrBj-HHGlm",
-        "name": "camposlistas",
-        "comment": "",
-        "columnIds": [],
-        "seqColumnIds": [],
-        "ui": {
-          "x": 1612.9315,
-          "y": 357.5,
-          "zIndex": 188,
-          "widthName": 69,
-          "widthComment": 60,
-          "color": ""
-        },
-        "meta": {
-          "updateAt": 1723168774356,
-          "createAt": 1723168614631
         }
       }
     },
@@ -952,34 +933,6 @@
           "updateAt": 1723168237547,
           "createAt": 1723168196805
         }
-      },
-      "ZC0TXR4McyFwsQD5aRP6j": {
-        "id": "ZC0TXR4McyFwsQD5aRP6j",
-        "identification": false,
-        "relationshipType": 16,
-        "startRelationshipType": 2,
-        "start": {
-          "tableId": "uwZwGz-KUaosUBja4yap8",
-          "columnIds": [
-            "Iazorf78yyOqcn1D0iGH0"
-          ],
-          "x": 241.75,
-          "y": 170.5,
-          "direction": 8
-        },
-        "end": {
-          "tableId": "gmkbLjOOxpSN62quedWke",
-          "columnIds": [
-            "bSzmnBs_BePllozM70JiV"
-          ],
-          "x": 248.7222,
-          "y": 336.2777,
-          "direction": 4
-        },
-        "meta": {
-          "updateAt": 1723168328271,
-          "createAt": 1723168328271
-        }
       }
     },
     "indexEntities": {},
@@ -1365,12 +1318,6 @@
         "comment": 1723168328270
       }
     ],
-    "ZC0TXR4McyFwsQD5aRP6j": [
-      "relationshipEntities",
-      1723168328270,
-      1723168344179,
-      {}
-    ],
     "656HIRsao-OW6WVQr2i8b": [
       "tableColumnEntities",
       1723168370845,
@@ -1409,14 +1356,6 @@
         "name": 1723168480336,
         "dataType": 1723168488673,
         "comment": 1723168511844
-      }
-    ],
-    "o9sgomsr0x6nrBj-HHGlm": [
-      "tableEntities",
-      1723168614630,
-      1723169030626,
-      {
-        "name": 1723168633299
       }
     ],
     "8RKzunrPt97PI95UQ4rQI": [
