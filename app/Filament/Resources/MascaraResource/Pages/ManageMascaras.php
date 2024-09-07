@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\ModeloResource\Pages;
+namespace App\Filament\Resources\MascaraResource\Pages;
 
-use App\Filament\Resources\ModeloResource;
+use App\Filament\Resources\MascaraResource;
 use App\Http\Helpers\AgentHelper;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Enums\MaxWidth;
 
-class ManageModelos extends ManageRecords
+class ManageMascaras extends ManageRecords
 {
-    protected static string $resource = ModeloResource::class;
+    protected static string $resource = MascaraResource::class;
 
     protected function getHeaderActions(): array
     {

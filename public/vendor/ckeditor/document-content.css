@@ -43,6 +43,7 @@ LARGURA E ALTURA DA PAGINA A4:
 .document-content-view {
     max-width: 198mm;
     margin: 0;
+    width: 100%;
 }
 
 .document-content blockquote {

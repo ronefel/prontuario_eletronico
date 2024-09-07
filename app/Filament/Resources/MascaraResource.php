@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ModeloResource\Pages;
-use App\Filament\Resources\ModeloResource\RelationManagers;
+use App\Filament\Resources\MascaraResource\Pages;
+use App\Filament\Resources\MascaraResource\RelationManagers;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
-use App\Models\Modelo;
+use App\Models\Mascara;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
@@ -18,11 +18,16 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ModeloResource extends Resource
+class MascaraResource extends Resource
 {
-    protected static ?string $model = Modelo::class;
+    protected static ?string $model = Mascara::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getModelLabel(): string
+    {
+        return 'Máscara';
+    }
 
     public static function form(Form $form): Form
     {
@@ -55,13 +60,14 @@ class ModeloResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('nome');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageModelos::route('/'),
+            'index' => Pages\ManageMascaras::route('/'),
         ];
     }
 }

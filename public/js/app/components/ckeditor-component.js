@@ -12,9 +12,10 @@ export default function ckeditorComponent({ state }) {
 
             let editor = window.CKEDITOR.replace(textareaId, {
                 toolbar: [
+                    ['mascara'],
                     { name: 'clipboard', items: ['Undo', 'Redo'] },
                     { name: 'styles', items: ['Format', 'FontSize'] },
-                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'CopyFormatting'] },
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat'] },
                     { name: 'colors', items: ['TextColor', 'BGColor'] },
                     { name: 'align', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
                     { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
@@ -25,7 +26,7 @@ export default function ckeditorComponent({ state }) {
                 filebrowserUploadMethod: 'form',
                 disallowedContent: 'img{width,height,float}',
                 extraAllowedContent: 'img[width,height,align]',
-                extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak',
+                extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak,mascara',
                 removePlugins: 'exportpdf',
                 contentsCss: ['/vendor/ckeditor/document-content.css'],
                 bodyClass: 'document-content document-content-editor',
