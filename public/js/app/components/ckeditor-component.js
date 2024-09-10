@@ -20,7 +20,7 @@ export default function ckeditorComponent({ state }) {
                     { name: 'align', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
                     { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
                     { name: 'links', items: ['Link', 'Unlink'] },
-                    { name: 'insert', items: ['Image', 'Table'] },
+                    { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
                     { name: 'tools', items: ['Maximize'] }
                 ],
                 filebrowserUploadMethod: 'form',

@@ -22,6 +22,8 @@ LARGURA E ALTURA DA PAGINA A4:
     font-family: 'Inter';
     font-size: 16px;
     overflow-wrap: anywhere;
+    margin: 0;
+    padding: 0;
 }
 
 @media screen {
@@ -125,7 +127,8 @@ LARGURA E ALTURA DA PAGINA A4:
 
 .document-content hr {
     border: 0px;
-    border-top: 1px solid #ccc;
+    border: 1px solid #000;
+    margin: 0;
 }
 
 .document-content img.right {
@@ -242,4 +245,8 @@ LARGURA E ALTURA DA PAGINA A4:
     max-width: 1920px;
     max-height: 1080px;
     margin: 0 auto;
+}
+
+.document-content table {
+    border-collapse: collapse;
 }
