@@ -38,7 +38,6 @@ LARGURA E ALTURA DA PAGINA A4:
     margin: 0.5cm auto;
     min-height: 210mm;
     border: 1px #D3D3D3 solid;
-    border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 

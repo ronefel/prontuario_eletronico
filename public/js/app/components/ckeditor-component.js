@@ -1,6 +1,7 @@
-export default function ckeditorComponent({ state }) {
+export default function ckeditorComponent({ state, record }) {
     return {
         state,
+        record, // Objeto record passado como JSON, usado pelo SettingsResource.php
         init() {
             const textareaId = this.$el.querySelector('textarea').id;
 
@@ -10,6 +11,14 @@ export default function ckeditorComponent({ state }) {
 
             window.CKEDITOR.config.image_previewText = '';
 
+            // define o layout do editor de acordo do cabecalho ou rodape
+            let style = '';
+            if (this.record && this.record.key === 'cabecalho') {
+                style = '" style="min-height: unset; padding-bottom: 0; height: 27mm;"';
+            } else if (this.record && this.record.key === 'rodape') {
+                style = '" style="min-height: unset; padding-top: 0; height: 7mm;"';
+            }
+
             let editor = window.CKEDITOR.replace(textareaId, {
                 toolbar: [
                     ['mascara'],
@@ -18,7 +27,7 @@ export default function ckeditorComponent({ state }) {
                     { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat'] },
                     { name: 'colors', items: ['TextColor', 'BGColor'] },
                     { name: 'align', items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
-                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
+                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-'] },
                     { name: 'links', items: ['Link', 'Unlink'] },
                     { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
                     { name: 'tools', items: ['Maximize'] }
@@ -29,7 +38,7 @@ export default function ckeditorComponent({ state }) {
                 extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak,mascara',
                 removePlugins: 'exportpdf',
                 contentsCss: ['/vendor/ckeditor/document-content.css'],
-                bodyClass: 'document-content document-content-editor',
+                bodyClass: 'document-content document-content-editor ' + style,
                 height: 400,
                 width: window.innerWidth < 768 ? 771 : 0,
                 font_names: 'Inter',

@@ -27,14 +27,6 @@ class SettingsResource extends Resource
         return false;
     }
 
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             //
-    //         ]);
-    // }
-
     public static function table(Table $table): Table
     {
         return $table

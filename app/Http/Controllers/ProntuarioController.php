@@ -47,6 +47,7 @@ class ProntuarioController extends Controller
 
         // Configurando o mPDF
         $mpdf = new Mpdf([
+            'format' => 'A4',
             'fontDir' => [public_path('fonts/Inter')],
             'fontdata' => [
                 'inter' => [
