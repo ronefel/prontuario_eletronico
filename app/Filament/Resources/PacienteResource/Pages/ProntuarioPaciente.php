@@ -246,8 +246,37 @@ class ProntuarioPaciente extends Page
             ->icon('heroicon-o-printer')
             ->iconButton()
             ->label('Imprimir')
-            ->url(fn($arguments) => route('prontuario.print', ['id' => $arguments['prontuario']]))
-            ->openUrlInNewTab()
-            ->extraAttributes(['style' => 'width: 20px']);
+            ->modal()
+            ->modalSubmitActionLabel('Imprimir')
+            ->modalWidth(MaxWidth::ExtraSmall)
+            ->form([
+                ToggleButtons::make('layout')
+                    ->label('Layout')
+                    ->options([
+                        'P' => 'Retrato',
+                        'L' => 'Paisagem',
+                    ])
+                    ->default('P')
+                    ->grouped(),
+                ToggleButtons::make('paper_size')
+                    ->label('Tamanho do Papel')
+                    ->options([
+                        'A4' => 'A4',
+                        'A5' => 'A5',
+                    ])
+                    ->default('A4')
+                    ->grouped(),
+            ])
+            ->action(function ($arguments, $data) {
+                // Gerar a URL com os parâmetros selecionados
+                $url = route('prontuario.print', [
+                    'id' => $arguments['prontuario'],
+                    'layout' => $data['layout'],
+                    'paper_size' => $data['paper_size'],
+                ]);
+
+                // Disparar um evento para abrir a URL em uma nova aba
+                $this->dispatch('openUrlInNewTab', ['url' => $url]);
+            });
     }
 }

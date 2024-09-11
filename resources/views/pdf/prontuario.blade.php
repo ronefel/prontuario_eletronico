@@ -3,7 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Impressão de Prontuário</title>
+    <title>{{ str_replace(' ', '_', $prontuario->paciente->nome) . ' _ ' . time() . '.pdf' }}</title>
 </head>
 
 <body>

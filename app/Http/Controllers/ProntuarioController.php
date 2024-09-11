@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Prontuario;
 use App\Models\Setting;
+use Illuminate\Http\Request;
 use Mpdf\Mpdf;
 
 class ProntuarioController extends Controller
 {
-    public function print($id)
+    public function print($id, Request $request)
     {
         // Busca o prontuário
         $prontuario = Prontuario::findOrFail($id);
+
+        // Recuperar os parâmetros adicionais da URL
+        $layout = $request->query('layout', 'P'); // 'portrait' é o valor padrão
+        $paperSize = $request->query('paper_size', 'A4'); // 'A4' é o valor padrão
 
         // Busca todas as configurações
         $settings = Setting::getAllSettings();
@@ -22,9 +27,22 @@ class ProntuarioController extends Controller
 
         // Variáveis dinâmicas que serão substituídas
         $variaveis = [
-            '{{PACIENTE_NOME}}' => $prontuario->paciente->nome,
-            // '{{ENDERECO}}' => $prontuario->paciente->endereco,
-            // Adicione mais variáveis conforme necessário
+            '{{PAC_NOME}}' => $prontuario->paciente->nome,
+            '{{NASCIM}}' => $prontuario->paciente->nascimento->format('d/m/Y'),
+            '{{IDADE}}' => $prontuario->paciente->idade(),
+            '{{SEXO}}' => $prontuario->paciente->sexo(),
+            '{{PAC_CPF}}' => $prontuario->paciente->cpf,
+            '{{PAC_CELULAR}}' => $prontuario->paciente->celular,
+            '{{PAC_EMAIL}}' => $prontuario->paciente->email,
+            '{{PAC_CEP}}' => $prontuario->paciente->cep,
+            '{{PAC_LOGRADOURO}}' => $prontuario->paciente->logradouro,
+            '{{PAC_NUMERO}}' => $prontuario->paciente->numero,
+            '{{PAC_BAIRRO}}' => $prontuario->paciente->bairro,
+            '{{PAC_COMPLEMENTO}}' => $prontuario->paciente->complemento,
+            '{{PAC_CIDADE}}' => $prontuario->paciente->cidade->cidadeUf(),
+
+            '{{DATA_ATENDIMENTO}}' => $prontuario->data->format('d/m/Y'),
+            // '{{HORA_ATENDIMENTO}}' => $prontuario->data->format('H:i'),
         ];
 
 
@@ -47,7 +65,7 @@ class ProntuarioController extends Controller
 
         // Configurando o mPDF
         $mpdf = new Mpdf([
-            'format' => 'A4',
+            'format' => $paperSize . '-' . $layout,
             'fontDir' => [public_path('fonts/Inter')],
             'fontdata' => [
                 'inter' => [
@@ -87,6 +105,6 @@ class ProntuarioController extends Controller
         $mpdf->WriteHTML($htmlContent,);
 
         // Gera o PDF e retorna
-        return $mpdf->Output('document.pdf', 'I');
+        return $mpdf->Output(str_replace(' ', '_', $prontuario->paciente->nome) . ' _ ' . time() . '.pdf', 'I');
     }
 }

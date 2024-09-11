@@ -167,3 +167,13 @@
 
     <x-filament-actions::modals />
 </x-filament-panels::page>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('openUrlInNewTab', function(event) {
+                window.open(event.detail[0].url, '_blank');
+            });
+        });
+    </script>
+@endpush

@@ -3,18 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SettingsResource\Pages;
-use App\Filament\Resources\SettingsResource\RelationManagers;
 use App\Forms\Components\CKEditor;
 use App\Models\Setting;
-use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SettingsResource extends Resource
 {
@@ -65,7 +61,8 @@ class SettingsResource extends Resource
                                     ->label($record->label)
                             ]
                         };
-                    })->modalAutofocus(false),
+                    })
+                    ->modalAutofocus(false),
             ]);
     }
 
