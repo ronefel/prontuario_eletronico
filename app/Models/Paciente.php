@@ -10,6 +10,10 @@ class Paciente extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'nascimento' => 'date:Y-m-d',
+    ];
+
     public function cidade()
     {
         return $this->belongsTo(Cidade::class);
@@ -47,5 +51,20 @@ class Paciente extends Model
         }
 
         return '';
+    }
+
+    public function celularFormatado()
+    {
+        // Remove todos os caracteres que não sejam números
+        $celular = preg_replace('/\D/', '', $this->celular);
+
+        // Verifica se tem o tamanho correto de um número de celular (com DDD)
+        if (strlen($celular) == 11) {
+            // Formata para (XX) XXXXX-XXXX
+            return '(' . substr($celular, 0, 2) . ') ' . substr($celular, 2, 5) . '-' . substr($celular, 7);
+        }
+
+        // Caso não tenha o tamanho esperado, retorna o número sem formatação
+        return $celular;
     }
 }

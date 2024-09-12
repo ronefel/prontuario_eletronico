@@ -62,8 +62,7 @@
             </x-filament::button>
 
 
-            <x-filament-panels::form style="{{ $this->formClosed ? 'display: none;' : '' }} padding: 0 23.5px;"
-                wire:submit="create">
+            <x-filament-panels::form style="{{ $this->formClosed ? 'display: none;' : '' }}" wire:submit="create">
                 {{ $this->form }}
 
                 <div class="fi-ac gap-3 flex flex-wrap items-center justify-start">

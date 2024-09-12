@@ -17,7 +17,7 @@ class Prontuario extends Model
 
 
     protected $casts = [
-        'data' => 'date',
+        'data' => 'date:Y-m-d',
         'tipo' => ProntuarioTipoEnum::class
     ];
 }

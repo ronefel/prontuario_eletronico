@@ -38,7 +38,8 @@ class Cep extends TextInput
             $livewire->validateOnly($component->getKey());
 
             $request = Http::get('viacep.com.br/ws/' . $state . '/json/')->json();
-            if (!$request) return;
+
+            if (!$request || isset($request['erro'])) return;
 
             foreach ($setFields as $key => $value) {
                 if ($key === 'localidade') {

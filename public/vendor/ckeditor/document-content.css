@@ -249,3 +249,31 @@ LARGURA E ALTURA DA PAGINA A4:
 .document-content table {
     border-collapse: collapse;
 }
+
+.variavel-select {
+    background: none !important;
+    overflow: hidden !important;
+    height: auto !important;
+    margin: 0 !important;
+    border: 0px solid #bcbcbc !important;
+    width: calc(114% - 2px) !important;
+}
+
+.variavel-select:focus {
+    outline: unset !important;
+    border: 0px solid #bcbcbc !important;
+    outline-offset: unset !important;
+    --tw-ring-color: none !important;
+    margin: 0 !important;
+    width: calc(114% - 2px) !important;
+}
+
+.variavel-select option {
+    margin: 3px 0;
+    padding: 3px 0;
+    cursor: pointer;
+}
+
+.variavel-select option:hover {
+    background: gainsboro;
+}
