@@ -12,6 +12,7 @@ CKEDITOR.dialog.add('variavel', function (editor) {
                         id: 'variavelSelect',
                         label: '',
                         size: 16,
+                        // ============== SEGUIR AS MESMAS VARIÁVEIS EM PRONTUARIOCONTROLLER =================
                         items: [
                             ['Nome do paciente', '{PAC_NOME}'],
                             ['Data de Nascimento', '{NASCIM}'],
