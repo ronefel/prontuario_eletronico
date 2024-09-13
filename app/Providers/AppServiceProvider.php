@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Assets\AlpineComponent;
@@ -42,5 +43,9 @@ class AppServiceProvider extends ServiceProvider
         FilamentAsset::register([
             Js::make('ckeditor', asset('vendor/ckeditor/ckeditor.js'))->loadedOnRequest(),
         ]);
+
+        DateTimePicker::configureUsing(function (DateTimePicker $checkbox): void {
+            $checkbox->timezone(auth()->user()->timezone);
+        });
     }
 }

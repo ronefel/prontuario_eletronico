@@ -2,21 +2,16 @@
 
 namespace App\Filament\Resources\PacienteResource\Pages;
 
-use AmidEsfahani\FilamentTinyEditor\TinyEditor;
-use App\Enums\ProntuarioTipoEnum;
 use App\Filament\Resources\PacienteResource;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
 use App\Models\Paciente;
 use App\Models\Prontuario;
-use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -50,14 +45,14 @@ class ProntuarioPaciente extends Page
 
     public function mount(int | string $record): void
     {
-        $this->paciente = Paciente::find($record);
+        $this->paciente = Paciente::findOrFail($record);
 
         $this->isMobile = AgentHelper::isMobile();
 
-        $this->form->fill([
-            'data' => now()->startOfDay(),
-            'tipo' => 'atendimento',
-        ]);
+        // $this->form->fill([
+        //     'data' => now()->startOfDay(),
+        //     'tipo' => 'atendimento',
+        // ]);
     }
 
     public function getBreadcrumbs(): array
@@ -80,9 +75,10 @@ class ProntuarioPaciente extends Page
                 //     ->hiddenLabel()
                 //     ->options(ProntuarioTipoEnum::class)
                 //     ->columnSpan(2),
-                DatePicker::make('data')
+                DateTimePicker::make('data')
+                    ->seconds(false)
                     ->native(AgentHelper::isMobile())
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat('d/m/Y H:i')
                     ->firstDayOfWeek(7)
                     ->seconds(false)
                     ->closeOnDateSelection()
@@ -98,23 +94,23 @@ class ProntuarioPaciente extends Page
         return array_merge($fields, $newField);
     }
 
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema(self::formFields())
-            ->statePath('data');
-    }
+    // public function form(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema(self::formFields())
+    //         ->statePath('data');
+    // }
 
-    private function resetarForm()
-    {
-        $this->data = [];
-        $this->form->fill([
-            'data' => now()->startOfDay(),
-            'tipo' => 'atendimento',
-            'descricao' => ''
-        ]);
-        $this->dispatch('formReseted');
-    }
+    // private function resetarForm()
+    // {
+    //     $this->data = [];
+    //     $this->form->fill([
+    //         'data' => now()->startOfDay(),
+    //         'tipo' => 'atendimento',
+    //         'descricao' => ''
+    //     ]);
+    //     $this->dispatch('formReseted');
+    // }
 
     public function getMaxContentWidth(): MaxWidth
     {
@@ -126,11 +122,11 @@ class ProntuarioPaciente extends Page
         $this->formClosed = false;
     }
 
-    public function cancel()
-    {
-        $this->formClosed = true;
-        $this->resetarForm();
-    }
+    // public function cancel()
+    // {
+    //     $this->formClosed = true;
+    //     $this->resetarForm();
+    // }
 
     public static function route(string $path): PageRegistration
     {
@@ -142,9 +138,9 @@ class ProntuarioPaciente extends Page
         );
     }
 
-    public function create(): void
+    public function create($data): void
     {
-        $data = $this->form->getState();
+        // $data = $this->form->getState();
         // $data['data'] = Carbon::parse($data['data'])->setTimezone('America/Porto_Velho')->format('Y-m-d');
 
         $prontuario = new Prontuario($data);
@@ -156,9 +152,29 @@ class ProntuarioPaciente extends Page
             ->success()
             ->send();
 
-        $this->resetarForm();
+        // $this->resetarForm();
 
         $this->formClosed = true;
+    }
+
+    public function createAction(): Action
+    {
+        return Action::make('create')
+            ->form(self::formFields())
+            ->fillForm(function (array $arguments) {
+                return [
+                    'data' => now(),
+                    'tipo' => 'atendimento',
+                ];
+            })
+            ->action(function (array $data): void {
+                $this->create($data);
+            })
+            ->label('Novo Evento')
+            ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::SixExtraLarge)
+            ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
+            ->modalHeading(' ')
+            ->modalAutofocus(false);
     }
 
     public function edit($data): void

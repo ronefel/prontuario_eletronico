@@ -38,14 +38,17 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(fn (string $context) => $context == 'create')
-                    ->dehydrated(fn (string $state) => filled($state))
+                    ->required(fn(string $context) => $context == 'create')
+                    ->dehydrated(fn(string $state) => filled($state))
                     ->confirmed()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
                     ->requiredWith('password')
                     ->dehydrated(false),
+                Forms\Components\TextInput::make('timezone')
+                    ->required()
+
             ]);
     }
 

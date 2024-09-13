@@ -2,14 +2,11 @@
 
 namespace App\Models;
 
+use App\Casts\DatetimeWithTimezone;
 use App\Enums\ProntuarioTipoEnum;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Prontuario extends Model
+class Prontuario extends BaseModel
 {
-    use HasFactory;
-
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);
@@ -17,7 +14,7 @@ class Prontuario extends Model
 
 
     protected $casts = [
-        'data' => 'date:Y-m-d',
+        'data' => DatetimeWithTimezone::class,
         'tipo' => ProntuarioTipoEnum::class
     ];
 }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('paciente_id')->nullable();
             $table->foreign('paciente_id')->references('id')->on('pacientes');
             $table->text('descricao');
-            $table->date('data');
+            $table->dateTime('data');
             $table->string('tipo')->default('atendimento')->nullable();
             $table->timestamps();
         });
