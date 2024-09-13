@@ -26,6 +26,7 @@ class ProntuarioController extends Controller
         $rodape = $settings[Setting::RODAPE];
 
         // Variáveis dinâmicas que serão substituídas
+        // ================================== NÃO ALTERAR ESTAS VARIÁVEIS ==================================
         $variaveis = [
             '{PAC_NOME}' => $prontuario->paciente->nome,
             '{NASCIM}' => $prontuario->paciente->nascimento->format('d/m/Y'),
@@ -43,7 +44,6 @@ class ProntuarioController extends Controller
             '{PAC_CIDADE}' => $prontuario->paciente->cidade?->cidadeUf(),
 
             '{DATA_ATENDIMENTO}' => $prontuario->data->format('d/m/Y'),
-            // '{HORA_ATENDIMENTO}' => $prontuario->data->format('H:i'),
         ];
 
 
