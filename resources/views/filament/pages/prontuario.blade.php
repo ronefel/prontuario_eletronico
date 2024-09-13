@@ -152,11 +152,19 @@
                 <span class="dark:text-gray-300">Sexo:
                     {{ $this->paciente->sexo() }}</span>
             </div>
-            <div class="flex py-2">
-                <span class="dark:text-gray-300">Celular: <x-filament::link size="xl"
-                        href="https://wa.me/+55{{ $this->paciente->celular }}" target="_blank">
-                        {{ $this->paciente->celular }}</x-filament::link></span>
-            </div>
+            @if ($this->paciente->tiposanguineo)
+                <div class="flex py-2">
+                    <span class="dark:text-gray-300">Tipo Sanguíneo:
+                        {{ $this->paciente->tiposanguineo }}</span>
+                </div>
+            @endif
+            @if ($this->paciente->celular)
+                <div class="flex py-2">
+                    <span class="dark:text-gray-300">Celular: <x-filament::link size="xl"
+                            href="https://wa.me/+55{{ $this->paciente->celular }}" target="_blank">
+                            {{ $this->paciente->celular }}</x-filament::link></span>
+                </div>
+            @endif
             <div class="flex py-2 whitespace-pre-wrap">
                 <span class="dark:text-gray-300">{{ $this->paciente->observacao }}</span>
 

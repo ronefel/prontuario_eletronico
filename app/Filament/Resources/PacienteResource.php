@@ -48,18 +48,20 @@ class PacienteResource extends Resource
                             ->afterStateHydrated(fn(Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
                         TextInput::make('idade')
                             ->disabled(),
-                    ])->columns(['md' => 2])
-                        ->columnSpan(1),
-
-                    Radio::make('sexo')
-                        ->label('Sexo Biológico')
-                        ->options([
-                            'F' => 'Feminino',
-                            'M' => 'Masculino',
-                        ])
-                        ->inline()
-                        ->inlineLabel(false)
-                        ->required(),
+                    ])->columns(['md' => 2])->columnSpan(1),
+                    Grid::make()->schema([
+                        Radio::make('sexo')
+                            ->label('Sexo Biológico')
+                            ->options([
+                                'F' => 'Feminino',
+                                'M' => 'Masculino',
+                            ])
+                            ->inline()
+                            ->inlineLabel(false)
+                            ->required(),
+                        TextInput::make('tiposanguineo')
+                            ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                    ])->columns(['md' => 2])->columnSpan(1),
                     TextInput::make('cpf')
                         ->required()
                         ->acoff()
@@ -134,7 +136,9 @@ class PacienteResource extends Resource
                     Split::make([
                         TextColumn::make('nascimento')->grow(false)
                             ->formatStateUsing(fn($state) => Paciente::calcularIdade($state)),
-                        TextColumn::make('sexo')
+                        TextColumn::make('sexo'),
+                        TextColumn::make('tiposanguineo')
+                            ->label('Tipo Sanguíneo'),
                     ]),
                 ])->from('xl'),
                 Split::make([

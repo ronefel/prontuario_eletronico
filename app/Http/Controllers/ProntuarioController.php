@@ -27,22 +27,23 @@ class ProntuarioController extends Controller
 
         // Variáveis dinâmicas que serão substituídas
         $variaveis = [
-            '{{PAC_NOME}}' => $prontuario->paciente->nome,
-            '{{NASCIM}}' => $prontuario->paciente->nascimento->format('d/m/Y'),
-            '{{IDADE}}' => $prontuario->paciente->idade(),
-            '{{SEXO}}' => $prontuario->paciente->sexo(),
-            '{{PAC_CPF}}' => $prontuario->paciente->cpf,
-            '{{PAC_CELULAR}}' => $prontuario->paciente->celularFormatado(),
-            '{{PAC_EMAIL}}' => $prontuario->paciente->email,
-            '{{PAC_CEP}}' => $prontuario->paciente->cep,
-            '{{PAC_LOGRADOURO}}' => $prontuario->paciente->logradouro,
-            '{{PAC_NUMERO}}' => $prontuario->paciente->numero,
-            '{{PAC_BAIRRO}}' => $prontuario->paciente->bairro,
-            '{{PAC_COMPLEMENTO}}' => $prontuario->paciente->complemento,
-            '{{PAC_CIDADE}}' => $prontuario->paciente->cidade?->cidadeUf(),
+            '{PAC_NOME}' => $prontuario->paciente->nome,
+            '{NASCIM}' => $prontuario->paciente->nascimento->format('d/m/Y'),
+            '{IDADE}' => $prontuario->paciente->idade(),
+            '{SEXO}' => $prontuario->paciente->sexo(),
+            '{TIPO}' => $prontuario->paciente->tiposanguineo,
+            '{PAC_CPF}' => $prontuario->paciente->cpf,
+            '{PAC_CELULAR}' => $prontuario->paciente->celularFormatado(),
+            '{PAC_EMAIL}' => $prontuario->paciente->email,
+            '{PAC_CEP}' => $prontuario->paciente->cep,
+            '{PAC_LOGRADOURO}' => $prontuario->paciente->logradouro,
+            '{PAC_NUMERO}' => $prontuario->paciente->numero,
+            '{PAC_BAIRRO}' => $prontuario->paciente->bairro,
+            '{PAC_COMPLEMENTO}' => $prontuario->paciente->complemento,
+            '{PAC_CIDADE}' => $prontuario->paciente->cidade?->cidadeUf(),
 
-            '{{DATA_ATENDIMENTO}}' => $prontuario->data->format('d/m/Y'),
-            // '{{HORA_ATENDIMENTO}}' => $prontuario->data->format('H:i'),
+            '{DATA_ATENDIMENTO}' => $prontuario->data->format('d/m/Y'),
+            // '{HORA_ATENDIMENTO}' => $prontuario->data->format('H:i'),
         ];
 
 
