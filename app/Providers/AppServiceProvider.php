@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         FilamentAsset::register([
-            AlpineComponent::make('ckeditor-component', '/components/ckeditor-component.js'),
+            AlpineComponent::make('ckeditor-component', __DIR__ . '/../../resources/js/dist/components/ckeditor-component.js'),
         ]);
 
         FilamentAsset::register([
