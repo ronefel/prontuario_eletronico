@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
  */
 class UltimosPacientes extends BaseWidget
 {
+    protected static ?string $pollingInterval = null;
 
     public function table(Table $table): Table
     {

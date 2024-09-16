@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class TotalPacientes extends BaseWidget
 {
+    protected static ?string $pollingInterval = null;
+
     protected function getStats(): array
     {
         // Defina a data de início e fim para os últimos 30 dias
