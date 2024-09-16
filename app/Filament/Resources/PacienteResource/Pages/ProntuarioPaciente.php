@@ -124,10 +124,10 @@ class ProntuarioPaciente extends Page
     //     $this->dispatch('formReseted');
     // }
 
-    public function getMaxContentWidth(): MaxWidth
-    {
-        return MaxWidth::Full;
-    }
+    // public function getMaxContentWidth(): MaxWidth
+    // {
+    //     return MaxWidth::Full;
+    // }
 
     public function showForm()
     {

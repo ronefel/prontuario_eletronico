@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
                     $column->translateLabel();
                 });
             })
+            ->topNavigation()
             ->default()
             ->id('admin')
             ->path('admin')
