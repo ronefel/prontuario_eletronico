@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('descricao');
             $table->dateTime('data');
             $table->string('tipo')->default('atendimento')->nullable();
+            $table->json('arquivos')->nullable();
             $table->timestamps();
         });
     }

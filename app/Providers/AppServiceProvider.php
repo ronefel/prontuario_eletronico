@@ -2,14 +2,21 @@
 
 namespace App\Providers;
 
+use App\Adapters\DatabaseAdapter;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Filesystem;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,7 +25,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Storage::extend('database', function (Application $app, array $config) {
+        //     $adapter = new DatabaseAdapter();
+
+        //     return new FilesystemAdapter(
+        //         new Filesystem($adapter, $config),
+        //         $adapter,
+        //         $config
+        //     );
+        // });
     }
 
     /**
@@ -26,6 +41,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        Storage::extend('database', function (Application $app, array $config) {
+            $adapter = new DatabaseAdapter();
+
+            return new FilesystemAdapter(
+                new Filesystem($adapter, $config),
+                $adapter,
+                $config
+            );
+        });
+
         Model::unguard();
 
         TextInput::macro('acoff', function () {
@@ -44,8 +70,8 @@ class AppServiceProvider extends ServiceProvider
             Js::make('ckeditor', asset('vendor/ckeditor/ckeditor.js'))->loadedOnRequest(),
         ]);
 
-        DateTimePicker::configureUsing(function (DateTimePicker $checkbox): void {
-            $checkbox->timezone(auth()->user()->timezone);
+        DateTimePicker::configureUsing(function (DateTimePicker $dateTimePicker): void {
+            $dateTimePicker->timezone(auth()->user()->timezone);
         });
     }
 }

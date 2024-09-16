@@ -8,12 +8,11 @@ use App\Http\Helpers\AgentHelper;
 use App\Models\Paciente;
 use App\Models\Prontuario;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\PageRegistration;
@@ -21,7 +20,9 @@ use Filament\Panel;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as RouteFacade;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Locked;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ProntuarioPaciente extends Page
 {
@@ -89,6 +90,17 @@ class ProntuarioPaciente extends Page
             CKEditor::make('descricao')
                 ->hiddenLabel()
                 ->required(),
+            FileUpload::make('arquivos')
+                ->disk('database')
+                ->preserveFilenames()
+                ->multiple()
+                ->minSize(1)
+                ->previewable(false)
+                ->openable()
+                ->getUploadedFileNameForStorageUsing(
+                    fn(TemporaryUploadedFile $file) => self::generateUniqueFileNameForStorageUsing($file)
+                )
+
         ];
 
         return array_merge($fields, $newField);
@@ -226,6 +238,7 @@ class ProntuarioPaciente extends Page
                     'id' => $this->prontuario->id,
                     'data' => $this->prontuario->data,
                     'descricao' => $this->prontuario->descricao,
+                    'arquivos' => $this->prontuario->arquivos,
                     // 'tipo' => $this->prontuario->tipo
                 ];
             })
@@ -294,5 +307,22 @@ class ProntuarioPaciente extends Page
                 // Disparar um evento para abrir a URL em uma nova aba
                 $this->dispatch('openUrlInNewTab', ['url' => $url]);
             });
+    }
+
+    private static function generateUniqueFileNameForStorageUsing(TemporaryUploadedFile $file): string
+    {
+        // Obtém o nome original do arquivo e a extensão
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+
+        $counter = 1;
+        $newFileName = "{$originalName}.{$extension}";
+
+        // Verifica se o arquivo já existe e gera um novo nome se necessário
+        while (Storage::disk('database')->exists($newFileName)) {
+            $newFileName = "{$originalName}_{$counter}.{$extension}"; // Cria o novo nome do arquivo
+            $counter++;
+        }
+        return $newFileName;
     }
 }
