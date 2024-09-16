@@ -61,10 +61,21 @@ class PacienteResource extends Resource
                             ->inline()
                             ->inlineLabel(false)
                             ->required(),
-                        TextInput::make('tiposanguineo')
-                            ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                        Select::make('tiposanguineo')
+                            ->label('Tipo Sanguíneo')
+                            ->options([
+                                'A+' => 'A+',
+                                'A-' => 'A-',
+                                'B+' => 'B+',
+                                'B-' => 'B-',
+                                'AB+' => 'AB+',
+                                'AB-' => 'AB-',
+                                'O+' => 'O+',
+                                'O-' => 'O-',
+                            ])
                     ])->columns(['md' => 2])->columnSpan(1),
                     TextInput::make('cpf')
+                        ->label('CPF')
                         ->required()
                         ->acoff()
                         ->unique(ignorable: fn(?Paciente $record): ?Paciente => $record)
@@ -75,6 +86,7 @@ class PacienteResource extends Resource
 
                 Fieldset::make('Contato')->schema([
                     TextInput::make('email')
+                        ->label('E-mail')
                         ->email()
                         ->acoff()
                         ->dehydrateStateUsing(function ($state) {
@@ -103,6 +115,7 @@ class PacienteResource extends Resource
                     TextInput::make('logradouro')
                         ->acoff(),
                     TextInput::make('numero')
+                        ->label('Número')
                         ->acoff(),
                     TextInput::make('complemento')
                         ->acoff(),
@@ -122,6 +135,7 @@ class PacienteResource extends Resource
                 ])->columns(['md' => 2]),
 
                 Textarea::make('observacao')
+                    ->label('Observação')
                     ->acoff()->rows(4)->columnSpanFull(),
 
             ]);

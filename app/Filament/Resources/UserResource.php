@@ -19,7 +19,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 4;
 
     public static function getModelLabel(): string
     {
@@ -34,6 +34,7 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label('E-mail')
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true)
