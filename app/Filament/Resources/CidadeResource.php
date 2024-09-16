@@ -20,6 +20,8 @@ class CidadeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-map';
 
+    protected static ?int $navigationSort = 3;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -62,7 +64,7 @@ class CidadeResource extends Resource
             TextInput::make('nome')
                 ->required()
                 ->live(onBlur: true)
-                ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
+                ->afterStateUpdated(fn(Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
                 ->unique(
                     ignoreRecord: true,
                     modifyRuleUsing: function (Unique $rule,  Get $get) {

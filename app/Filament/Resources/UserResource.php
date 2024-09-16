@@ -19,6 +19,8 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
+    protected static ?int $navigationSort = 5;
+
     public static function getModelLabel(): string
     {
         return __('User');
@@ -39,14 +41,22 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(fn(string $context) => $context == 'create')
-                    ->dehydrated(fn(string $state) => filled($state))
+                    ->dehydrated(fn($state) => $state !== null && filled($state))
                     ->confirmed()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
                     ->requiredWith('password')
                     ->dehydrated(false),
-                Forms\Components\TextInput::make('timezone')
+                Forms\Components\Select::make('timezone')
+                    ->label('Fuso Horário')
+                    ->options([
+                        'America/Manaus' => 'America/Manaus (UTC -4)',
+                        'America/Rio_Branco' => 'America/Rio_Branco (UTC -5)',
+                        'America/Sao_Paulo' => 'America/Sao_Paulo (UTC -3)',
+
+                    ])
+                    ->default('America/Manaus')
                     ->required()
 
             ]);

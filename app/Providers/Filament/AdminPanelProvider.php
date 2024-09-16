@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\EditProfile;
 use Filament\Forms\Components\Field;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -37,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -47,10 +49,7 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

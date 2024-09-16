@@ -16,6 +16,7 @@ class SettingsResource extends Resource
 {
     protected static ?string $model = Setting::class;
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?int $navigationSort = 4;
     protected static ?string $modelLabel = 'Configurações';
 
     public static function canCreate(): bool
