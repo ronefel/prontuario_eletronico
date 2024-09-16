@@ -34,7 +34,8 @@ class MascaraResource extends Resource
         return $form
             ->schema([
                 Grid::make()->schema([
-                    TextInput::make('nome'),
+                    TextInput::make('nome')
+                        ->required(),
                     CKEditor::make('descricao')
                         ->hiddenLabel()
                         ->required(),

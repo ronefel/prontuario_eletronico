@@ -140,6 +140,14 @@
                             <div class="document-content document-content-view">
                                 {!! $prontuario->descricao !!}
                             </div>
+                            @if ($prontuario->getArquivosComUrl())
+                                <div class="mt-2 flex flex-col p-2 border rounded-lg">
+                                    @foreach ($prontuario->getArquivosComUrl() as $arquivo)
+                                        <a href="{{ $arquivo['url'] }}" target="_blank"
+                                            class="text-xs text-blue-500 hover:underline">{{ $arquivo['nome'] }}</a>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </li>
                     @php

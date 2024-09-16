@@ -19,6 +19,19 @@ class Prontuario extends BaseModel
         'arquivos' => 'array',
     ];
 
+    // Retorna todos os arquivos do prontuário em um array com nome e url
+    public function getArquivosComUrl()
+    {
+        $arquivos = [];
+        foreach ($this->arquivos as $arquivo) {
+            $arquivos[] = [
+                'nome' => $arquivo,
+                'url' => '/files/' . $arquivo,
+            ];
+        }
+        return $arquivos;
+    }
+
     protected static function booted()
     {
         static::updated(function ($prontuario) {

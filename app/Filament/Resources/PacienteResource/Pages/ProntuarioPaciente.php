@@ -78,7 +78,7 @@ class ProntuarioPaciente extends Page
                 //     ->columnSpan(2),
                 DateTimePicker::make('data')
                     ->seconds(false)
-                    ->native(AgentHelper::isMobile())
+                    ->native()
                     ->displayFormat('d/m/Y H:i')
                     ->firstDayOfWeek(7)
                     ->seconds(false)
