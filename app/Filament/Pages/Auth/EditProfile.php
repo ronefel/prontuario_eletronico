@@ -2,7 +2,10 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Models\User;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
@@ -47,7 +50,7 @@ class EditProfile extends BaseEditProfile
     {
         return $form
             ->schema([
-                Section::make('')->schema([
+                Grid::make(2)->schema([
                     TextInput::make('name')
                         ->required()
                         ->acoff()
@@ -74,7 +77,10 @@ class EditProfile extends BaseEditProfile
                         ->requiredWith('password')
                         ->revealable(filament()->arePasswordsRevealable())
                         ->dehydrated(false),
-                    TextInput::make('timezone')
+                    Select::make('timezone')
+                        ->label('Fuso Horário')
+                        ->options(User::getAvailableTimezones())
+                        ->default('America/Manaus')
                         ->required()
                 ])
 

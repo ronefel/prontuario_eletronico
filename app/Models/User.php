@@ -103,4 +103,13 @@ class User extends Authenticatable implements FilamentUser
             }
         );
     }
+
+    public static function getAvailableTimezones()
+    {
+        return [
+            'America/Manaus' => 'America/Manaus (UTC -4)',
+            'America/Rio_Branco' => 'America/Rio_Branco (UTC -5)',
+            'America/Sao_Paulo' => 'America/Sao_Paulo (UTC -3)',
+        ];
+    }
 }

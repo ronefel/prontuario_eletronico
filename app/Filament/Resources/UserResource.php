@@ -51,12 +51,7 @@ class UserResource extends Resource
                     ->dehydrated(false),
                 Forms\Components\Select::make('timezone')
                     ->label('Fuso Horário')
-                    ->options([
-                        'America/Manaus' => 'America/Manaus (UTC -4)',
-                        'America/Rio_Branco' => 'America/Rio_Branco (UTC -5)',
-                        'America/Sao_Paulo' => 'America/Sao_Paulo (UTC -3)',
-
-                    ])
+                    ->options(User::getAvailableTimezones())
                     ->default('America/Manaus')
                     ->required()
 
