@@ -99,7 +99,7 @@
                 });
             @endphp
 
-            <ol class="relative border-s border-gray-200 dark:border-gray-700">
+            <ol class="relative border-s border-gray-200 dark:border-gray-700" style="margin-left: 4px;">
                 @php
                     $previousDate = null;
                 @endphp
@@ -121,7 +121,7 @@
                             </span>
                             <div class="flex">
                                 <time
-                                    class="block mb-2 mt-1 text-sm font-bold leading-none text-info-400 dark:text-info-400">
+                                    class="block mb-2 mt-1 text-sm font-medium leading-none text-gray-700 dark:text-gray-200">
                                     {{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('d \d\e F \d\e Y') }}
                                 </time>
 
@@ -131,7 +131,8 @@
                             class="flex flex-col items-start justify-between p-4 pt-2 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10">
                             <div class="flex w-full justify-between">
                                 <span
-                                    class="prontuario-hora">{{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('H:i') }}</span>
+                                    class="prontuario-hora absolute flex items-center justify-center w-10 h-4 bg-blue-100 rounded -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900 text-xs font-bold leading-none text-blue-800 dark:text-blue-300"
+                                    style="left: -20px;">{{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('H:i') }}</span>
                                 <div class="flex w-full justify-end gap-6">
                                     {{ ($this->editAction)(['prontuario' => $prontuario->id]) }}
                                     {{ ($this->printAction)(['prontuario' => $prontuario->id]) }}
