@@ -19,7 +19,7 @@ CKEDITOR.plugins.add('mascara', {
                                 onShow: function () {
                                     var selectElement = this.getInputElement().$;
                                     // Buscar as máscaras do servidor
-                                    fetch('/mascaras')
+                                    fetch('/list-mascaras')
                                         .then(response => response.json())
                                         .then(data => {
                                             // Limpar opções existentes
