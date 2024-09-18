@@ -22,56 +22,56 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'cabecalho',
             'label' => 'Cabeçalho',
             'value' => null,
             'type' => 'text-editor',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'rodape',
             'label' => 'Rodapé',
             'value' => null,
             'type' => 'text-editor',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'margem_superior',
             'label' => 'Margem superior',
             'value' => 5,
             'type' => 'number',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'margem_inferior',
             'label' => 'Margem inferior',
             'value' => 5,
             'type' => 'number',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'margem_esquerda',
             'label' => 'Margem esquerda',
             'value' => 5,
             'type' => 'number',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'margem_direita',
             'label' => 'Margem direita',
             'value' => 5,
             'type' => 'number',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'altura_cabecalho',
             'label' => 'Altura do cabeçalho',
             'value' => 27,
             'type' => 'number',
         ]);
 
-        Setting::create([
+        Setting::firstOrCreate([
             'key' => 'altura_rodape',
             'label' => 'Altura do rodapé',
             'value' => 7,
@@ -79,7 +79,7 @@ return new class extends Migration
         ]);
 
         //====================== EXEMPLO DE CAMPO SELECT ========================
-        // Setting::create([
+        // Setting::firstOrCreate([
         //     'key' => 'environment',
         //     'label' => 'Environment',
         //     'value' => 'production',
