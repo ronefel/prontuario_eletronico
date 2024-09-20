@@ -1,7 +1,8 @@
-export default function ckeditorComponent({ state, record }) {
+export default function ckeditorComponent({ state, record, settings }) {
     return {
         state,
-        record, // Objeto record passado como JSON, usado pelo SettingsResource.php
+        record, // Objeto record passado como JSON pelo componente App\Forms\Components\CKEditor
+        settings, // Objeto settings passado como JSON pelo componente App\Forms\Components\CKEditor
         init() {
             const textareaId = this.$el.querySelector('textarea').id;
 
@@ -11,12 +12,19 @@ export default function ckeditorComponent({ state, record }) {
 
             window.CKEDITOR.config.image_previewText = '';
 
+            const paddingTop = settings['margem_superior'] + 'mm';
+            const paddingBottom = settings['margem_inferior'] + 'mm'
+            const paddingLeft = settings['margem_esquerda'] + 'mm'
+            const paddingRight = settings['margem_direita'] + 'mm'
+            const heightCabecalho = settings['altura_cabecalho'] + 'mm'
+            const heightRodape = settings['altura_rodape'] + 'mm'
+
             // define o layout do editor de acordo do cabecalho ou rodape
             let style = '';
             if (this.record && this.record.key === 'cabecalho') {
-                style = '" style="min-height: unset; padding-bottom: 0; height: 27mm;"';
+                style = `" style="min-height: unset; padding-bottom: 0; height: ${heightCabecalho}; padding-top: ${paddingTop}; padding-right: ${paddingRight}; padding-left: ${paddingLeft};"`;
             } else if (this.record && this.record.key === 'rodape') {
-                style = '" style="min-height: unset; padding-top: 0; height: 7mm;"';
+                style = `" style="min-height: unset; padding-top: 0; height: ${heightRodape}; padding-bottom: ${paddingBottom}; padding-right: ${paddingRight}; padding-left: ${paddingLeft};"`;
             }
 
             let editor = window.CKEDITOR.replace(textareaId, {

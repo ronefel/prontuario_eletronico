@@ -4,6 +4,7 @@
         x-data="ckeditorComponent({
             state: $wire.{{ $applyStateBindingModifiers('entangle(\'' . $getStatePath() . '\')') }},
             record: {{ json_encode($getRecord()) }},
+            settings: {{ json_encode($getSettings()) }},
         })">
 
         <textarea id="{{ $getId() }}" wire:model.defer="{{ $getStatePath() }}"

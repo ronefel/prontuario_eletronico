@@ -186,7 +186,8 @@ class ProntuarioPaciente extends Page
             ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::SixExtraLarge)
             ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
             ->modalHeading(' ')
-            ->modalAutofocus(false);
+            ->modalAutofocus(false)
+            ->modalSubmitActionLabel('Salvar');
     }
 
     public function edit($data): void
@@ -266,7 +267,8 @@ class ProntuarioPaciente extends Page
             ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
             ->modalHeading(' ')
             ->extraAttributes(['style' => 'width: 20px'])
-            ->modalAutofocus(false);
+            ->modalAutofocus(false)
+            ->modalSubmitActionLabel('Salvar');
     }
 
     public function printAction(): Action
