@@ -53,7 +53,7 @@ class ProntuarioController extends Controller
         $rodape = str_replace(array_keys($variaveis), array_values($variaveis), $rodape);
 
         // Substitui <hr /> por <div style="border-bottom: 2px solid #000;"></div>
-        $prontuario->descricao = str_replace('<hr />', '<div style="border-bottom: 2px solid #000;"></div>', $prontuario->descricao);
+        $prontuario->descricao = str_replace('<hr />', '<div style="border-bottom: 1px solid #000;"></div>', $prontuario->descricao);
         $cabecalho = str_replace('<hr />', '<div style="border-bottom: 2px solid #000;"></div>', $cabecalho);
         $rodape = str_replace('<hr />', '<div style="border-bottom: 2px solid #000;"></div>', $rodape);
 
@@ -64,9 +64,16 @@ class ProntuarioController extends Controller
         $alturaCabecalho = $settings[Setting::ALTURA_CABECALHO];
         $alturaRodape = $settings[Setting::ALTURA_RODAPE];
 
+        $formato = $paperSize . '-' . $layout;
+        if ($paperSize === 'A5noA4') {
+            $formato = 'A4-L';
+            $margemDireita += 148;
+        }
+
+
         // Configurando o mPDF
         $mpdf = new Mpdf([
-            'format' => $paperSize . '-' . $layout,
+            'format' => $formato,
             'fontDir' => [public_path('fonts/Inter')],
             'fontdata' => [
                 'inter' => [

@@ -288,21 +288,25 @@ class ProntuarioPaciente extends Page
                         'L' => 'Paisagem',
                     ])
                     ->default('P')
-                    ->grouped(),
+                    ->grouped()
+                    ->reactive() // Torna o campo reativo a mudanças em outros campos
+                    ->disabled(fn($get) => $get('paper_size') === 'A5noA4'),
                 ToggleButtons::make('paper_size')
                     ->label('Tamanho do Papel')
                     ->options([
                         'A4' => 'A4',
                         'A5' => 'A5',
+                        'A5noA4' => 'A5 no A4'
                     ])
                     ->default('A4')
-                    ->grouped(),
+                    ->grouped()
+                    ->reactive(),
             ])
             ->action(function ($arguments, $data) {
                 // Gerar a URL com os parâmetros selecionados
                 $url = route('prontuario.print', [
                     'id' => $arguments['prontuario'],
-                    'layout' => $data['layout'],
+                    'layout' => $data['layout'] ?? '',
                     'paper_size' => $data['paper_size'],
                 ]);
 
