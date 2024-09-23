@@ -38,11 +38,13 @@ export default function ckeditorComponent({ state, record, settings }) {
                     { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-'] },
                     { name: 'links', items: ['Link', 'Unlink'] },
                     { name: 'insert', items: ['Image', 'Table', 'HorizontalRule'] },
-                    { name: 'tools', items: ['Maximize'] }
+                    { name: 'tools', items: ['Maximize'] },
+                    ['Source']
                 ],
                 filebrowserUploadMethod: 'form',
-                disallowedContent: 'img{width,height,float}',
-                extraAllowedContent: 'img[width,height,align]',
+                // disallowedContent: 'img{width,height,float}',
+                // extraAllowedContent: 'img[width,height,align]',
+                allowedContent: true,
                 extraPlugins: 'tableresize,justify,colorbutton,colordialog,panelbutton,imageresizerowandcolumn,pagebreak,mascara,variavel',
                 removePlugins: 'exportpdf',
                 contentsCss: ['/vendor/ckeditor/document-content.css'],
