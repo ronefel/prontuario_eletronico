@@ -88,6 +88,9 @@ class ProntuarioController extends Controller
             'margin_bottom' => $alturaRodape + $margemInferior,
             'margin_header' => $margemSuperior,
             'margin_footer' => $margemInferior,
+            'setAutoTopMargin' => 'stretch',
+            'setAutoBottomMargin' => 'stretch',
+            'autoMarginPadding' => -7,
         ]);
 
         // Define o cabeçalho e o rodapé do PDF
