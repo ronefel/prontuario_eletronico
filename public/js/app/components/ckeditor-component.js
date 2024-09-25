@@ -26,7 +26,7 @@ export default function ckeditorComponent({ state, record, settings }) {
             } else if (this.record && this.record.key === 'rodape') {
                 style = `" style="min-height: unset; padding-top: 0; height: ${heightRodape}; padding-bottom: ${paddingBottom}; padding-right: ${paddingRight}; padding-left: ${paddingLeft};"`;
             } else {
-                style = `" style="min-height: unset; padding-top: ${paddingTop}; padding-bottom: ${paddingBottom}; padding-right: ${paddingRight}; padding-left: ${paddingLeft};"`;
+                style = `" style="padding-top: ${paddingTop}; padding-bottom: ${paddingBottom}; padding-right: ${paddingRight}; padding-left: ${paddingLeft};"`;
             }
 
             let editor = window.CKEDITOR.replace(textareaId, {
