@@ -16,6 +16,6 @@ class Testador extends BaseModel
 
     public function categoria()
     {
-        return $this->belongsTo(CategoriaTestador::class, 'categoria_id', 'id', 'categorias_testadores');
+        return $this->belongsTo(CategoriaTestador::class, 'categoria_testador_id', 'id', 'categorias_testadores');
     }
 }

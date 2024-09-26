@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('testadores', function (Blueprint $table) {
             $table->id();
-            $table->integer('numero');
+            $table->string('numero', 10);
             $table->string('nome');
-            $table->foreign('categoria_id')->references('id')->on('categorias_testadores');
+            $table->foreignId('categoria_testador_id')->constrained('categorias_testadores')->restrictOnDelete();
             $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('testadors');
+        Schema::dropIfExists('testadores');
     }
 };

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('exames', function (Blueprint $table) {
             $table->id();
-            $table->foreign('paciente_id')->references('id')->on('pacientes');
+            $table->foreignId('paciente_id')->constrained('pacientes')->restrictOnDelete();
             $table->dateTime('data');
-            $table->text('tratamento');
+            $table->text('tratamento')->nullable();
             $table->timestamps();
         });
     }
