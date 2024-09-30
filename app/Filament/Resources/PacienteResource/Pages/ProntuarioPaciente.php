@@ -5,6 +5,8 @@ namespace App\Filament\Resources\PacienteResource\Pages;
 use App\Filament\Resources\PacienteResource;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
+use App\Models\CategoriaTestador;
+use App\Models\Exame;
 use App\Models\Paciente;
 use App\Models\Prontuario;
 use Filament\Actions\Action;
@@ -12,11 +14,13 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Panel;
+use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as RouteFacade;
@@ -34,7 +38,7 @@ class ProntuarioPaciente extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $title = ' ';
+    protected static ?string $title = 'Prontuário';
 
     protected static string $view = 'filament.pages.prontuario';
 
@@ -43,6 +47,16 @@ class ProntuarioPaciente extends Page
     public bool $formClosed = true;
 
     public ?array $data = [];
+
+    public static function route(string $path): PageRegistration
+    {
+        return new PageRegistration(
+            page: static::class,
+            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
+                ->middleware(static::getRouteMiddleware($panel))
+                ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
+        );
+    }
 
     public function mount(int | string $record): void
     {
@@ -81,7 +95,6 @@ class ProntuarioPaciente extends Page
                     ->native()
                     ->displayFormat('d/m/Y H:i')
                     ->firstDayOfWeek(7)
-                    ->seconds(false)
                     ->closeOnDateSelection()
                     ->maxDate(now()->endOfDay())
                     ->hiddenLabel()
@@ -140,16 +153,6 @@ class ProntuarioPaciente extends Page
     //     $this->resetarForm();
     // }
 
-    public static function route(string $path): PageRegistration
-    {
-        return new PageRegistration(
-            page: static::class,
-            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
-                ->middleware(static::getRouteMiddleware($panel))
-                ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
-        );
-    }
-
     public function create($data): void
     {
         // $data = $this->form->getState();
@@ -183,10 +186,13 @@ class ProntuarioPaciente extends Page
                 $this->create($data);
             })
             ->label('Novo Evento')
+            ->icon('heroicon-o-plus')
+            ->size(ActionSize::Small)
             ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::SixExtraLarge)
             ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
             ->modalHeading(' ')
             ->modalAutofocus(false)
+            ->closeModalByClickingAway(false)
             ->modalSubmitActionLabel('Salvar');
     }
 
@@ -268,6 +274,7 @@ class ProntuarioPaciente extends Page
             ->modalHeading(' ')
             ->extraAttributes(['style' => 'width: 20px'])
             ->modalAutofocus(false)
+            ->closeModalByClickingAway(false)
             ->modalSubmitActionLabel('Salvar');
     }
 
@@ -330,5 +337,13 @@ class ProntuarioPaciente extends Page
             $counter++;
         }
         return $newFileName;
+    }
+
+    public function toBiorressonanciaAction(): Action
+    {
+        return Action::make('Biorressonancia')
+            ->color('info')
+            ->size(ActionSize::Small)
+            ->url(route('filament.admin.resources.pacientes.biorressonancia', ['record' => $this->paciente->id]));
     }
 }

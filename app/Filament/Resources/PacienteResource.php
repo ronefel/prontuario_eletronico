@@ -88,9 +88,11 @@ class PacienteResource extends Resource
                     TextInput::make('email')
                         ->label('E-mail')
                         ->email()
+                        ->unique()
+                        ->nullable()
                         ->acoff()
                         ->dehydrateStateUsing(function ($state) {
-                            return strtolower($state) ?? null;
+                            return !empty($state) ? strtolower($state) : null;
                         }),
                     TextInput::make('celular')
                         ->tel()
@@ -203,6 +205,7 @@ class PacienteResource extends Resource
             'create' => Pages\CreatePaciente::route('/create'),
             'edit' => Pages\EditPaciente::route('/{record}/edit'),
             'protuario' => Pages\ProntuarioPaciente::route('/{record}/prontuario'),
+            'biorressonancia' => Pages\Biorressonancia::route('/{record}/biorressonancia'),
         ];
     }
 }

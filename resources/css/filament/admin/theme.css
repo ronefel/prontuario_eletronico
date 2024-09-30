@@ -8,3 +8,31 @@
 
 
 @config 'tailwind.config.js';
+
+
+.table-bordered {
+    border-collapse: collapse;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #ababab;
+    text-align: center;
+    padding: 4px;
+}
+
+.table-bordered th {
+    @apply bg-gray-100 dark:bg-gray-900;
+}
+
+.table-category {
+    @apply bg-gray-100 dark:bg-gray-900;
+}
+
+/* .table-bordered tbody tr:nth-child(odd) {
+    @apply bg-gray-100 dark:bg-gray-800;
+} */
+
+.table-bordered tbody tr:hover {
+    @apply bg-gray-100 dark:bg-gray-900;
+}

@@ -57,7 +57,10 @@
     <div class="grid sm:grid-cols-1 md:grid-cols-3 gap-4">
         <div class="col-span-2">
 
-            {{ $this->createAction }}
+            <div class="flex gap-1">
+                {{ $this->createAction }}
+                {{ $this->toBiorressonanciaAction }}
+            </div>
 
             {{-- <x-filament::button style="{{ $this->formClosed ? '' : 'display: none;' }}" wire:click="showForm()">
                 Novo Evento
@@ -77,8 +80,6 @@
                     </x-filament::button>
                 </div>
             </x-filament-panels::form> --}}
-
-            <p><br></p>
 
             @php
                 // Agrupa os prontuarios por data (sem horas)
