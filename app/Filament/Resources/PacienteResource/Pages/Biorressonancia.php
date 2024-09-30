@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Panel;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\PageRegistration;
@@ -27,6 +28,7 @@ class Biorressonancia extends Page
     protected static ?string $title = 'Biorressonância';
 
     public Paciente | int | string | null $paciente;
+    public Exame | int | string | null $exame;
 
     public bool $isMobile = false;
 
@@ -169,11 +171,11 @@ class Biorressonancia extends Page
             ))
             ->fillForm(function (array $arguments) {
                 // Encontre o exame pelo ID passado nos argumentos, carregando os testadores
-                $exame = Exame::with('testadores')->find($arguments['id']);
+                $this->exame = Exame::with('testadores')->find($arguments['id']);
 
                 // Criar um array para preencher os dados do formulário
                 $formData = [
-                    'data' => $exame->data, // Preencher o campo de data
+                    'data' => $this->exame->data, // Preencher o campo de data
                 ];
 
                 // Carregar as categorias novamente, caso precise
@@ -182,7 +184,7 @@ class Biorressonancia extends Page
                 // Iterar sobre as categorias para preencher os testadores
                 foreach ($categorias as $categoria) {
                     // Preencher o array para cada categoria com os testadores relacionados ao exame
-                    $formData['testadores_' . $categoria->id] = $exame->testadores
+                    $formData['testadores_' . $categoria->id] = $this->exame->testadores
                         ->where('categoria_testador_id', $categoria->id)
                         ->pluck('id')
                         ->toArray();
@@ -195,12 +197,45 @@ class Biorressonancia extends Page
             })
             ->label('Editar Exame')
             ->icon('heroicon-o-pencil')
+            ->extraModalFooterActions([
+                Action::make('Excluir')
+                    ->requiresConfirmation()
+                    ->modalIcon('heroicon-o-trash')
+                    ->modalHeading('Excluir exame')
+                    ->modalDescription('Tem certeza de que deseja excluir este exame? Isto não pode ser desfeito.')
+                    ->modalSubmitActionLabel('Sim, exclua-o')
+                    ->action(function () {
+                        $this->delete($this->exame);
+                    })
+                    ->cancelParentActions()
+                    ->color('danger')
+                    ->extraAttributes(['style' => 'position: absolute; right: 24px;']),
+            ])
             ->size(ActionSize::Small)
             ->modalWidth(AgentHelper::isMobile() ? MaxWidth::Screen : MaxWidth::SixExtraLarge)
             ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
             ->modalAutofocus(false)
             ->closeModalByClickingAway(false)
             ->modalSubmitActionLabel('Salvar');
+    }
+
+    public function delete(Exame $exame): void
+    {
+        if ($exame->paciente_id === $this->paciente->id) {
+            $this->exame->delete();
+            $this->paciente->refresh();
+
+            Notification::make()
+                ->title('Exame excluído com sucesso!')
+                ->success()
+                ->send();
+            $this->getExameData();
+        } else {
+            Notification::make()
+                ->title('Exame não encontrado ou não pertence a este paciente.')
+                ->error()
+                ->send();
+        }
     }
 
 
