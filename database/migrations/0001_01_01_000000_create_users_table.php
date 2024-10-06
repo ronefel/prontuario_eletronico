@@ -37,13 +37,6 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
-
-        User::firstOrCreate([
-            'email' => 'admin@admin.com',
-            'password' => 'admin',
-            'name' => 'Admin',
-            'email_verified_at' => now()
-        ]);
     }
 
     /**

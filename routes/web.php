@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BiorressonanciaController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\MascaraController;
 use App\Http\Controllers\ProntuarioController;
@@ -16,6 +17,10 @@ Route::get('/login', function () {
 Route::get('/prontuario/print/{id}', [ProntuarioController::class, 'print'])
     ->middleware('auth')
     ->name('prontuario.print');
+
+Route::get('/biorressonancia/print/{id}', [BiorressonanciaController::class, 'print'])
+    ->middleware('auth')
+    ->name('biorressonancia.print');
 
 Route::get('/list-mascaras', [MascaraController::class, 'index'])
     ->middleware('auth')

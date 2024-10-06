@@ -23,6 +23,11 @@ class Paciente extends BaseModel
         return $this->hasMany(Prontuario::class);
     }
 
+    public function exames()
+    {
+        return $this->hasMany(Exame::class);
+    }
+
     public function idade()
     {
         return Paciente::calcularIdade($this->nascimento);

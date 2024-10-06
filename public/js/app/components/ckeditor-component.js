@@ -53,7 +53,7 @@ export default function ckeditorComponent({ state, record, settings }) {
                 bodyClass: 'document-content document-content-editor ' + style,
                 height: 400,
                 width: window.innerWidth < 768 ? 771 : 0,
-                font_names: 'Inter',
+                font_names: 'Roboto',
             });
 
             editor.on('change', () => {

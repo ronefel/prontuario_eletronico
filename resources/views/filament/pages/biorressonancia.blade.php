@@ -3,6 +3,7 @@
         <div class="col-span-2">
             <div class="flex gap-1">
                 {{ $this->createExameAction }}
+
             </div>
 
             @if ($datas)
@@ -12,8 +13,15 @@
                             <th>Nº</th>
                             <th>Testadores</th>
                             @foreach ($datas as $data)
-                                <th wire:click="mountAction('editExame', { id: {{ $data['id'] }} })"
-                                    style="cursor: pointer;" class="text-primary-600 dark:text-primary-400">
+                                <th>
+                                    <div class="flex justify-between">
+                                        <x-filament::icon-button icon="heroicon-o-pencil-square" size="xs"
+                                            tooltip="Editar"
+                                            wire:click="mountAction('editExame', { id: {{ $data['id'] }} })" />
+                                        <x-filament::icon-button icon="heroicon-o-printer" :href="route('biorressonancia.print', $data['id'])"
+                                            tooltip="Imprimir" size="xs" tag="a" target="_blank"
+                                            label="Filament" />
+                                    </div>
                                     {{ $data['data'] }}
                                 </th>
                             @endforeach

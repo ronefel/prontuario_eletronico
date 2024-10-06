@@ -30,6 +30,8 @@ class Setting extends BaseModel
     const MARGEM_DIREITA = 'margem_direita';
     const ALTURA_CABECALHO = 'altura_cabecalho';
     const ALTURA_RODAPE = 'altura_rodape';
+    const BIORRESSONANCIA_TEXTO_INICIAL = 'biorressonancia_texto_inicial';
+    const BIORRESSONANCIA_TEXTO_FINAL = 'biorressonancia_texto_final';
 
     /**
      * Retorna todos os settings em um array chave-valor.

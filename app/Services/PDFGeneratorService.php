@@ -76,11 +76,11 @@ class PDFGeneratorService
     }
 
     /**
-     * Substitui <hr /> por <div style="border-bottom: 2px solid #000;"></div>
+     * Substitui <hr /> por <div style="border-bottom: 1px solid #000;"></div>
      */
     protected function replaceHr($content)
     {
-        return str_replace('<hr />', '<div style="border-bottom: 2px solid #000;"></div>', $content);
+        return str_replace('<hr />', '<div style="border-bottom: 1px solid #000;"></div>', $content);
     }
 
     public function generatePDF($htmlContent)
@@ -88,14 +88,24 @@ class PDFGeneratorService
         // Configurando o mPDF com base nas propriedades da classe
         $mpdf = new Mpdf([
             'format' => $this->formato,
-            'fontDir' => [public_path('fonts/Inter')],
+            'fontDir' => [public_path('fonts/Roboto')],
             'fontdata' => [
-                'inter' => [
-                    'R' => 'Inter-VariableFont_opsz,wght.ttf',
-                    'I' => 'Inter-Italic-VariableFont_opsz,wght.ttf',
+                'roboto' => [
+                    'R' => 'Roboto-Regular.ttf',
+                    'I' => 'Roboto-Italic.ttf',
+                    'B' => 'Roboto-Bold.ttf',
+                    'BI' => 'Roboto-BoldItalic.ttf',
+                    'L' => 'Roboto-Light.ttf',
+                    'LI' => 'Roboto-LightItalic.ttf',
+                    'M' => 'Roboto-Medium.ttf',
+                    'MI' => 'Roboto-MediumItalic.ttf',
+                    'T' => 'Roboto-Thin.ttf',
+                    'TI' => 'Roboto-ThinItalic.ttf',
+                    'BL' => 'Roboto-Black.ttf',
+                    'BI' => 'Roboto-BlackItalic.ttf',
                 ],
             ],
-            'default_font' => 'inter',
+            'default_font' => 'roboto',
             'margin_left' => $this->margemEsquerda,
             'margin_right' => $this->margemDireita,
             'margin_top' => $this->alturaCabecalho + $this->margemSuperior,

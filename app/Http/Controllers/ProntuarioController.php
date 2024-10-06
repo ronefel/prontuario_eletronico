@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prontuario;
-use App\Models\Setting;
 use App\Services\PDFGeneratorService;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
-use Mpdf\Mpdf;
 
 class ProntuarioController extends Controller
 {

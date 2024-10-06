@@ -306,4 +306,13 @@ class Biorressonancia extends Page
             }
         }
     }
+
+    // public function printAction(): Action
+    // {
+    //     return Action::make('print')
+    //         ->icon('heroicon-o-printer')
+    //         ->outlined()
+    //         ->label('Imprimir')
+    //         ->url(fn(): string => route('biorressonancia.print', ['id' => $this->paciente->id]), true);
+    // }
 }
