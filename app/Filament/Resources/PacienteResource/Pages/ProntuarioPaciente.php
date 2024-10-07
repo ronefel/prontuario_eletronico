@@ -5,8 +5,6 @@ namespace App\Filament\Resources\PacienteResource\Pages;
 use App\Filament\Resources\PacienteResource;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
-use App\Models\CategoriaTestador;
-use App\Models\Exame;
 use App\Models\Paciente;
 use App\Models\Prontuario;
 use Filament\Actions\Action;
@@ -14,7 +12,6 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -76,6 +73,14 @@ class ProntuarioPaciente extends Page
             PacienteResource::getUrl() => 'Pacientes',
             PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
             'Prontuário'
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('biorressonância')
+                ->url(route('filament.admin.resources.pacientes.biorressonancia', ['record' => $this->paciente->id])),
         ];
     }
 
@@ -337,13 +342,5 @@ class ProntuarioPaciente extends Page
             $counter++;
         }
         return $newFileName;
-    }
-
-    public function toBiorressonanciaAction(): Action
-    {
-        return Action::make('Biorressonancia')
-            ->color('info')
-            ->size(ActionSize::Small)
-            ->url(route('filament.admin.resources.pacientes.biorressonancia', ['record' => $this->paciente->id]));
     }
 }

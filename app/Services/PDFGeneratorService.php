@@ -80,7 +80,7 @@ class PDFGeneratorService
      */
     protected function replaceHr($content)
     {
-        return str_replace('<hr />', '<div style="border-bottom: 1px solid #000;"></div>', $content);
+        return str_replace('<hr />', '<div style="border-bottom: 1px solid #000; line-height: 0;"></div>', $content);
     }
 
     public function generatePDF($htmlContent)

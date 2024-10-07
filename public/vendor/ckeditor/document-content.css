@@ -233,7 +233,7 @@ LARGURA E ALTURA DA PAGINA A4:
 
 .document-content hr {
     border: 0px;
-    border: 1px solid #000;
+    border-bottom: 1px solid #000;
     margin: 0;
 }
 

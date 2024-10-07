@@ -63,6 +63,14 @@ class Biorressonancia extends Page
         ];
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('prontuário')
+                ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->paciente->id])),
+        ];
+    }
+
     public function createExameAction(): Action
     {
         // Carregar as categorias com seus testadores
@@ -137,7 +145,7 @@ class Biorressonancia extends Page
     public function editExameAction(): Action
     {
         // Carregar as categorias com seus testadores
-        $categorias = CategoriaTestador::with('testadores')->get();
+        $categorias = CategoriaTestador::with('testadores')->orderBy('ordem')->get();
 
         return Action::make('editExame')
             ->form(array_merge(
@@ -179,7 +187,7 @@ class Biorressonancia extends Page
                 ];
 
                 // Carregar as categorias novamente, caso precise
-                $categorias = CategoriaTestador::with('testadores')->get();
+                $categorias = CategoriaTestador::with('testadores')->orderBy('ordem')->get();
 
                 // Iterar sobre as categorias para preencher os testadores
                 foreach ($categorias as $categoria) {

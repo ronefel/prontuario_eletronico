@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('categorias_testadores', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->integer('ordem');
+            $table->string('ordem', 10);
             $table->text('nota')->nullable();
             $table->timestamps();
         });

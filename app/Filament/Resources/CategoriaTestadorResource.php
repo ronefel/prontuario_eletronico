@@ -35,11 +35,20 @@ class CategoriaTestadorResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('ordem')
                     ->required()
-                    ->default(fn() => \App\Models\CategoriaTestador::max('ordem') + 1)
-                    ->helperText('Ordem de exibição')
+                    ->default(fn() => str_pad(\App\Models\CategoriaTestador::max('ordem') + 1, 2, '0', STR_PAD_LEFT))
+                    ->helperText('Ordem de exibição. Exemplo: 01')
                     ->numeric(),
-                Forms\Components\Textarea::make('nota')
+                Forms\Components\RichEditor::make('nota')
                     ->helperText('Observação sobre a categoria de testadores')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        'blockquote',
+                        'bulletList',
+                        'orderedList',
+                    ])
                     ->columnSpanFull(),
             ]);
     }

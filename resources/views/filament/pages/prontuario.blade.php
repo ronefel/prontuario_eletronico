@@ -59,7 +59,6 @@
 
             <div class="flex gap-1">
                 {{ $this->createAction }}
-                {{ $this->toBiorressonanciaAction }}
             </div>
 
             {{-- <x-filament::button style="{{ $this->formClosed ? '' : 'display: none;' }}" wire:click="showForm()">
