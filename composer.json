@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "ronefel/prontuario-eletronico",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Prontuário eletrônico para clínicas médicas, com gestão de pacientes e agendamentos.",
     "keywords": [
         "laravel",
         "framework"
