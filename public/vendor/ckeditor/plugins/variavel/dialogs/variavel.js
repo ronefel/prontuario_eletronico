@@ -29,6 +29,9 @@ CKEDITOR.dialog.add('variavel', function (editor) {
                             ['Complemento', '{PAC_COMPLEMENTO}'],
                             ['Cidade do paciente', '{PAC_CIDADE}'],
                             ['Data de Atendimento', '{DATA_ATENDIMENTO}'],
+
+                            // https://mpdf.github.io/what-else-can-i-do/replaceable-aliases.html
+                            ['Página X de Y', 'Página {PAGENO} de {nbpg}']
                         ],
                         setup: function (widget) {
                             this.setValue(widget.data.variavelSelect);

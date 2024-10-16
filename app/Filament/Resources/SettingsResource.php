@@ -37,6 +37,7 @@ class SettingsResource extends Resource
                     ->label('Valor')
                     ->sortable()
                     ->searchable()
+                    ->extraAttributes(['style' => 'white-space: normal', 'class' => 'document-content'])
                     ->html(),
             ])
             ->actions([

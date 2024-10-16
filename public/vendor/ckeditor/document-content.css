@@ -359,7 +359,6 @@ LARGURA E ALTURA DA PAGINA A4:
 
 .variavel-select {
     background: none !important;
-    overflow: hidden !important;
     height: auto !important;
     margin: 0 !important;
     border: 0px solid #bcbcbc !important;

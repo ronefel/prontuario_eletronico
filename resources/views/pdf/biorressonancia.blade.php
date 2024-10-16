@@ -13,7 +13,7 @@
             @foreach ($categorias as $key => $categoria)
                 <p style="text-align: justify; margin-bottom: 0.5cm; text-indent: 40px;">
                     <strong><u>{{ $categoria['nome'] }}</u>:</strong>
-                    {{ ucfirst(strtolower(implode(', ', array_column($categoria['testadores'], 'nome')))) }}.
+                    {{ implode(', ', array_column($categoria['testadores'], 'nome')) }}.
                 </p>
                 @if ($categoria['nota'])
                     <div style="text-align: justify; margin-bottom: 0.5cm; text-indent: 40px; font-size: 10pt;">
