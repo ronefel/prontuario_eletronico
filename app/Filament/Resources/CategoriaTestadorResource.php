@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoriaTestadorResource\Pages;
-use App\Filament\Resources\CategoriaTestadorResource\RelationManagers;
 use App\Filament\Resources\CategoriaTestadorResource\RelationManagers\TestadoresRelationManager;
 use App\Models\CategoriaTestador;
 use Filament\Forms;
@@ -71,6 +70,7 @@ class CategoriaTestadorResource extends Resource
                 //     ->sortable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('ordem')
             ->filters([
                 //
             ])

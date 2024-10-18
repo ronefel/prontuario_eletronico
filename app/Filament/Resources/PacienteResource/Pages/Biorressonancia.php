@@ -18,7 +18,6 @@ use Filament\Resources\Pages\PageRegistration;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Routing\Route;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route as RouteFacade;
 
 class Biorressonancia extends Page
@@ -74,7 +73,9 @@ class Biorressonancia extends Page
     public function createExameAction(): Action
     {
         // Carregar as categorias com seus testadores
-        $categorias = CategoriaTestador::with('testadores')->get();
+        $categorias = CategoriaTestador::with(['testadores' => function ($query) {
+            $query->orderBy('numero', 'asc');
+        }])->orderBy('ordem')->get();
 
         return Action::make('createExame')
             ->form(array_merge(
@@ -145,7 +146,9 @@ class Biorressonancia extends Page
     public function editExameAction(): Action
     {
         // Carregar as categorias com seus testadores
-        $categorias = CategoriaTestador::with('testadores')->orderBy('ordem')->get();
+        $categorias = CategoriaTestador::with(['testadores' => function ($query) {
+            $query->orderBy('numero', 'asc');
+        }])->orderBy('ordem')->get();
 
         return Action::make('editExame')
             ->form(array_merge(
@@ -179,7 +182,9 @@ class Biorressonancia extends Page
             ))
             ->fillForm(function (array $arguments) {
                 // Encontre o exame pelo ID passado nos argumentos, carregando os testadores
-                $this->exame = Exame::with('testadores')->find($arguments['id']);
+                $this->exame = Exame::with(['testadores' => function ($query) {
+                    $query->orderBy('numero');
+                }])->find($arguments['id']);
 
                 // Criar um array para preencher os dados do formulário
                 $formData = [
@@ -187,7 +192,9 @@ class Biorressonancia extends Page
                 ];
 
                 // Carregar as categorias novamente, caso precise
-                $categorias = CategoriaTestador::with('testadores')->orderBy('ordem')->get();
+                $categorias = CategoriaTestador::with(['testadores' => function ($query) {
+                    $query->orderBy('numero', 'asc');
+                }])->orderBy('ordem')->get();
 
                 // Iterar sobre as categorias para preencher os testadores
                 foreach ($categorias as $categoria) {
@@ -280,7 +287,9 @@ class Biorressonancia extends Page
         $this->tableData = [];
 
         // Recuperar exames e testadores com suas respectivas datas
-        $exames = Exame::with('testadores')->where('paciente_id', $this->paciente->id)->orderBy('data')->get();
+        $exames = Exame::with(['testadores' => function ($query) {
+            $query->orderBy('numero');
+        }])->where('paciente_id', $this->paciente->id)->orderBy('data')->get();
 
         if ($exames->count() == 0) {
             return;
@@ -294,15 +303,28 @@ class Biorressonancia extends Page
         });
 
         // Obter categorias e seus testadores
-        $categorias = CategoriaTestador::with('testadores')->orderBy('ordem')->get();
+        $categorias = CategoriaTestador::with(['testadores' => function ($query) {
+            $query->orderBy('numero', 'asc');
+        }])->orderBy('ordem')->get();
 
         foreach ($categorias as $categoria) {
+            // Filtrar os testadores que não participaram de nenhum exame
+            $categoria->testadores = $categoria->testadores->filter(function ($testador) use ($exames) {
+                // Verifica se o testador participou de pelo menos um exame
+                return $exames->contains(function ($exame) use ($testador) {
+                    return $exame->testadores->contains($testador);
+                });
+            });
+
+            // Preencher a tabela somente com os testadores que sobraram após o filtro
             foreach ($categoria->testadores as $testador) {
                 $row = [
                     'numero' => $testador->numero,
                     'nome' => $testador->nome,
                     'categoria' => $categoria->nome,
                 ];
+
+                $hasExame = false; // Flag para verificar se há um "X" na linha
 
                 // Preencher a coluna de cada data com X se o testador participou do exame
                 foreach ($exames as $exame) {

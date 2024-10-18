@@ -39,6 +39,7 @@ class TestadoresRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('numero')->label('Nº')->searchable(),
                 Tables\Columns\TextColumn::make('nome')->searchable(),
             ])
+            ->defaultSort('numero')
             ->filters([
                 //
             ])

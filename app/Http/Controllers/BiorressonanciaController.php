@@ -45,6 +45,13 @@ class BiorressonanciaController extends Controller
             // Ordenar as categorias
             ksort($categorias);
 
+            // Ordenar os testadores por 'numero' dentro de cada categoria
+            foreach ($categorias as &$categoria) {
+                usort($categoria['testadores'], function ($a, $b) {
+                    return $a->numero <=> $b->numero;
+                });
+            }
+
             $pdfGeneratorService = new PDFGeneratorService(
                 'A4',
                 'P',
