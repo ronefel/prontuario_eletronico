@@ -88,7 +88,7 @@ class PacienteResource extends Resource
                     TextInput::make('email')
                         ->label('E-mail')
                         ->email()
-                        ->unique()
+                        ->unique(ignoreRecord: true)
                         ->nullable()
                         ->acoff()
                         ->dehydrateStateUsing(function ($state) {
