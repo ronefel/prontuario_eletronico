@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('movimentacoes', function (Blueprint $table) {
+            $table->id();
+            $table->enum('tipo', ['entrada', 'saida', 'ajuste', 'transferencia']);
+            $table->foreignId('produto_id')->constrained('produtos')->onDelete('cascade');
+            $table->foreignId('lote_id')->nullable()->constrained('lotes')->onDelete('cascade');
+            $table->integer('quantidade');
+            $table->dateTime('data_movimentacao');
+            $table->text('motivo')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
+            $table->string('documento')->nullable();
+            $table->decimal('valor_unitario', 8, 2)->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('movimentacoes');
+    }
+};
