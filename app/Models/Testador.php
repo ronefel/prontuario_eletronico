@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property bool $ativo
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\CategoriaTestador $categoria
+ * @property \App\Models\CategoriaTestador $categoria
  * @method static \Database\Factories\TestadorFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Testador newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Testador newQuery()

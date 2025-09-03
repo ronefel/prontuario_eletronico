@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class InventarioResource extends Resource
 {
@@ -50,7 +51,7 @@ class InventarioResource extends Resource
                     ->nullable(),
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
-                    ->default(auth()->id()),
+                    ->default(Auth::id()),
                 Forms\Components\Select::make('status')
                     ->options([
                         'pendente' => 'Pendente',
@@ -100,7 +101,6 @@ class InventarioResource extends Resource
 
                         if ($record->lote_id && $record->discrepancia != 0) {
                             $lote = $record->lote;
-                            $lote->quantidade_atual = $record->quantidade_contada;
                             $lote->save();
 
                             $record->produto->movimentacoes()->create([
@@ -109,8 +109,8 @@ class InventarioResource extends Resource
                                 'quantidade' => $record->discrepancia,
                                 'data_movimentacao' => now(),
                                 'motivo' => 'Ajuste via inventário #'.$record->id,
-                                'user_id' => auth()->id(),
-                                'valor_unitario' => $record->produto->preco_unitario,
+                                'user_id' => Auth::id(),
+                                'valor_unitario' => $record->produto->valor_unitario_referencia,
                             ]);
                         }
                     }),

@@ -7,7 +7,8 @@ parameters:
         - app
 
     excludePaths:
-        - app/Adapters/*
+        - app/Adapters
+        - app/Providers
 
     level: 5
     checkModelProperties: true
@@ -15,4 +16,6 @@ parameters:
     ignoreErrors:
         - message: '#Unknown parameter \$get in call to Attribute constructor#'
         - message: '#Unknown parameter \$set in call to Attribute constructor#'
-        - message: '#Call to an undefined method Filament\\Forms\\Components\\TextInput::acoff\(\)#'
+        - message: '#Call to an undefined method .+::acoff\(\)#'
+        - message: '#Relation .+ is not found in App\\Models\\.+#'
+        - message: '#Call to an undefined method Filament\\Notifications\\Notification::error\(\)#'

@@ -20,9 +20,9 @@ use Illuminate\Support\Facades\Auth;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Lote $lote
- * @property-read \App\Models\Produto $produto
- * @property-read \App\Models\User $user
+ * @property \App\Models\Lote $lote
+ * @property \App\Models\Produto $produto
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao onlyTrashed()

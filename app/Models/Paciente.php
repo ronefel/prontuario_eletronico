@@ -23,11 +23,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $observacao
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Cidade|null $cidade
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exame> $exames
- * @property-read int|null $exames_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Prontuario> $prontuarios
- * @property-read int|null $prontuarios_count
+ * @property \App\Models\Cidade|null $cidade
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exame> $exames
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Prontuario> $prontuarios
  * @method static \Database\Factories\PacienteFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newQuery()

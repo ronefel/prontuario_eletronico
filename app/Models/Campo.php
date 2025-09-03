@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $lista
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Secao|null $secao
+ * @property \App\Models\Secao|null $secao
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Campo newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Campo newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Campo query()

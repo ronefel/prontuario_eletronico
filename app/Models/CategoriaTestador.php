@@ -12,8 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $ordem
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
- * @property-read int|null $testadores_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
  * @method static \Database\Factories\CategoriaTestadorFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CategoriaTestador newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CategoriaTestador newQuery()

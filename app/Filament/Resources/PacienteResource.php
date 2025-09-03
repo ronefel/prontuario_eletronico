@@ -23,7 +23,6 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 class PacienteResource extends Resource
 {
@@ -187,7 +186,7 @@ class PacienteResource extends Resource
                 ]),
             ])
             ->recordUrl(
-                fn (Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+                fn (Paciente $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
             );
     }
 

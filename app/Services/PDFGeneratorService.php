@@ -104,7 +104,6 @@ class PDFGeneratorService
                     'R' => 'Roboto-Regular.ttf',
                     'I' => 'Roboto-Italic.ttf',
                     'B' => 'Roboto-Bold.ttf',
-                    'BI' => 'Roboto-BoldItalic.ttf',
                     'L' => 'Roboto-Light.ttf',
                     'LI' => 'Roboto-LightItalic.ttf',
                     'M' => 'Roboto-Medium.ttf',

@@ -12,9 +12,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $tratamento
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Paciente $paciente
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
- * @property-read int|null $testadores_count
+ * @property \App\Models\Paciente $paciente
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
  * @method static \Database\Factories\ExameFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame newQuery()

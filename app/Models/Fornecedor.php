@@ -15,8 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
- * @property-read int|null $produtos_count
+ * @propert \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor onlyTrashed()

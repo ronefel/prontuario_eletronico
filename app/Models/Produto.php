@@ -17,14 +17,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Categoria $categoria
- * @property-read \App\Models\Fornecedor|null $fornecedor
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $inventarios
- * @property-read int|null $inventarios_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
- * @property-read int|null $lotes_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
- * @property-read int|null $movimentacoes_count
+ * @property \App\Models\Categoria $categoria
+ * @property \App\Models\Fornecedor|null $fornecedor
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $inventarios
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto onlyTrashed()

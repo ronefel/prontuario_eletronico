@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
  * @property array<array-key, mixed>|null $arquivos
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Paciente|null $paciente
+ * @property \App\Models\Paciente|null $paciente
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario query()

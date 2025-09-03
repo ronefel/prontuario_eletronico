@@ -22,13 +22,12 @@ use Illuminate\Support\Facades\Auth;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Fornecedor|null $fornecedor
- * @property-read string $display_name
- * @property-read mixed $quantidade_atual
- * @property-read \App\Models\Local $local
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
- * @property-read int|null $movimentacoes_count
- * @property-read \App\Models\Produto $produto
+ * @property \App\Models\Fornecedor|null $fornecedor
+ * @property string $display_name
+ * @property mixed $quantidade_atual
+ * @property \App\Models\Local $local
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
+ * @property \App\Models\Produto $produto
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote onlyTrashed()

@@ -12,8 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
- * @property-read int|null $lotes_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Local newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Local newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Local onlyTrashed()

@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property string $hash
  * @property string $name
- * @property string $content
+ * @property resource $content
  * @property int|null $size
  * @property string|null $mime_type
  * @property \Illuminate\Support\Carbon|null $created_at

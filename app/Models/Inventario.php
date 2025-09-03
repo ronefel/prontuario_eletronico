@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Lote|null $lote
- * @property-read \App\Models\Produto|null $produto
- * @property-read \App\Models\User $user
+ * @property \App\Models\Lote|null $lote
+ * @property \App\Models\Produto|null $produto
+ * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario onlyTrashed()

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Produto|null $produto
+ * @property \App\Models\Produto|null $produto
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AlertaConfig newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AlertaConfig newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AlertaConfig onlyTrashed()
