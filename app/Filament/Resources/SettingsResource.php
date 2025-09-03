@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SettingsResource\Pages;
 use App\Forms\Components\CKEditor;
 use App\Models\Setting;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -15,8 +14,11 @@ use Filament\Tables\Table;
 class SettingsResource extends Resource
 {
     protected static ?string $model = Setting::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+
     protected static ?int $navigationSort = 999;
+
     protected static ?string $modelLabel = 'Configurações';
 
     public static function canCreate(): bool
@@ -47,20 +49,20 @@ class SettingsResource extends Resource
                             'select' => [
                                 Select::make('value')
                                     ->label($record->label)
-                                    ->options($record->attributes['options'])
+                                    ->options($record->attributes['options']),
                             ],
                             'number' => [
                                 TextInput::make('value')
                                     ->label($record->label)
-                                    ->type('number')
+                                    ->type('number'),
                             ],
                             'text-editor' => [
                                 CKEditor::make('value')
-                                    ->label($record->label)
+                                    ->label($record->label),
                             ],
                             default => [
                                 TextInput::make('value')
-                                    ->label($record->label)
+                                    ->label($record->label),
                             ]
                         };
                     })

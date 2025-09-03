@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\File;
-use Illuminate\Http\Request;
 
 class FileController extends Controller
 {
@@ -16,6 +14,6 @@ class FileController extends Controller
 
         return response($content)
             ->header('Content-Type', $mimeType)
-            ->header('Content-Disposition', 'inline; filename="' . $file->name . '"');
+            ->header('Content-Disposition', 'inline; filename="'.$file->name.'"');
     }
 }

@@ -15,7 +15,6 @@ class EditPaciente extends EditRecord
         return $this->record->nome;
     }
 
-
     protected function getHeaderActions(): array
     {
         return [

@@ -17,7 +17,7 @@ class BiorressonanciaController extends Controller
         // Busca o exame
         $exame = Exame::with([
             'paciente',
-            'testadores.categoria'
+            'testadores.categoria',
         ])->where('id', $id)->first();
 
         if ($exame) {
@@ -26,12 +26,12 @@ class BiorressonanciaController extends Controller
 
             foreach ($exame->testadores as $testador) {
                 $categoria = $testador->categoria;
-                $key = $categoria->ordem . ' - ' . $categoria->nome;
+                $key = $categoria->ordem.' - '.$categoria->nome;
                 $categoriaNome = $categoria->nome;
                 $categoriaNota = $categoria->nota;
 
                 // Agrupar testadores por categoria
-                if (!isset($categorias[$key])) {
+                if (! isset($categorias[$key])) {
                     $categorias[$key] = [
                         'nome' => $categoriaNome,
                         'nota' => $categoriaNota,
@@ -63,7 +63,7 @@ class BiorressonanciaController extends Controller
                 view('pdf.biorressonancia', ['exame' => $exame, 'categorias' => $categorias,  'settings' => $settings])->render(),
             );
 
-            return $mpdf->Output(str_replace(' ', '_', $exame->paciente->nome) . ' _ ' . time() . '.pdf', 'I');
+            return $mpdf->Output(str_replace(' ', '_', $exame->paciente->nome).' _ '.time().'.pdf', 'I');
         } else {
             throw new HttpResponseException(response()->make(
                 'Exame não encontrado.',

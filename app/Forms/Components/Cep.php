@@ -37,15 +37,18 @@ class Cep extends TextInput
 
             $livewire->validateOnly($component->getKey());
 
-            $request = Http::get('viacep.com.br/ws/' . $state . '/json/')->json();
+            $request = Http::get('viacep.com.br/ws/'.$state.'/json/')->json();
 
-            if (!$request || isset($request['erro'])) return;
+            if (! $request || isset($request['erro'])) {
+                return;
+            }
 
             foreach ($setFields as $key => $value) {
                 if ($key === 'localidade') {
                     $cidade = Cidade::where('uf', $request['uf'])->where('nome', $request['localidade'])->first();
                     if ($cidade) {
                         $set($value, $cidade->id);
+
                         return;
                     }
                 }
@@ -54,7 +57,7 @@ class Cep extends TextInput
 
             if (Arr::has($request, 'erro')) {
                 throw ValidationException::withMessages([
-                    $component->getKey() => $errorMessage
+                    $component->getKey() => $errorMessage,
                 ]);
             }
         };

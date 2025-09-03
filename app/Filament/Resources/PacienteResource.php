@@ -41,13 +41,13 @@ class PacienteResource extends Resource
                     TextInput::make('nome')
                         ->required()
                         ->acoff()
-                        ->dehydrateStateUsing(fn(string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
+                        ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                     Grid::make()->schema([
                         DatePicker::make('nascimento')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
-                            ->afterStateHydrated(fn(Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
+                            ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
+                            ->afterStateHydrated(fn (Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
                         TextInput::make('idade')
                             ->disabled(),
                     ])->columns(['md' => 2])->columnSpan(1),
@@ -72,13 +72,13 @@ class PacienteResource extends Resource
                                 'AB-' => 'AB-',
                                 'O+' => 'O+',
                                 'O-' => 'O-',
-                            ])
+                            ]),
                     ])->columns(['md' => 2])->columnSpan(1),
                     TextInput::make('cpf')
                         ->label('CPF')
                         ->required()
                         ->acoff()
-                        ->unique(ignorable: fn(?Paciente $record): ?Paciente => $record)
+                        ->unique(ignorable: fn (?Paciente $record): ?Paciente => $record)
                         ->mask('999.999.999-99')
                         ->placeholder('000.000.000-00')
                         ->minLength(14),
@@ -92,7 +92,7 @@ class PacienteResource extends Resource
                         ->nullable()
                         ->acoff()
                         ->dehydrateStateUsing(function ($state) {
-                            return !empty($state) ? strtolower($state) : null;
+                            return ! empty($state) ? strtolower($state) : null;
                         }),
                     TextInput::make('celular')
                         ->tel()
@@ -110,7 +110,7 @@ class PacienteResource extends Resource
                         ->viaCep(
                             setFields: [
                                 'logradouro' => 'logradouro',
-                                'bairro'     => 'bairro',
+                                'bairro' => 'bairro',
                                 'localidade' => 'cidade_id',
                             ],
                         ),
@@ -127,9 +127,9 @@ class PacienteResource extends Resource
                     Select::make('cidade_id')
                         ->relationship(
                             name: 'cidade',
-                            modifyQueryUsing: fn(Builder $query) => $query->orderBy('nome')->orderBy('uf')
+                            modifyQueryUsing: fn (Builder $query) => $query->orderBy('nome')->orderBy('uf')
                         )
-                        ->getOptionLabelFromRecordUsing(fn(?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
+                        ->getOptionLabelFromRecordUsing(fn (?Cidade $cidade) => $cidade?->nome.' - '.$cidade?->uf)
                         ->searchable()
                         ->preload()
                         ->createOptionForm(CidadeResource::formFields())->createOptionModalHeading('Criar Cidade')
@@ -153,7 +153,7 @@ class PacienteResource extends Resource
                         ->searchable(),
                     Split::make([
                         TextColumn::make('nascimento')->grow(false)
-                            ->formatStateUsing(fn($state) => Paciente::calcularIdade($state)),
+                            ->formatStateUsing(fn ($state) => Paciente::calcularIdade($state)),
                         TextColumn::make('sexo'),
                         TextColumn::make('tiposanguineo')
                             ->label('Tipo Sanguíneo'),
@@ -168,12 +168,12 @@ class PacienteResource extends Resource
                                 ->copyMessage('Email copiado para a área de transferência')
                                 ->copyMessageDuration(1500),
                             TextColumn::make('celular')
-                                ->url(fn($state) => "https://wa.me/+55{$state}")
+                                ->url(fn ($state) => "https://wa.me/+55{$state}")
                                 ->openUrlInNewTab()
-                                ->icon('heroicon-m-phone')
+                                ->icon('heroicon-m-phone'),
                         ])->from('xl'),
-                    ])
-                ])->from('xl')->collapsible()
+                    ]),
+                ])->from('xl')->collapsible(),
             ])
             ->filters([
                 //
@@ -187,7 +187,7 @@ class PacienteResource extends Resource
                 ]),
             ])
             ->recordUrl(
-                fn(Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+                fn (Model $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
             );
     }
 

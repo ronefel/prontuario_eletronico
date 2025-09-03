@@ -6,6 +6,31 @@ use App\Casts\DatetimeWithTimezone;
 use App\Enums\ProntuarioTipoEnum;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property int $id
+ * @property int|null $paciente_id
+ * @property string $descricao
+ * @property mixed $data
+ * @property ProntuarioTipoEnum|null $tipo
+ * @property array<array-key, mixed>|null $arquivos
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Paciente|null $paciente
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereArquivos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereDescricao($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario wherePacienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereTipo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class Prontuario extends BaseModel
 {
     public function paciente()
@@ -26,9 +51,10 @@ class Prontuario extends BaseModel
         foreach ($this->arquivos as $arquivo) {
             $arquivos[] = [
                 'nome' => $arquivo,
-                'url' => '/files/' . $arquivo,
+                'url' => '/files/'.$arquivo,
             ];
         }
+
         return $arquivos;
     }
 

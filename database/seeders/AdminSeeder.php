@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
@@ -13,12 +12,12 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!User::where('email', 'admin@admin.com')->exists()) {
+        if (! User::where('email', 'admin@admin.com')->exists()) {
             User::create([
                 'email' => 'admin@admin.com',
                 'password' => 'admin',
                 'name' => 'Admin',
-                'email_verified_at' => now()
+                'email_verified_at' => now(),
             ]);
         }
     }

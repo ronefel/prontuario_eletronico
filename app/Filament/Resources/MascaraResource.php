@@ -3,11 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MascaraResource\Pages;
-use App\Filament\Resources\MascaraResource\RelationManagers;
 use App\Forms\Components\CKEditor;
 use App\Http\Helpers\AgentHelper;
 use App\Models\Mascara;
-use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -15,8 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class MascaraResource extends Resource
 {

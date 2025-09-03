@@ -15,8 +15,8 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Resources\Pages\PageRegistration;
 use Filament\Panel;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Routing\Route;
@@ -30,8 +30,9 @@ class ProntuarioPaciente extends Page
     // use InteractsWithForms;
 
     #[Locked]
-    public Paciente | int | string | null $paciente;
-    public Prontuario | int | string | null $prontuario;
+    public Paciente|int|string|null $paciente;
+
+    public Prontuario|int|string|null $prontuario;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -49,13 +50,13 @@ class ProntuarioPaciente extends Page
     {
         return new PageRegistration(
             page: static::class,
-            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
+            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
                 ->middleware(static::getRouteMiddleware($panel))
                 ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
         );
     }
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->paciente = Paciente::findOrFail($record);
 
@@ -72,7 +73,7 @@ class ProntuarioPaciente extends Page
         return [
             PacienteResource::getUrl() => 'Pacientes',
             PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
-            'Prontuário'
+            'Prontuário',
         ];
     }
 
@@ -116,8 +117,8 @@ class ProntuarioPaciente extends Page
                 ->previewable(false)
                 ->openable()
                 ->getUploadedFileNameForStorageUsing(
-                    fn(TemporaryUploadedFile $file) => self::generateUniqueFileNameForStorageUsing($file)
-                )
+                    fn (TemporaryUploadedFile $file) => self::generateUniqueFileNameForStorageUsing($file)
+                ),
 
         ];
 
@@ -246,6 +247,7 @@ class ProntuarioPaciente extends Page
             ->form(self::formFields([Hidden::make('id')]))
             ->fillForm(function (array $arguments) {
                 $this->prontuario = Prontuario::find($arguments['prontuario']);
+
                 return [
                     'id' => $this->prontuario->id,
                     'data' => $this->prontuario->data,
@@ -302,13 +304,13 @@ class ProntuarioPaciente extends Page
                     ->default('P')
                     ->grouped()
                     ->reactive() // Torna o campo reativo a mudanças em outros campos
-                    ->disabled(fn($get) => $get('paper_size') === 'A5noA4'),
+                    ->disabled(fn ($get) => $get('paper_size') === 'A5noA4'),
                 ToggleButtons::make('paper_size')
                     ->label('Tamanho do Papel')
                     ->options([
                         'A4' => 'A4',
                         'A5' => 'A5',
-                        'A5noA4' => 'A5 no A4'
+                        'A5noA4' => 'A5 no A4',
                     ])
                     ->default('A4')
                     ->grouped()
@@ -341,6 +343,7 @@ class ProntuarioPaciente extends Page
             $newFileName = "{$originalName}_{$counter}.{$extension}"; // Cria o novo nome do arquivo
             $counter++;
         }
+
         return $newFileName;
     }
 }

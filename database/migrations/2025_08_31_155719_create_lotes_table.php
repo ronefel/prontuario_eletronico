@@ -11,11 +11,13 @@ return new class extends Migration
         Schema::create('lotes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produto_id')->constrained()->onDelete('cascade');
+            $table->foreignId('fornecedor_id')->nullable()->constrained('fornecedores')->onDelete('set null');
             $table->string('numero_lote')->unique();
             $table->date('data_fabricacao')->nullable();
             $table->date('data_validade')->nullable();
             $table->integer('quantidade_inicial');
-            $table->integer('quantidade_atual');
+            $table->string('documento')->nullable();
+            $table->decimal('valor_unitario', 8, 2)->nullable();
             $table->foreignId('local_id')->constrained('locais')->onDelete('restrict');
             $table->enum('status', ['ativo', 'expirado', 'bloqueado'])->default('ativo');
             $table->timestamps();

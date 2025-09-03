@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('nome');
             $table->text('descricao')->nullable();
             $table->string('unidade_medida')->default('unidade');
-            $table->decimal('preco_unitario', 8, 2)->nullable();
+            $table->decimal('valor_unitario_referencia', 8, 2)->nullable();
             $table->integer('estoque_minimo')->default(10);
             $table->integer('estoque_maximo')->default(100);
             $table->foreignId('categoria_id')->constrained('categorias')->onDelete('restrict');

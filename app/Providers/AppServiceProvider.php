@@ -4,19 +4,17 @@ namespace App\Providers;
 
 use App\Adapters\DatabaseAdapter;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
     {
 
         Storage::extend('database', function (Application $app, array $config) {
-            $adapter = new DatabaseAdapter();
+            $adapter = new DatabaseAdapter;
 
             return new FilesystemAdapter(
                 new Filesystem($adapter, $config),
@@ -63,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         FilamentAsset::register([
-            AlpineComponent::make('ckeditor-component', __DIR__ . '/../../resources/js/dist/components/ckeditor-component.js'),
+            AlpineComponent::make('ckeditor-component', __DIR__.'/../../resources/js/dist/components/ckeditor-component.js'),
         ]);
 
         FilamentAsset::register([

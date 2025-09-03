@@ -5,13 +5,12 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum ProntuarioTipoEnum: string implements HasLabel, HasColor
+enum ProntuarioTipoEnum: string implements HasColor, HasLabel
 {
-
     case ATENDIMENTO = 'atendimento';
     case RECEITA = 'receita';
 
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return match ($this) {
             self::ATENDIMENTO => 'Atendimento',
@@ -19,7 +18,7 @@ enum ProntuarioTipoEnum: string implements HasLabel, HasColor
         };
     }
 
-    public function getColor(): string|array|null
+    public function getColor(): string
     {
         return match ($this) {
             self::ATENDIMENTO => 'primary',

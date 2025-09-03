@@ -8,16 +8,26 @@ use Mpdf\Mpdf;
 class PDFGeneratorService
 {
     protected $formato;
+
     protected $margemEsquerda;
+
     protected $margemDireita;
+
     protected $margemSuperior;
+
     protected $margemInferior;
+
     protected $alturaCabecalho;
+
     protected $alturaRodape;
+
     // protected $settings;
     protected $paciente;
+
     protected $dataAtendimento;
+
     protected $cabecalho;
+
     protected $rodape;
 
     public function __construct(
@@ -32,20 +42,20 @@ class PDFGeneratorService
         // Busca todas as configurações
         $settings = Setting::getAllSettings();
 
-        $this->margemSuperior  = $settings[Setting::MARGEM_SUPERIOR];
-        $this->margemInferior  = $settings[Setting::MARGEM_INFERIOR];
-        $this->margemEsquerda  = $settings[Setting::MARGEM_ESQUERDA];
-        $this->margemDireita   = $settings[Setting::MARGEM_DIREITA];
+        $this->margemSuperior = $settings[Setting::MARGEM_SUPERIOR];
+        $this->margemInferior = $settings[Setting::MARGEM_INFERIOR];
+        $this->margemEsquerda = $settings[Setting::MARGEM_ESQUERDA];
+        $this->margemDireita = $settings[Setting::MARGEM_DIREITA];
         $this->alturaCabecalho = $settings[Setting::ALTURA_CABECALHO];
-        $this->alturaRodape    = $settings[Setting::ALTURA_RODAPE];
+        $this->alturaRodape = $settings[Setting::ALTURA_RODAPE];
 
         $this->cabecalho = $this->replaceVariables($settings[Setting::CABECALHO]);
-        $this->rodape    = $this->replaceVariables($settings[Setting::RODAPE]);
+        $this->rodape = $this->replaceVariables($settings[Setting::RODAPE]);
 
         $this->cabecalho = $this->replaceHr($this->cabecalho);
-        $this->rodape    = $this->replaceHr($this->rodape);
+        $this->rodape = $this->replaceHr($this->rodape);
 
-        $this->formato = $paperSize . '-' . $layout;
+        $this->formato = $paperSize.'-'.$layout;
         if ($paperSize === 'A5noA4') {
             $this->formato = 'A4-L';
             $this->margemDireita += 148;
@@ -55,20 +65,20 @@ class PDFGeneratorService
     protected function replaceVariables($content)
     {
         $variaveis = [
-            '{PAC_NOME}'         => $this->paciente->nome,
-            '{NASCIM}'           => $this->paciente->nascimento->format('d/m/Y'),
-            '{IDADE}'            => $this->paciente->idade(),
-            '{SEXO}'             => $this->paciente->sexo(),
-            '{TIPO}'             => $this->paciente->tiposanguineo,
-            '{PAC_CPF}'          => $this->paciente->cpf,
-            '{PAC_CELULAR}'      => $this->paciente->celularFormatado(),
-            '{PAC_EMAIL}'        => $this->paciente->email,
-            '{PAC_CEP}'          => $this->paciente->cep,
-            '{PAC_LOGRADOURO}'   => $this->paciente->logradouro,
-            '{PAC_NUMERO}'       => $this->paciente->numero,
-            '{PAC_BAIRRO}'       => $this->paciente->bairro,
-            '{PAC_COMPLEMENTO}'  => $this->paciente->complemento,
-            '{PAC_CIDADE}'       => $this->paciente->cidade?->cidadeUf(),
+            '{PAC_NOME}' => $this->paciente->nome,
+            '{NASCIM}' => $this->paciente->nascimento->format('d/m/Y'),
+            '{IDADE}' => $this->paciente->idade(),
+            '{SEXO}' => $this->paciente->sexo(),
+            '{TIPO}' => $this->paciente->tiposanguineo,
+            '{PAC_CPF}' => $this->paciente->cpf,
+            '{PAC_CELULAR}' => $this->paciente->celularFormatado(),
+            '{PAC_EMAIL}' => $this->paciente->email,
+            '{PAC_CEP}' => $this->paciente->cep,
+            '{PAC_LOGRADOURO}' => $this->paciente->logradouro,
+            '{PAC_NUMERO}' => $this->paciente->numero,
+            '{PAC_BAIRRO}' => $this->paciente->bairro,
+            '{PAC_COMPLEMENTO}' => $this->paciente->complemento,
+            '{PAC_CIDADE}' => $this->paciente->cidade?->cidadeUf(),
             '{DATA_ATENDIMENTO}' => $this->dataAtendimento?->format('d/m/Y'),
         ];
 
@@ -120,12 +130,12 @@ class PDFGeneratorService
         // Define o cabeçalho e o rodapé do PDF
         $mpdf->SetHTMLHeader('
             <div class="document-content">
-                ' . $this->cabecalho . '
+                '.$this->cabecalho.'
             </div>
         ');
         $mpdf->SetHTMLFooter('
             <div class="document-content">
-                ' . $this->rodape . '
+                '.$this->rodape.'
             </div>
         ');
 

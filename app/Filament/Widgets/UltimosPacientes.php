@@ -35,7 +35,7 @@ class UltimosPacientes extends BaseWidget
                 TextColumn::make('data')
                     ->label('Data Atendimento')
                     ->date('d/m/Y')
-                    ->timezone(Auth::user()->timezone)
+                    ->timezone(Auth::user()->timezone),
             ])->paginated(false);
     }
 }

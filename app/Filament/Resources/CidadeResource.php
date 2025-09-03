@@ -64,10 +64,10 @@ class CidadeResource extends Resource
             TextInput::make('nome')
                 ->required()
                 ->live(onBlur: true)
-                ->afterStateUpdated(fn(Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
+                ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('nome', ucwords(strtolower($state)))) // Capitaliza a primeira letra de cada palavra
                 ->unique(
                     ignoreRecord: true,
-                    modifyRuleUsing: function (Unique $rule,  Get $get) {
+                    modifyRuleUsing: function (Unique $rule, Get $get) {
                         return $rule->where('uf', $get('uf'));
                     }
                 )
@@ -105,7 +105,7 @@ class CidadeResource extends Resource
                     'SE' => 'Sergipe',
                     'SP' => 'São Paulo',
                     'TO' => 'Tocantins',
-                ])->searchable()
+                ])->searchable(),
         ];
     }
 }

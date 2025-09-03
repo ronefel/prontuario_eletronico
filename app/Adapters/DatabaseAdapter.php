@@ -19,7 +19,7 @@ use League\Flysystem\UnableToWriteFile;
 class DatabaseAdapter implements FilesystemAdapter
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function fileExists(string $path): bool
     {
@@ -34,7 +34,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function directoryExists(string $path): bool
     {
@@ -43,15 +43,15 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function write(string $path, string $contents, Config $config): void
     {
         $this->validatePath($path);
 
         // Checa se o conteúdo está vazio
-        if (!$contents) {
-            throw new UnableToWriteFile("Parece ser um arquivo vazio ou não foi possível ler o conteúdo");
+        if (! $contents) {
+            throw new UnableToWriteFile('Parece ser um arquivo vazio ou não foi possível ler o conteúdo');
         }
 
         // Verifica se já existe um arquivo com o mesmo caminho
@@ -60,7 +60,7 @@ class DatabaseAdapter implements FilesystemAdapter
         }
 
         // Cria um novo registro de arquivo
-        $file = new File();
+        $file = new File;
         $file->hash = Str::orderedUuid();
         $file->name = $path;
         $file->content = base64_encode($contents);  // Encode do conteúdo
@@ -72,11 +72,12 @@ class DatabaseAdapter implements FilesystemAdapter
     protected function mime_content_type_from_string(string $contents): ?string
     {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
+
         return $finfo->buffer($contents);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function writeStream(string $path, $contents, Config $config): void
     {
@@ -85,21 +86,22 @@ class DatabaseAdapter implements FilesystemAdapter
             // Define o nome do arquivo
             $fileName = basename($path);
             // Define o caminho completo no diretório temporário
-            $tempFilePath = 'livewire-tmp/' . $fileName;
+            $tempFilePath = 'livewire-tmp/'.$fileName;
 
             // Salva o conteúdo do stream no diretório temporário
             $content = stream_get_contents($contents);
             if ($content === false) {
-                throw new UnableToWriteFile("Não foi possível ler o conteúdo do stream");
+                throw new UnableToWriteFile('Não foi possível ler o conteúdo do stream');
             }
             // Usa o disco local para salvar o arquivo
             Storage::disk('local')->put($tempFilePath, $content);
+
             return;
         }
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function read(string $path): string
     {
@@ -107,14 +109,15 @@ class DatabaseAdapter implements FilesystemAdapter
 
         $file = File::where('name', $path);
 
-        if (($file->count()) != 1)
+        if (($file->count()) != 1) {
             throw new UnableToReadFile("Não foi possível localizar o arquivo {$path}");
+        }
 
         return base64_decode(stream_get_contents($file->first()->content));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function readStream(string $path)
     {
@@ -137,11 +140,12 @@ class DatabaseAdapter implements FilesystemAdapter
         $writeStream = fopen('php://temp', 'w+b');
         fwrite($writeStream, $contents);
         rewind($writeStream);
+
         return $writeStream;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function delete(string $path): void
     {
@@ -151,6 +155,7 @@ class DatabaseAdapter implements FilesystemAdapter
             if (Storage::disk('local')->exists($path)) {
                 // Obtém o conteúdo do arquivo
                 Storage::disk('local')->delete($path);
+
                 return;
             } else {
                 throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}.");
@@ -164,7 +169,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function deleteDirectory(string $path): void
     {
@@ -176,7 +181,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function createDirectory(string $path, Config $config): void
     {
@@ -184,7 +189,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setVisibility(string $path, string $visibility): void
     {
@@ -192,7 +197,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function visibility(string $path): FileAttributes
     {
@@ -200,7 +205,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function mimeType(string $path): FileAttributes
     {
@@ -208,8 +213,9 @@ class DatabaseAdapter implements FilesystemAdapter
 
         $file = File::where('name', $path)->first();
 
-        if (!$file)
+        if (! $file) {
             throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}");
+        }
 
         return new FileAttributes(
             $path,
@@ -221,7 +227,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function lastModified(string $path): FileAttributes
     {
@@ -242,8 +248,9 @@ class DatabaseAdapter implements FilesystemAdapter
 
         $file = File::where('name', $path)->first();
 
-        if (($file->count()) != 1)
+        if (($file->count()) != 1) {
             throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}");
+        }
 
         return new FileAttributes(
             $path,
@@ -254,7 +261,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function fileSize(string $path): FileAttributes
     {
@@ -273,8 +280,9 @@ class DatabaseAdapter implements FilesystemAdapter
 
         $file = File::where('name', $path)->first();
 
-        if (!$file)
+        if (! $file) {
             throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}");
+        }
 
         return new FileAttributes(
             $path,
@@ -283,7 +291,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function listContents(string $path, bool $deep): iterable
     {
@@ -311,8 +319,9 @@ class DatabaseAdapter implements FilesystemAdapter
         $file = File::where('name', $path)
             ->get();
 
-        if ($file->count() <= 0)
+        if ($file->count() <= 0) {
             throw new UnableToListContents("Não é possível encontrar o caminho {$path}");
+        }
 
         $retArr = [];
         foreach ($file as $b) {
@@ -329,7 +338,7 @@ class DatabaseAdapter implements FilesystemAdapter
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function move(string $source, string $destination, Config $config): void
     {
@@ -343,19 +352,21 @@ class DatabaseAdapter implements FilesystemAdapter
         $dstFile = File::where('name', $destination);
 
         // Há colisões?
-        if ($dstFile->count() != 0)
+        if ($dstFile->count() != 0) {
             throw UnableToMoveFile::fromLocationTo($source, $destination);
+        }
 
         // Há algo para mover?
-        if ($srcFile->count() == 0)
+        if ($srcFile->count() == 0) {
             throw UnableToMoveFile::fromLocationTo($source, $destination);
+        }
 
         // Atualizar nome.
         $srcFile->update(['name' => $destination]);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function copy(string $source, string $destination, Config $config): void
     {
@@ -369,12 +380,14 @@ class DatabaseAdapter implements FilesystemAdapter
         $dstFile = File::where('name', $destination);
 
         // Há colisões?
-        if ($dstFile->count() != 0)
+        if ($dstFile->count() != 0) {
             throw UnableToCopyFile::fromLocationTo($source, $destination);
+        }
 
         // Há algo para mover?
-        if ($srcFile->count() == 0)
+        if ($srcFile->count() == 0) {
             throw UnableToCopyFile::fromLocationTo($source, $destination);
+        }
 
         $copy = $srcFile->first()->replicate();
         $copy->name = $destination;
@@ -388,9 +401,10 @@ class DatabaseAdapter implements FilesystemAdapter
             // Extrai apenas o nome do arquivo, ignorando diretórios
             $fileName = basename($path);
             // Valida se o nome do arquivo contém uma extensão
-            if (!preg_match('/\.[a-zA-Z0-9]+$/', $fileName)) {
+            if (! preg_match('/\.[a-zA-Z0-9]+$/', $fileName)) {
                 throw new \InvalidArgumentException("Este adaptador requer uma extensão para o arquivo: {$fileName}");
             }
+
             return;
         }
 
@@ -400,7 +414,7 @@ class DatabaseAdapter implements FilesystemAdapter
         }
 
         // Valida se o caminho contém uma extensão de arquivo
-        if (!preg_match('/\.[a-zA-Z0-9]+$/', $path)) {
+        if (! preg_match('/\.[a-zA-Z0-9]+$/', $path)) {
             throw new \InvalidArgumentException("Este adaptador requer uma extensão para o arquivo: {$path}");
         }
     }

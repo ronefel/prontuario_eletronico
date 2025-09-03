@@ -22,7 +22,7 @@ return [
         'ui' => 'oxide',
 
         // dark, default, document, tinymce-5, tinymce-5-dark, writer
-        'content' => 'default'
+        'content' => 'default',
     ],
 
     'profiles' => [
@@ -33,8 +33,8 @@ return [
             'custom_configs' => [
                 'font_family_formats' => 'Arial=arial,helvetica,sans-serif; Arial Black=arial black,avant garde; Comic Sans MS=comic sans ms,sans-serif; Courier New=courier new,courier; Georgia=georgia,palatino; Helvetica=helvetica; Impact=impact,chicago; Inter=inter; Symbol=symbol; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Trebuchet MS=trebuchet ms,geneva; Verdana=verdana,geneva; Webdings=webdings; Wingdings=wingdings,zapf dingbats',
                 'font_size_formats' => '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-                'font_size_input_default_unit' => 'pt'
-            ]
+                'font_size_input_default_unit' => 'pt',
+            ],
         ],
 
         'simple' => [
@@ -44,8 +44,8 @@ return [
             'custom_configs' => [
                 'font_family_formats' => 'Arial=arial,helvetica,sans-serif; Arial Black=arial black,avant garde; Comic Sans MS=comic sans ms,sans-serif; Courier New=courier new,courier; Georgia=georgia,palatino; Helvetica=helvetica; Impact=impact,chicago; Inter=inter; Symbol=symbol; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Trebuchet MS=trebuchet ms,geneva; Verdana=verdana,geneva; Webdings=webdings; Wingdings=wingdings,zapf dingbats',
                 'font_size_formats' => '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-                'font_size_input_default_unit' => 'pt'
-            ]
+                'font_size_input_default_unit' => 'pt',
+            ],
         ],
 
         'minimal' => [
@@ -55,8 +55,8 @@ return [
             'custom_configs' => [
                 'font_family_formats' => 'Arial=arial,helvetica,sans-serif; Arial Black=arial black,avant garde; Comic Sans MS=comic sans ms,sans-serif; Courier New=courier new,courier; Georgia=georgia,palatino; Helvetica=helvetica; Impact=impact,chicago; Inter=inter; Symbol=symbol; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Trebuchet MS=trebuchet ms,geneva; Verdana=verdana,geneva; Webdings=webdings; Wingdings=wingdings,zapf dingbats',
                 'font_size_formats' => '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-                'font_size_input_default_unit' => 'pt'
-            ]
+                'font_size_input_default_unit' => 'pt',
+            ],
         ],
 
         'full' => [
@@ -66,8 +66,8 @@ return [
             'custom_configs' => [
                 'font_family_formats' => 'Arial=arial,helvetica,sans-serif; Arial Black=arial black,avant garde; Comic Sans MS=comic sans ms,sans-serif; Courier New=courier new,courier; Georgia=georgia,palatino; Helvetica=helvetica; Impact=impact,chicago; Inter=inter; Symbol=symbol; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Trebuchet MS=trebuchet ms,geneva; Verdana=verdana,geneva; Webdings=webdings; Wingdings=wingdings,zapf dingbats',
                 'font_size_formats' => '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
-                'font_size_input_default_unit' => 'pt'
-            ]
+                'font_size_input_default_unit' => 'pt',
+            ],
         ],
     ],
 
@@ -86,6 +86,6 @@ return [
         'toolbar' => [
             'fontsize' => '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
             'fontfamily' => 'Arial=arial,helvetica,sans-serif; Arial Black=arial black,avant garde; Comic Sans MS=comic sans ms,sans-serif; Courier New=courier new,courier; Georgia=georgia,palatino; Helvetica=helvetica; Impact=impact,chicago; Inter=inter; Symbol=symbol; Tahoma=tahoma,arial,helvetica,sans-serif; Times New Roman=times new roman,times; Trebuchet MS=trebuchet ms,geneva; Verdana=verdana,geneva; Webdings=webdings; Wingdings=wingdings,zapf dingbats',
-        ]
-    ]
+        ],
+    ],
 ];

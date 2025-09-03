@@ -12,7 +12,9 @@ return new class extends Migration
             $table->id();
             $table->enum('tipo', ['entrada', 'saida', 'ajuste', 'transferencia']);
             $table->foreignId('produto_id')->constrained('produtos')->onDelete('cascade');
-            $table->foreignId('lote_id')->nullable()->constrained('lotes')->onDelete('cascade');
+            $table->index('produto_id');
+            $table->foreignId('lote_id')->constrained('lotes')->onDelete('cascade');
+            $table->index('lote_id');
             $table->integer('quantidade');
             $table->dateTime('data_movimentacao');
             $table->text('motivo')->nullable();

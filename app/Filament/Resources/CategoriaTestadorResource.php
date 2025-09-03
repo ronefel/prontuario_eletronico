@@ -34,7 +34,7 @@ class CategoriaTestadorResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('ordem')
                     ->required()
-                    ->default(fn() => str_pad(\App\Models\CategoriaTestador::max('ordem') + 1, 2, '0', STR_PAD_LEFT))
+                    ->default(fn () => str_pad(\App\Models\CategoriaTestador::max('ordem') + 1, 2, '0', STR_PAD_LEFT))
                     ->helperText('Ordem de exibição. Exemplo: 01')
                     ->numeric(),
                 Forms\Components\RichEditor::make('nota')

@@ -12,8 +12,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Panel;
 use Filament\Pages\Page;
+use Filament\Panel;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\MaxWidth;
@@ -26,8 +26,9 @@ class Biorressonancia extends Page
 
     protected static ?string $title = 'Biorressonância';
 
-    public Paciente | int | string | null $paciente;
-    public Exame | int | string | null $exame;
+    public Paciente|int|string|null $paciente;
+
+    public Exame|int|string|null $exame;
 
     public bool $isMobile = false;
 
@@ -39,13 +40,13 @@ class Biorressonancia extends Page
     {
         return new PageRegistration(
             page: static::class,
-            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
+            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
                 ->middleware(static::getRouteMiddleware($panel))
                 ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
         );
     }
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         $this->paciente = Paciente::findOrFail($record);
         $this->isMobile = AgentHelper::isMobile();
@@ -58,7 +59,7 @@ class Biorressonancia extends Page
         return [
             PacienteResource::getUrl() => 'Pacientes',
             PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
-            'Biorressonância'
+            'Biorressonância',
         ];
     }
 
@@ -90,7 +91,7 @@ class Biorressonancia extends Page
                                 ->closeOnDateSelection()
                                 ->maxDate(now()->endOfDay())
                                 ->default(now())
-                                ->required()
+                                ->required(),
                         ]),
                 ],
                 [
@@ -98,11 +99,11 @@ class Biorressonancia extends Page
                         ->schema(
                             // Mapear as categorias para criar selects múltiplos para cada categoria
                             $categorias->map(function ($categoria) {
-                                return Select::make('testadores_' . $categoria->id)
+                                return Select::make('testadores_'.$categoria->id)
                                     ->label($categoria->nome) // Nome da categoria como label
                                     ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
                                         // Concatena número e nome
-                                        return [$id => $categoria->testadores->find($id)->numero . ' - ' . $nome];
+                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
                                     }))
                                     ->multiple(); // Permitir seleção múltipla
                             })->toArray()
@@ -134,8 +135,8 @@ class Biorressonancia extends Page
         // Itera sobre as categorias e associa os testadores
         $categorias = CategoriaTestador::all();
         foreach ($categorias as $categoria) {
-            if (isset($data['testadores_' . $categoria->id])) {
-                $testadores = $data['testadores_' . $categoria->id];
+            if (isset($data['testadores_'.$categoria->id])) {
+                $testadores = $data['testadores_'.$categoria->id];
                 $exame->testadores()->attach($testadores);
             }
         }
@@ -162,7 +163,7 @@ class Biorressonancia extends Page
                                 ->firstDayOfWeek(7)
                                 ->closeOnDateSelection()
                                 ->maxDate(now()->endOfDay())
-                                ->required()
+                                ->required(),
                         ]),
                 ],
                 [
@@ -170,10 +171,10 @@ class Biorressonancia extends Page
                         ->schema(
                             // Adicione a lógica para carregar testadores aqui
                             $categorias->map(function ($categoria) {
-                                return Select::make('testadores_' . $categoria->id)
+                                return Select::make('testadores_'.$categoria->id)
                                     ->label($categoria->nome)
                                     ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
-                                        return [$id => $categoria->testadores->find($id)->numero . ' - ' . $nome];
+                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
                                     }))
                                     ->multiple();
                             })->toArray()
@@ -199,7 +200,7 @@ class Biorressonancia extends Page
                 // Iterar sobre as categorias para preencher os testadores
                 foreach ($categorias as $categoria) {
                     // Preencher o array para cada categoria com os testadores relacionados ao exame
-                    $formData['testadores_' . $categoria->id] = $this->exame->testadores
+                    $formData['testadores_'.$categoria->id] = $this->exame->testadores
                         ->where('categoria_testador_id', $categoria->id)
                         ->pluck('id')
                         ->toArray();
@@ -253,7 +254,6 @@ class Biorressonancia extends Page
         }
     }
 
-
     public function updateExame($id, array $data): void
     {
         $exame = Exame::with('testadores')->find($id);
@@ -271,16 +271,15 @@ class Biorressonancia extends Page
         // Iterar sobre as categorias para atualizar os testadores
         foreach ($categorias as $categoria) {
             // Verifique se há testadores para essa categoria na entrada de dados
-            if (isset($data['testadores_' . $categoria->id])) {
+            if (isset($data['testadores_'.$categoria->id])) {
                 // Adicionar os testadores selecionados ao exame
-                $exame->testadores()->attach($data['testadores_' . $categoria->id]);
+                $exame->testadores()->attach($data['testadores_'.$categoria->id]);
             }
         }
 
         // Atualiza a lista de exames ou qualquer outra lógica necessária
         $this->getExameData();
     }
-
 
     public function getExameData()
     {
@@ -328,7 +327,7 @@ class Biorressonancia extends Page
 
                 // Preencher a coluna de cada data com X se o testador participou do exame
                 foreach ($exames as $exame) {
-                    $row['id_' . $exame->id] =
+                    $row['id_'.$exame->id] =
                         $exame->testadores->contains($testador) ? 'X' : '';
                 }
 
