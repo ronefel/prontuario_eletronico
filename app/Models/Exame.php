@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read \App\Models\Paciente $paciente
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
  * @property-read int|null $testadores_count
- *
  * @method static \Database\Factories\ExameFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame newQuery()
@@ -26,7 +25,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame wherePacienteId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame whereTratamento($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Exame whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Exame extends BaseModel

@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Lote|null $lote
  * @property-read \App\Models\Produto|null $produto
  * @property-read \App\Models\User $user
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario onlyTrashed()
@@ -43,7 +42,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Inventario extends BaseModel

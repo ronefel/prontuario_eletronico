@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Storage;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Paciente|null $paciente
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario query()
@@ -28,7 +27,6 @@ use Illuminate\Support\Facades\Storage;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario wherePacienteId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereTipo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class Prontuario extends BaseModel

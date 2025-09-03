@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
  * @property-read int|null $produtos_count
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor onlyTrashed()
@@ -34,7 +33,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Fornecedor withoutTrashed()
- *
  * @mixin \Eloquent
  */
 class Fornecedor extends BaseModel
