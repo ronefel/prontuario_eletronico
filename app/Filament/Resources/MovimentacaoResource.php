@@ -51,7 +51,14 @@ class MovimentacaoResource extends Resource
                     ->placeholder(fn (Get $get) => $get('produto_id') ? 'Selecione uma opção' : 'Selecione um produto primeiro'),
                 Forms\Components\TextInput::make('quantidade')
                     ->numeric()
-                    ->required(),
+                    ->required()
+                    ->rules([
+                        fn (Get $get) => $get('tipo') === 'entrada' ? 'min:1' : 'not_in:0', // Entrada: impede negativos e zero; outros: impede zero
+                    ])
+                    ->validationMessages([
+                        'min' => 'A quantidade não pode ser zero ou negativa para entradas.',
+                        'not_in' => 'A quantidade não pode ser zero.',
+                    ]),
                 Forms\Components\DateTimePicker::make('data_movimentacao')
                     ->default(now())
                     ->seconds(false)
