@@ -29,7 +29,6 @@ class ProdutoResource extends Resource
                 Forms\Components\TextInput::make('unidade_medida')->default('unidade'),
                 Forms\Components\TextInput::make('valor_unitario_referencia')->numeric()->prefix('R$'),
                 Forms\Components\TextInput::make('estoque_minimo')->numeric()->default(10),
-                Forms\Components\TextInput::make('estoque_maximo')->numeric()->default(100),
                 Forms\Components\Select::make('categoria_id')
                     ->relationship('categoria', 'nome')
                     ->required(),

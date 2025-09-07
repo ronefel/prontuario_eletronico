@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $unidade_medida
  * @property string|null $valor_unitario_referencia
  * @property int $estoque_minimo
- * @property int $estoque_maximo
  * @property int $categoria_id
  * @property int|null $fornecedor_id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -48,7 +47,7 @@ class Produto extends BaseModel
 
     protected $table = 'produtos';
 
-    protected $fillable = ['nome', 'descricao', 'unidade_medida', 'preco_unitario', 'estoque_minimo', 'estoque_maximo', 'categoria_id', 'fornecedor_id'];
+    protected $fillable = ['nome', 'descricao', 'unidade_medida', 'valor_unitario_referencia', 'estoque_minimo', 'categoria_id', 'fornecedor_id'];
 
     public function categoria()
     {

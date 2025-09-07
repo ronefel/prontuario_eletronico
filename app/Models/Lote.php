@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
  * @property \App\Models\Local $local
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
  * @property \App\Models\Produto $produto
+ * @property-read \Illuminate\Database\Eloquent\Relations\Pivot|\stdClass $pivot
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote onlyTrashed()

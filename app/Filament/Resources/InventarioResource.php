@@ -4,6 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\InventarioResource\Pages;
 use App\Models\Inventario;
+use App\Models\Local;
+use App\Models\Lote;
+use App\Models\Produto;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,39 +28,178 @@ class InventarioResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\DatePicker::make('data_inventario')
-                    ->default(today())
-                    ->required(),
-                Forms\Components\Select::make('tipo')
-                    ->options([
-                        'completo' => 'Completo',
-                        'ciclico' => 'Cíclico',
-                        'por_produto' => 'Por Produto',
-                    ])
-                    ->required(),
-                Forms\Components\Select::make('produto_id')
-                    ->relationship('produto', 'nome')
-                    ->nullable(),
-                Forms\Components\Select::make('lote_id')
-                    ->relationship('lote', 'numero_lote', fn ($query, $get) => $query->where('produto_id', $get('produto_id')))
-                    ->nullable(),
-                Forms\Components\TextInput::make('quantidade_contada')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\TextInput::make('quantidade_registrada')
-                    ->numeric()
-                    ->required(),
-                Forms\Components\Textarea::make('motivo_discrepancia')
-                    ->nullable(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->default(Auth::id()),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'pendente' => 'Pendente',
-                        'aprovado' => 'Aprovado',
-                    ])
-                    ->default('pendente'),
+                Forms\Components\Section::make('Informações do Inventário')
+                    ->schema([
+                        Forms\Components\Grid::make()
+                            ->columns([
+                                'sm' => 1,
+                                'md' => 2,
+                                'lg' => 3,
+                                'xl' => 4,
+                                '2xl' => 5,
+                            ])
+                            ->schema([
+                                Forms\Components\DatePicker::make('data_inventario')
+                                    ->label('Data do Inventário')
+                                    ->default(today())
+                                    ->required(),
+                                Forms\Components\ToggleButtons::make('status')
+                                    ->options([
+                                        'pendente' => 'Pendente',
+                                        'aprovado' => 'Aprovado',
+                                    ])
+                                    ->default('pendente')
+                                    ->inline()
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('user_id')
+                                    ->label('Usuário')
+                                    ->default(fn () => Auth::user()->id)
+                                    ->formatStateUsing(function ($state, $record) {
+                                        if ($record && $record->user) {
+                                            return $record->user->name;
+                                        }
+
+                                        return Auth::user()->name;
+                                    })
+                                    ->readOnly()
+                                    ->dehydrateStateUsing(fn ($state, $context) => Auth::user()->id),
+                                Forms\Components\Select::make('tipo')
+                                    ->options([
+                                        'completo' => 'Completo',
+                                        'por_local' => 'Por Local',
+                                        'por_produto' => 'Por Produto',
+                                    ])
+                                    ->required()
+                                    ->reactive()
+                                    ->disabled(fn ($context) => $context === 'edit')
+                                    ->afterStateUpdated(function (callable $set, $state, $context) {
+                                        if ($context === 'create') {
+                                            if ($state === 'completo') {
+                                                $lotes = Lote::where('status', 'ativo')
+                                                    ->orderBy('numero_lote')
+                                                    ->get()
+                                                    ->map(fn ($lote) => [
+                                                        'lote_id' => $lote->id,
+                                                        'numero_lote' => $lote->numero_lote,
+                                                        'vencimento' => $lote->data_validade->format('d/m/y'),
+                                                        'produto' => $lote->produto->nome,
+                                                        'quantidade_contada' => $lote->quantidade_atual,
+                                                        'quantidade_registrada' => $lote->quantidade_atual,
+                                                    ])
+                                                    ->toArray();
+                                                $set('inventarioLotes', $lotes);
+                                            } else {
+                                                $set('inventarioLotes', []);
+                                            }
+                                        }
+                                    }),
+                                Forms\Components\Select::make('produto_id')
+                                    ->options(Produto::pluck('nome', 'id')->toArray())
+                                    ->visible(fn ($get) => $get('tipo') === 'por_produto')
+                                    ->reactive()
+                                    ->hidden(fn ($context) => $context === 'edit')
+                                    ->afterStateUpdated(function (callable $set, $state, $context) {
+                                        if ($context === 'create' && $state) {
+                                            $lotes = Lote::where('produto_id', $state)
+                                                ->where('status', 'ativo')
+                                                ->orderBy('numero_lote')
+                                                ->get()
+                                                ->map(fn ($lote) => [
+                                                    'lote_id' => $lote->id,
+                                                    'numero_lote' => $lote->numero_lote,
+                                                    'vencimento' => $lote->data_validade->format('d/m/y'),
+                                                    'produto' => $lote->produto->nome,
+                                                    'quantidade_contada' => $lote->quantidade_atual,
+                                                    'quantidade_registrada' => $lote->quantidade_atual,
+                                                ])
+                                                ->toArray();
+                                            $set('inventarioLotes', $lotes);
+                                        } else {
+                                            $set('inventarioLotes', []);
+                                        }
+                                    }),
+                                Forms\Components\Select::make('local_id')
+                                    ->options(Local::pluck('nome', 'id')->toArray())
+                                    ->visible(fn ($get) => $get('tipo') === 'por_local')
+                                    ->reactive()
+                                    ->hidden(fn ($context) => $context === 'edit')
+                                    ->afterStateUpdated(function (callable $set, $state, $context) {
+                                        if ($context === 'create' && $state) {
+                                            $lotes = Lote::where('local_id', $state)
+                                                ->where('status', 'ativo')
+                                                ->orderBy('numero_lote')
+                                                ->get()
+                                                ->map(fn ($lote) => [
+                                                    'lote_id' => $lote->id,
+                                                    // 'numero_lote' => $lote->numero_lote,
+                                                    'vencimento' => $lote->data_validade->format('d/m/y'),
+                                                    'produto' => $lote->produto->nome,
+                                                    'quantidade_contada' => $lote->quantidade_atual,
+                                                    'quantidade_registrada' => $lote->quantidade_atual,
+                                                ])
+                                                ->toArray();
+                                            $set('inventarioLotes', $lotes);
+                                        } else {
+                                            $set('inventarioLotes', []);
+                                        }
+                                    }),
+                            ]),
+                    ]),
+                Forms\Components\Section::make('Lotes do Inventário')
+                    ->schema([
+                        Forms\Components\Repeater::make('inventarioLotes')
+                            ->hiddenLabel()
+                            ->relationship()
+                            ->addActionLabel('')
+                            ->addable(false)
+                            ->deletable(false)
+                            ->default([])
+                            ->schema([
+                                Forms\Components\Group::make([
+                                    Forms\Components\Group::make([
+                                        Forms\Components\Hidden::make('lote_id'),
+                                        Forms\Components\TextInput::make('numero_lote')
+                                            ->disabled()
+                                            ->formatStateUsing(function ($state, $get) {
+                                                $loteId = $get('lote_id');
+                                                $lote = $loteId ? Lote::find($loteId) : null;
+
+                                                return $lote ? $lote->numero_lote : $state;
+                                            }),
+                                        Forms\Components\TextInput::make('vencimento')
+                                            ->disabled()
+                                            ->formatStateUsing(function ($state, $get) {
+                                                $loteId = $get('lote_id');
+                                                $lote = $loteId ? Lote::find($loteId) : null;
+
+                                                return $lote ? ($lote->data_validade ? $lote->data_validade->format('d/m/y') : '-') : $state;
+                                            }),
+                                        Forms\Components\TextInput::make('produto')
+                                            ->disabled()
+                                            ->formatStateUsing(function ($state, $get) {
+                                                $loteId = $get('lote_id');
+                                                $lote = $loteId ? Lote::find($loteId) : null;
+
+                                                return $lote ? $lote->produto->nome : $state;
+                                            }),
+                                    ])->columns(3),
+                                    Forms\Components\Group::make([
+                                        Forms\Components\TextInput::make('quantidade_registrada')
+                                            ->numeric()
+                                            ->readOnly()
+                                            ->default(0),
+                                        Forms\Components\TextInput::make('quantidade_contada')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->required(),
+                                    ])->columns(2),
+                                ])->columns(2),
+                                Forms\Components\TextInput::make('motivo_discrepancia')
+                                    ->hidden(fn ($get) => $get('quantidade_registrada') == $get('quantidade_contada'))
+                                    ->nullable(),
+                            ])
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -65,18 +207,20 @@ class InventarioResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('data_inventario')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipo'),
-                Tables\Columns\TextColumn::make('produto.nome')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('lote.numero_lote')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('quantidade_contada'),
-                Tables\Columns\TextColumn::make('quantidade_registrada'),
-                Tables\Columns\TextColumn::make('discrepancia')
-                    ->color(fn ($record) => $record->discrepancia != 0 ? 'danger' : 'success'),
+                Tables\Columns\TextColumn::make('lotes_count')
+                    ->label('Lotes Contados')
+                    ->counts('lotes'),
+                Tables\Columns\TextColumn::make('produtos_count')
+                    ->label('Produtos Contados')
+                    ->counts('produtos'),
+                Tables\Columns\TextColumn::make('discrepancia_total')
+                    ->getStateUsing(fn ($record) => $record->lotes()->sum('discrepancia'))
+                    ->color(fn ($state) => $state != 0 ? 'danger' : 'success'),
                 Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('user.name'),
             ])
@@ -84,35 +228,34 @@ class InventarioResource extends Resource
                 Tables\Filters\SelectFilter::make('tipo')
                     ->options([
                         'completo' => 'Completo',
-                        'ciclico' => 'Cíclico',
+                        'por_local' => 'Por Local',
                         'por_produto' => 'Por Produto',
                     ]),
-                Tables\Filters\SelectFilter::make('produto')
-                    ->relationship('produto', 'nome'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn ($record) => $record->status === 'pendente'),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn ($record) => $record->status === 'pendente'),
                 Tables\Actions\Action::make('aprovar')
                     ->visible(fn ($record) => $record->status === 'pendente')
                     ->action(function (Inventario $record) {
+                        foreach ($record->lotes as $lote) {
+                            if ($lote->pivot->discrepancia != 0) {
+                                $lote->produto->movimentacoes()->create([
+                                    'tipo' => 'ajuste',
+                                    'lote_id' => $lote->id,
+                                    'quantidade' => $lote->pivot->discrepancia,
+                                    'data_movimentacao' => now(),
+                                    'motivo' => 'Ajuste via inventário #'.$record->id,
+                                    'user_id' => Auth::user()->id,
+                                    'valor_unitario' => $lote->valor_unitario,
+                                ]);
+                            }
+                        }
+
                         $record->status = 'aprovado';
                         $record->save();
-
-                        if ($record->lote_id && $record->discrepancia != 0) {
-                            $lote = $record->lote;
-                            $lote->save();
-
-                            $record->produto->movimentacoes()->create([
-                                'tipo' => 'ajuste',
-                                'lote_id' => $lote->id,
-                                'quantidade' => $record->discrepancia,
-                                'data_movimentacao' => now(),
-                                'motivo' => 'Ajuste via inventário #'.$record->id,
-                                'user_id' => Auth::id(),
-                                'valor_unitario' => $record->produto->valor_unitario_referencia,
-                            ]);
-                        }
                     }),
             ])
             ->bulkActions([

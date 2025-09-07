@@ -2,25 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
  * @property string $data_inventario
  * @property string $tipo
- * @property int|null $produto_id
- * @property int|null $lote_id
- * @property int $quantidade_contada
- * @property int $quantidade_registrada
- * @property int $discrepancia
- * @property string|null $motivo_discrepancia
  * @property int $user_id
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \App\Models\Lote|null $lote
- * @property \App\Models\Produto|null $produto
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
  * @property \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newQuery()
@@ -29,13 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereDataInventario($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereDiscrepancia($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereLoteId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereMotivoDiscrepancia($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereProdutoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereQuantidadeContada($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereQuantidadeRegistrada($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereTipo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario whereUpdatedAt($value)
@@ -50,18 +39,45 @@ class Inventario extends BaseModel
 
     protected $table = 'inventarios';
 
-    protected $fillable = ['data_inventario', 'tipo', 'produto_id', 'lote_id', 'quantidade_contada', 'quantidade_registrada', 'motivo_discrepancia', 'user_id', 'status'];
+    protected $fillable = ['data_inventario', 'tipo', 'user_id', 'status'];
 
     protected $dates = ['data_inventario'];
 
-    public function produto()
+    protected static function booted()
     {
-        return $this->belongsTo(Produto::class);
+        static::creating(function ($inventario) {
+            unset($inventario->local_id);
+            unset($inventario->produto_id);
+        });
+
+        static::updating(function ($inventario) {
+            unset($inventario->local_id);
+            unset($inventario->produto_id);
+        });
     }
 
-    public function lote()
+    public function lotes()
     {
-        return $this->belongsTo(Lote::class);
+        return $this->belongsToMany(Lote::class, 'inventario_lote', 'inventario_id', 'lote_id')
+            ->withPivot('quantidade_contada', 'quantidade_registrada', 'discrepancia', 'motivo_discrepancia')
+            ->withTimestamps();
+    }
+
+    public function inventarioLotes(): HasMany
+    {
+        return $this->hasMany(InventarioLote::class);
+    }
+
+    public function produtos()
+    {
+        return $this->hasManyThrough(
+            Produto::class,
+            Lote::class,
+            'id', // Chave estrangeira em lotes
+            'id', // Chave primária em produtos
+            'id', // Chave primária em inventario
+            'produto_id' // Chave estrangeira em lotes que aponta para produtos
+        )->distinct();
     }
 
     public function user()
