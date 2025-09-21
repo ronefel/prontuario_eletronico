@@ -19,3 +19,4 @@ parameters:
         - message: '#Call to an undefined method .+::acoff\(\)#'
         - message: '#Relation .+ is not found in App\\Models\\.+#'
         - message: '#Call to an undefined method Filament\\Notifications\\Notification::error\(\)#'
+        - identifier: property.nonObject

@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class InventarioResource extends Resource
@@ -206,32 +207,31 @@ class InventarioResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('data_inventario')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tipo'),
                 Tables\Columns\TextColumn::make('lotes_count')
                     ->label('Lotes Contados')
                     ->counts('lotes'),
-                Tables\Columns\TextColumn::make('produtos_count')
-                    ->label('Produtos Contados')
-                    ->counts('produtos'),
                 Tables\Columns\TextColumn::make('discrepancia_total')
                     ->getStateUsing(fn ($record) => $record->lotes()->sum('discrepancia'))
                     ->color(fn ($state) => $state != 0 ? 'danger' : 'success'),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')
+                    ->color(fn ($state) => $state != 'pendente' ? 'success' : 'warning'),
                 Tables\Columns\TextColumn::make('user.name'),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('tipo')
-                    ->options([
-                        'completo' => 'Completo',
-                        'por_local' => 'Por Local',
-                        'por_produto' => 'Por Produto',
-                    ]),
-            ])
+            // ->filters([
+            //     Tables\Filters\SelectFilter::make('tipo')
+            //         ->options([
+            //             'completo' => 'Completo',
+            //             'por_local' => 'Por Local',
+            //             'por_produto' => 'Por Produto',
+            //         ]),
+            // ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(fn ($record) => $record->status === 'pendente'),
@@ -239,6 +239,8 @@ class InventarioResource extends Resource
                     ->visible(fn ($record) => $record->status === 'pendente'),
                 Tables\Actions\Action::make('aprovar')
                     ->visible(fn ($record) => $record->status === 'pendente')
+                    ->color('success')
+                    ->icon('heroicon-s-check')
                     ->action(function (Inventario $record) {
                         foreach ($record->lotes as $lote) {
                             if ($lote->pivot->discrepancia != 0) {
@@ -268,7 +270,14 @@ class InventarioResource extends Resource
         return [
             'index' => Pages\ListInventarios::route('/'),
             'create' => Pages\CreateInventario::route('/create'),
+            'view' => Pages\ViewInventario::route('/{record}'),
             'edit' => Pages\EditInventario::route('/{record}/edit'),
         ];
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var Inventario $record */
+        return $record->status !== 'aprovado';
     }
 }

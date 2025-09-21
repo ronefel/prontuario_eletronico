@@ -71,7 +71,7 @@ class LoteResource extends Resource
                 Tables\Columns\TextColumn::make('numero_lote')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('data_validade')
-                    ->date()
+                    ->date('d/m/Y')
                     ->color(fn ($record) => $record->data_validade && $record->data_validade->isPast() ? 'danger' : 'success'),
                 Tables\Columns\TextColumn::make('quantidade_atual')
                     ->sortable()

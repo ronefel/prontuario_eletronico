@@ -37,7 +37,6 @@ class CategoriaResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nome')->searchable(),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([])
             ->actions([
