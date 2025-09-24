@@ -9,11 +9,13 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 
 class ValidadeProximaWidget extends BaseWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 3;
 
     protected ?Collection $data = null;
 
@@ -35,7 +37,7 @@ class ValidadeProximaWidget extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Lotes Vencidos ou com Validade Próxima')
+            ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-cube class="h-5 w-5" /> Lotes Vencidos ou com Validade Próxima</div>')))
             ->query(
                 $this->getData()->toQuery()->with('produto')
             )

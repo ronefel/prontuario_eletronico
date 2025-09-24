@@ -7,11 +7,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 
 class EstoqueBaixoWidget extends BaseWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 1;
 
     protected static ?string $pollingInterval = null;
 
@@ -32,7 +34,7 @@ class EstoqueBaixoWidget extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Produtos com Estoque Baixo')
+            ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-rectangle-stack class="h-5 w-5" /> Produtos com Estoque Baixo</div>')))
             ->query(
                 $this->getData()->toQuery()->withSum('movimentacoes', 'quantidade')
             )

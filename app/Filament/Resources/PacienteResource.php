@@ -6,6 +6,7 @@ use App\Filament\Resources\PacienteResource\Pages;
 use App\Forms\Components\Cep;
 use App\Models\Cidade;
 use App\Models\Paciente;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -23,6 +24,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class PacienteResource extends Resource
 {
@@ -31,6 +33,43 @@ class PacienteResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['nome', 'cpf', 'nascimento'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        /** @var Paciente $record */
+        return $record->nome.' ('.$record->nascimento->format('d/m/Y').')';
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        /** @var Paciente $record */
+        return route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]);
+    }
+
+    // Personalizar a query de busca global
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        // Formata CPF no banco para somente números
+        $query->orWhereRaw("regexp_replace(cpf, '\D', '', 'g') ILIKE ?", ["%{$search}%"]);
+
+        // Formata data no banco para DDMMYYYY
+        $query->orWhereRaw("to_char(nascimento, 'DDMMYYYY') ILIKE ?", ["%{$search}%"]);
+
+        // Tentar converter a entrada para data no formato d/m/Y
+        try {
+            $date = Carbon::createFromFormat('d/m/Y', $search);
+            if ($date) {
+                $query->orWhereDate('nascimento', $date->format('Y-m-d'));
+            }
+        } catch (\Exception $e) {
+            // Ignorar se não for uma data válida
+        }
+    }
 
     public static function form(Form $form): Form
     {

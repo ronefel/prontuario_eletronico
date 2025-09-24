@@ -8,19 +8,23 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 /**
  * Lista os últimos pacientes atendidos no prontuário
  */
 class UltimosPacientes extends BaseWidget
 {
+    protected static ?int $sort = 2;
+
     protected static ?string $pollingInterval = null;
 
     public function table(Table $table): Table
     {
         return $table
-            ->heading('Últimos 5 Pacientes Atendidos')
+            ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-users class="h-5 w-5" /> Últimos 5 Pacientes Atendidos</div>')))
             ->query(
                 Paciente::query()
                     ->select('pacientes.*', DB::raw('MAX(prontuarios.data) as data'))
