@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('valor_unitario', 8, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->index('deleted_at');
         });
     }
 

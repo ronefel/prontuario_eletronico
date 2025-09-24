@@ -22,6 +22,11 @@ return new class extends Migration
             $table->enum('status', ['ativo', 'expirado', 'bloqueado'])->default('ativo');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('produto_id');
+            $table->index('data_validade');
+            $table->index('status');
+            $table->index('deleted_at');
         });
     }
 

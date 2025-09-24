@@ -36,6 +36,11 @@ class UltimosPacientes extends BaseWidget
                     ->label('Data Atendimento')
                     ->date('d/m/Y')
                     ->timezone(Auth::user()->timezone),
-            ])->paginated(false);
+            ])
+            ->recordUrl(
+                fn (Paciente $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+            )
+            ->defaultSort('data', 'desc')
+            ->paginated(false);
     }
 }

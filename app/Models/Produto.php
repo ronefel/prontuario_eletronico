@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $unidade_medida
  * @property string|null $valor_unitario_referencia
  * @property int $estoque_minimo
+ * @property int $estoque_atual
  * @property int $categoria_id
  * @property int|null $fornecedor_id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -69,8 +70,27 @@ class Produto extends BaseModel
         return $this->hasMany(Movimentacao::class);
     }
 
+    public function getQuantidadeAtualAttribute()
+    {
+        // Evita query extra se movimentacoes_sum_quantidade já estiver carregado
+        return $this->movimentacoes_sum_quantidade ?? $this->movimentacoes()->sum('quantidade') ?? 0;
+    }
+
     public function inventarios()
     {
         return $this->hasMany(Inventario::class);
+    }
+
+    public function scopeWithEstoqueBaixo($query)
+    {
+        return $query
+            ->withSum('movimentacoes', 'quantidade')
+            ->whereRaw('(
+                SELECT COALESCE(SUM(quantidade), 0)
+                FROM movimentacoes
+                WHERE movimentacoes.produto_id = produtos.id
+                AND movimentacoes.deleted_at IS NULL
+            ) < estoque_minimo')
+            ->whereHas('movimentacoes', fn ($q) => $q->whereNull('deleted_at'));
     }
 }
