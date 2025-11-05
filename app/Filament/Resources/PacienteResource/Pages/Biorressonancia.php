@@ -24,7 +24,7 @@ class Biorressonancia extends Page
 {
     protected static string $view = 'filament.pages.biorressonancia';
 
-    protected static ?string $title = 'Biorressonância';
+    protected static ?string $title = '';
 
     public Paciente|int|string|null $paciente;
 
@@ -54,22 +54,22 @@ class Biorressonancia extends Page
         $this->getExameData();
     }
 
-    public function getBreadcrumbs(): array
-    {
-        return [
-            PacienteResource::getUrl() => 'Pacientes',
-            PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
-            'Biorressonância',
-        ];
-    }
+    // public function getBreadcrumbs(): array
+    // {
+    //     return [
+    //         PacienteResource::getUrl() => 'Pacientes',
+    //         PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
+    //         'Biorressonância',
+    //     ];
+    // }
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('prontuário')
-                ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->paciente->id])),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Action::make('prontuário')
+    //             ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->paciente->id])),
+    //     ];
+    // }
 
     public function createExameAction(): Action
     {

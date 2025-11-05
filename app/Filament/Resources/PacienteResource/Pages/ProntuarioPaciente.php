@@ -36,7 +36,7 @@ class ProntuarioPaciente extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $title = 'Prontuário';
+    protected static ?string $title = '';
 
     protected static string $view = 'filament.pages.prontuario';
 
@@ -68,22 +68,22 @@ class ProntuarioPaciente extends Page
         // ]);
     }
 
-    public function getBreadcrumbs(): array
-    {
-        return [
-            PacienteResource::getUrl() => 'Pacientes',
-            PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
-            'Prontuário',
-        ];
-    }
+    // public function getBreadcrumbs(): array
+    // {
+    //     return [
+    //         PacienteResource::getUrl() => 'Pacientes',
+    //         PacienteResource::getUrl('edit', ['record' => $this->paciente]) => $this->paciente->nome,
+    //         'Prontuário',
+    //     ];
+    // }
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('biorressonância')
-                ->url(route('filament.admin.resources.pacientes.biorressonancia', ['record' => $this->paciente->id])),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Action::make('biorressonância')
+    //             ->url(route('filament.admin.resources.pacientes.biorressonancia', ['record' => $this->paciente->id])),
+    //     ];
+    // }
 
     public static function formFields(array $newField = []): array
     {
