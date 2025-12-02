@@ -6,7 +6,7 @@
         <div class="flex items-center space-x-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50/40 dark:bg-gray-800/40 rounded-t-lg p-1">
             <template x-for="(label, name) in {
                 prontuario: 'Prontuário',
-                bioressonancia: 'Biorressonancia',
+                biorressonancia: 'Biorressonancia',
                 tratamentos: 'Tratamentos'
             }" :key="name">
                 <button
@@ -45,7 +45,11 @@
             </div>
 
             <div x-show="tab === 'tratamentos'" x-cloak>
-                <p class="text-sm text-gray-700 dark:text-gray-300 pt-4">Conteúdo da aba <strong>Tratamentos</strong>...</p>
+                @livewire(
+                    App\Filament\Resources\TratamentoResource\Pages\ListTratamentos::class,
+                    ['pacienteId' => $paciente->id],
+                    key('tratamentos-' . $paciente->id)
+                )
             </div>
         </div>
     </div>
