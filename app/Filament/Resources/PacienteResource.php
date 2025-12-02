@@ -48,7 +48,7 @@ class PacienteResource extends Resource
     public static function getGlobalSearchResultUrl(Model $record): string
     {
         /** @var Paciente $record */
-        return route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]);
+        return route('filament.admin.pages.consultorio', ['paciente' => $record->id]);
     }
 
     // Personalizar a query de busca global
@@ -225,7 +225,7 @@ class PacienteResource extends Resource
                 ]),
             ])
             ->recordUrl(
-                fn (Paciente $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+                fn (Paciente $record): string => route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $record->id]),
             );
     }
 
@@ -242,8 +242,6 @@ class PacienteResource extends Resource
             'index' => Pages\ListPacientes::route('/'),
             'create' => Pages\CreatePaciente::route('/create'),
             'edit' => Pages\EditPaciente::route('/{record}/edit'),
-            'protuario' => Pages\ProntuarioPaciente::route('/{record}/prontuario'),
-            'biorressonancia' => Pages\Biorressonancia::route('/{record}/biorressonancia'),
         ];
     }
 }

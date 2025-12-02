@@ -21,6 +21,11 @@ class Consultorio extends Page
 
     public string $activeTab = 'prontuario';
 
+    public function setActiveTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+    }
+
     public function getBreadcrumbs(): array
     {
         return [
