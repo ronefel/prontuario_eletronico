@@ -12,9 +12,9 @@ class ListTratamentos extends ListRecords
 
     public ?int $pacienteId = null;
 
-    public function getBreadcrumb(): ?string
+    public function getBreadcrumbs(): array
     {
-        return null;
+        return [];
     }
 
     public function mount(?int $pacienteId = null): void
@@ -37,6 +37,7 @@ class ListTratamentos extends ListRecords
     {
         return [
             \Filament\Actions\CreateAction::make()
+                ->label('Novo Tratamento')
                 ->url(fn () => TratamentoResource::getUrl('create', ['pacienteId' => $this->pacienteId])),
         ];
     }

@@ -16,4 +16,9 @@ class EditTratamento extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
 }

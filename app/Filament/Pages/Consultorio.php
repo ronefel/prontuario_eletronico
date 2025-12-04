@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Paciente;
 use Filament\Pages\Page;
+use Livewire\Attributes\Url;
 
 class Consultorio extends Page
 {
@@ -19,6 +20,7 @@ class Consultorio extends Page
 
     public ?Paciente $paciente = null;
 
+    #[Url(as: 'tab')]
     public string $activeTab = 'prontuario';
 
     public function setActiveTab(string $tab): void

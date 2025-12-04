@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\DatetimeWithTimezone;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -18,6 +19,10 @@ class Aplicacao extends BaseModel
     use SoftDeletes;
 
     protected $table = 'aplicacoes';
+
+    protected $casts = [
+        'data_aplicacao' => DatetimeWithTimezone::class,
+    ];
 
     public function tratamento()
     {

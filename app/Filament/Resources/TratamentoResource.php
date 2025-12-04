@@ -36,34 +36,52 @@ class TratamentoResource extends Resource
     {
         return $form
             ->schema([
+
                 Forms\Components\Hidden::make('paciente_id')
                     ->default(fn ($livewire) => $livewire->paciente?->id),
                 Forms\Components\TextInput::make('nome')
                     ->label('Nome do Tratamento')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->prefixIcon('heroicon-o-beaker')
+                    ->columnSpanFull(),
+                Forms\Components\Grid::make([
+                    'default' => 1,
+                    'sm' => 2,
+                    'md' => 3,
+                    'lg' => 4,
+                    'xl' => 5,
+                ])
+                    ->schema([
+                        Forms\Components\Select::make('status')
+                            ->options([
+                                'planejado' => 'Planejado',
+                                'em_andamento' => 'Em Andamento',
+                                'concluido' => 'Concluído',
+                                'cancelado' => 'Cancelado',
+                            ])
+                            ->default('planejado')
+                            ->required()
+                            ->native(false)
+                            ->prefixIcon('heroicon-o-information-circle'),
+
+                        Forms\Components\DatePicker::make('data_inicio')
+                            ->label('Data de Início')
+                            ->default(now())
+                            ->required()
+                            ->prefixIcon('heroicon-o-calendar'),
+                        Forms\Components\DatePicker::make('data_fim')
+                            ->label('Data de Fim')
+                            ->default(now())
+                            ->nullable()
+                            ->prefixIcon('heroicon-o-calendar'),
+                    ]),
+
                 Forms\Components\Textarea::make('observacao')
                     ->label('Observações Clínicas')
                     ->placeholder('Detalhes do protocolo, posologia, justificativa...')
                     ->rows(3)
                     ->columnSpanFull(),
-                Forms\Components\DatePicker::make('data_inicio')
-                    ->label('Data de Início')
-                    ->default(now())
-                    ->required(),
-                Forms\Components\DatePicker::make('data_fim')
-                    ->label('Data de Fim')
-                    ->default(now())
-                    ->nullable(),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'planejado' => 'Planejado',
-                        'em_andamento' => 'Em Andamento',
-                        'concluido' => 'Concluído',
-                        'cancelado' => 'Cancelado',
-                    ])
-                    ->default('planejado')
-                    ->required(),
             ]);
     }
 
@@ -73,10 +91,12 @@ class TratamentoResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nome')
                     ->label('Tratamento')
-                    ->searchable(),
+                    ->searchable()
+                    ->weight('bold'),
                 Tables\Columns\TextColumn::make('data_inicio')
                     ->label('Data de Início')
-                    ->date(),
+                    ->date('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -86,13 +106,17 @@ class TratamentoResource extends Resource
                         'cancelado' => 'danger',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('observacao')
+                    ->label('Observações')
+                    ->limit(30)
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 // Adicione filtros se necessário
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->hiddenLabel(),
-                Tables\Actions\DeleteAction::make()->hiddenLabel(),
+                Tables\Actions\EditAction::make()->hiddenLabel()->tooltip('Editar'),
+                Tables\Actions\DeleteAction::make()->hiddenLabel()->tooltip('Excluir'),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

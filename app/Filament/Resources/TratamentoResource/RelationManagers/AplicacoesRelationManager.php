@@ -17,48 +17,69 @@ class AplicacoesRelationManager extends RelationManager
 {
     protected static string $relationship = 'aplicacoes';
 
+    protected static ?string $title = 'Aplicações';
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('lote_id')
-                    ->label('Lote')
-                    ->relationship(
-                        'lote',
-                        'numero_lote',
-                        fn ($query) => $query
-                            ->where('status', 'ativo')
-                            ->where('data_validade', '>=', now())
-                            ->whereRaw('(SELECT SUM(quantidade) FROM movimentacoes WHERE lote_id = lotes.id AND deleted_at IS NULL) > 0')
-                    )
-                    ->getOptionLabelFromRecordUsing(fn (Lote $lote) => "{$lote->produto->nome} - Lote: {$lote->numero_lote} (Venc: {$lote->data_validade?->format('d/m/Y')}) - Estoque: {$lote->quantidade_atual}")
-                    ->searchable(['numero_lote', 'produto.nome'])
-                    ->reactive()
-                    ->required(),
+                Forms\Components\Grid::make()
+                    ->schema([
+                        Forms\Components\Select::make('lote_id')
+                            ->label('Lote')
+                            ->relationship(
+                                'lote',
+                                'numero_lote',
+                                fn ($query) => $query
+                                    ->join('produtos', 'lotes.produto_id', '=', 'produtos.id')
+                                    ->where('lotes.status', 'ativo')
+                                    ->where('lotes.data_validade', '>=', now())
+                                    ->whereRaw('(SELECT SUM(quantidade) FROM movimentacoes WHERE lote_id = lotes.id AND deleted_at IS NULL) > 0')
+                                    ->select('lotes.*')
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Lote $lote) => "{$lote->produto->nome} - Lote: {$lote->numero_lote} (Venc: {$lote->data_validade?->format('d/m/Y')})")
+                            ->searchable(['numero_lote', 'produtos.nome'])
+                            ->reactive()
+                            ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('saldo_lote', Lote::find($state)->quantidade_atual ?? 0))
+                            ->required()
+                            ->columnSpan(2),
 
-                Forms\Components\TextInput::make('quantidade')
-                    ->label('Quantidade')
-                    ->numeric()
-                    ->minValue(1)
-                    ->required()
-                    ->rules([
-                        'integer',
-                        'min:1',
-                        // fn ($get) => function ($attribute, $value, $fail) use ($get) {
-                        //     $lote = Lote::find($get('lote_id'));
-                        //     if ($lote && $value > $lote->quantidade_atual) {
-                        //         $fail("Estoque insuficiente. Disponível: {$lote->quantidade_atual}");
-                        //     }
-                        // },
-                    ]),
+                        Forms\Components\TextInput::make('quantidade')
+                            ->label('Quantidade')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required()
+                            ->suffix('unidades')
+                            ->helperText(function (Forms\Get $get) {
+                                $loteId = $get('lote_id');
+                                if (! $loteId) {
+                                    return null;
+                                }
+                                $lote = Lote::find($loteId);
 
-                Forms\Components\DateTimePicker::make('data_aplicacao')
-                    ->label('Data/Hora da Aplicação')
-                    ->required()
-                    ->default(now()),
+                                return $lote ? "Disponível: {$lote->quantidade_atual}" : null;
+                            })
+                            ->columnSpan(1),
 
-                Forms\Components\RichEditor::make('observacoes')
+                        Forms\Components\DateTimePicker::make('data_aplicacao')
+                            ->label('Data/Hora da Aplicação')
+                            ->required()
+                            ->seconds(false)
+                            ->default(now())
+                            ->columnSpan(1)
+                            ->rules([
+                                fn (Forms\Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    $lote = Lote::find($get('lote_id'));
+                                    if ($lote && $lote->data_validade && \Illuminate\Support\Carbon::parse($value)->gt($lote->data_validade)) {
+                                        $fail("A data da aplicação não pode ser superior à validade do lote ({$lote->data_validade->format('d/m/Y')}).");
+                                    }
+                                },
+                            ]),
+                    ])->columns(4),
+
+                Forms\Components\Textarea::make('observacoes')
                     ->label('Observações')
+                    ->rows(3)
                     ->columnSpanFull(),
             ]);
     }
@@ -74,13 +95,15 @@ class AplicacoesRelationManager extends RelationManager
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('lote.produto.nome')
-                    ->label('Produto'),
+                    ->label('Produto')
+                    ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('lote.numero_lote')
                     ->label('Lote'),
 
                 Tables\Columns\TextColumn::make('quantidade')
-                    ->label('Qtd.'),
+                    ->label('Qtd.')
+                    ->suffix(' un'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -90,6 +113,12 @@ class AplicacoesRelationManager extends RelationManager
                         'cancelada' => 'danger',
                         default => 'gray',
                     }),
+
+                Tables\Columns\TextColumn::make('observacoes')
+                    ->label('Observações')
+                    ->html()
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
             ])
@@ -104,8 +133,8 @@ class AplicacoesRelationManager extends RelationManager
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading(fn ($record) => "Aplicar #{$record->id}")
-                    ->modalDescription(fn ($record) => "Confirmar aplicação de {$record->quantidade} unidade(s) do lote {$record->lote->numero_lote}?")
+                    ->modalHeading(fn ($record) => "Aplicar {$record->lote->produto->nome}?")
+                    ->modalDescription(fn ($record) => "Confirmar aplicação de {$record->quantidade} unidade(s) do produto {$record->lote->produto->nome} do lote {$record->lote->numero_lote} nesta data {$record->data_aplicacao->format('d/m/Y H:i')}?")
                     ->modalSubmitActionLabel('Sim, Aplicar')
                     ->visible(fn ($record) => $record->status === 'agendada')
                     ->action(function ($record) {
@@ -170,6 +199,7 @@ class AplicacoesRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->paginated(false);
     }
 }

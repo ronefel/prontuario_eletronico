@@ -9,6 +9,13 @@ class CreateTratamento extends CreateRecord
 {
     protected static string $resource = TratamentoResource::class;
 
+    protected static ?string $title = 'Novo Tratamento';
+
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     public ?int $pacienteId = null;
 
     public function mount(): void
