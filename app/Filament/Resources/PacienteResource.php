@@ -242,6 +242,7 @@ class PacienteResource extends Resource
             'index' => Pages\ListPacientes::route('/'),
             'create' => Pages\CreatePaciente::route('/create'),
             'edit' => Pages\EditPaciente::route('/{record}/edit'),
+            'prontuario' => Pages\ProntuarioPaciente::route('/{record}/prontuario'),
         ];
     }
 }

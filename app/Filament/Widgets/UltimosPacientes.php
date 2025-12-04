@@ -42,7 +42,7 @@ class UltimosPacientes extends BaseWidget
                     ->timezone(Auth::user()->timezone),
             ])
             ->recordUrl(
-                fn (Paciente $record): string => route('filament.admin.resources.pacientes.protuario', ['record' => $record->id]),
+                fn (Paciente $record): string => route('filament.admin.resources.pacientes.prontuario', ['record' => $record->id]),
             )
             ->defaultSort('data', 'desc')
             ->paginated(false);

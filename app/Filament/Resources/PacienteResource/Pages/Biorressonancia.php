@@ -67,7 +67,7 @@ class Biorressonancia extends Page
     // {
     //     return [
     //         Action::make('prontuário')
-    //             ->url(route('filament.admin.resources.pacientes.protuario', ['record' => $this->paciente->id])),
+    //             ->url(route('filament.admin.resources.pacientes.prontuario', ['record' => $this->paciente->id])),
     //     ];
     // }
 
