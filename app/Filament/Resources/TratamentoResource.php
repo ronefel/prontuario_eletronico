@@ -32,6 +32,11 @@ class TratamentoResource extends Resource
         return null;
     }
 
+    public static function getLabel(): ?string
+    {
+        return ' ';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -97,6 +102,9 @@ class TratamentoResource extends Resource
                     ->label('Data de Início')
                     ->date('d/m/Y')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('data_fim')
+                    ->label('Data de Fim')
+                    ->date('d/m/Y'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -109,7 +117,16 @@ class TratamentoResource extends Resource
                 Tables\Columns\TextColumn::make('observacao')
                     ->label('Observações')
                     ->limit(30)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if (strlen($state) <= $column->getCharacterLimit()) {
+                            return null;
+                        }
+
+                        // Only render the tooltip if the column content exceeds the length limit.
+                        return $state;
+                    }),
             ])
             ->filters([
                 // Adicione filtros se necessário
@@ -122,7 +139,8 @@ class TratamentoResource extends Resource
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
-            ]);
+            ])
+            ->paginated(false);
     }
 
     public static function getRelations(): array

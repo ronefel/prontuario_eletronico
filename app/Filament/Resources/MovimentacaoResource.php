@@ -63,11 +63,13 @@ class MovimentacaoResource extends Resource
                     ->default(now())
                     ->seconds(false)
                     ->required(),
-                Forms\Components\Textarea::make('motivo')
-                    ->nullable(),
                 Forms\Components\TextInput::make('documento')
                     ->label('Documento Relacionado (ex: Nota Fiscal)')
                     ->nullable(),
+                Forms\Components\RichEditor::make('motivo')
+                    ->nullable()
+                    ->
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -81,7 +83,7 @@ class MovimentacaoResource extends Resource
                 Tables\Columns\TextColumn::make('quantidade')
                     ->color(fn ($record) => $record->quantidade < 0 ? 'danger' : 'success'),
                 Tables\Columns\TextColumn::make('data_movimentacao')->dateTime('d/m/Y H:i')->sortable(),
-                Tables\Columns\TextColumn::make('motivo')->limit(50),
+                Tables\Columns\TextColumn::make('motivo')->html()->limit(200),
                 Tables\Columns\TextColumn::make('user.name'),
             ])
             ->filters([

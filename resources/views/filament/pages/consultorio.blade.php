@@ -8,6 +8,51 @@
     @endphp
 
     <div>
+        <!-- Cabeçalho do Paciente -->
+        <div class="pb-4">
+            <div class="flex flex-wrap gap-6 items-center">
+                <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span class="dark:text-gray-300">
+                        Paciente:
+                        <x-filament::link :href="route('filament.admin.resources.pacientes.edit', $paciente->id)" tooltip="Editar paciente">
+                            {{ $paciente->nome }}
+                        </x-filament::link>
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center">
+                        <span class="dark:text-gray-300">Idade: {{ $paciente->idade() }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="dark:text-gray-300">Sexo: {{ $paciente->sexo() }}</span>
+                    </div>
+                    @if ($paciente->tiposanguineo)
+                        <div class="flex items-center">
+                            <span class="dark:text-gray-300">Tipo Sanguíneo: {{ $paciente->tiposanguineo }}</span>
+                        </div>
+                    @endif
+                    @if ($paciente->celular)
+                        <div class="flex items-center">
+                            <span class="dark:text-gray-300">Celular:
+                                <x-filament::link size="sm" href="https://wa.me/+55{{ $paciente->celular }}"
+                                    target="_blank">
+                                    {{ $paciente->celular }}
+                                </x-filament::link>
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            @if ($paciente->observacao)
+                <div class="mt-0 pt-0">
+                    <span
+                        class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ $paciente->observacao }}</span>
+                </div>
+            @endif
+        </div>
+
         <!-- Abas -->
         <div
             class="flex items-center space-x-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50/40 dark:bg-gray-800/40 rounded-t-lg p-1">

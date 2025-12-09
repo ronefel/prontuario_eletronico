@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TratamentoResource\RelationManagers;
 
+use App\Filament\Resources\TratamentoResource;
 use App\Models\Lote;
 use App\Services\Estoque\MovimentacaoService;
 use Filament\Forms;
@@ -116,9 +117,17 @@ class AplicacoesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('observacoes')
                     ->label('Observações')
-                    ->html()
-                    ->limit(50)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->limit(30)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if (strlen($state) <= $column->getCharacterLimit()) {
+                            return null;
+                        }
+
+                        // Only render the tooltip if the column content exceeds the length limit.
+                        return $state;
+                    }),
             ])
             ->filters([
             ])
@@ -126,8 +135,6 @@ class AplicacoesRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('aplicar')
                     ->label('Aplicar Agora')
                     ->icon('heroicon-o-check-circle')
@@ -176,12 +183,13 @@ class AplicacoesRelationManager extends RelationManager
                             $record->update(['status' => 'aplicada']);
 
                             // Usa o MovimentacaoService para criar saída
+                            $urlTratamento = TratamentoResource::getUrl('edit', ['record' => $record->tratamento_id]);
                             MovimentacaoService::criarSaida([
                                 'produto_id' => $lote->produto_id,
                                 'lote_id' => $lote->id,
                                 'quantidade' => $record->quantidade,
                                 'data_movimentacao' => $record->data_aplicacao,
-                                'motivo' => "Aplicação clínica #{$record->id} - Tratamento #{$record->tratamento_id}",
+                                'motivo' => "Aplicação clínica <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a>",
                                 'documento' => "APL-{$record->id}",
                                 'user_id' => $record->aplicador_id,
                                 'valor_unitario' => $lote->valor_unitario,
@@ -194,6 +202,46 @@ class AplicacoesRelationManager extends RelationManager
                                 ->send();
                         });
                     }),
+                Tables\Actions\Action::make('reverter')
+                    ->label('Reverter Aplicação')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reverter Aplicação?')
+                    ->modalDescription('Tem certeza que deseja reverter esta aplicação? O estoque será estornado e o status voltará para agendada.')
+                    ->visible(fn ($record) => $record->status === 'aplicada')
+                    ->action(function ($record) {
+                        DB::transaction(function () use ($record) {
+                            // Atualiza status
+                            $record->update(['status' => 'agendada']);
+
+                            // Estorno de estoque (Entrada)
+                            $urlTratamento = TratamentoResource::getUrl('edit', ['record' => $record->tratamento_id]);
+                            MovimentacaoService::criarEntrada([
+                                'produto_id' => $record->lote->produto_id,
+                                'lote_id' => $record->lote_id,
+                                'quantidade' => $record->quantidade,
+                                'motivo' => "Estorno de aplicação <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a>",
+                                'documento' => "EST-{$record->id}",
+                                'user_id' => Auth::id(),
+                                'valor_unitario' => $record->lote->valor_unitario,
+                            ]);
+
+                            Notification::make()
+                                ->success()
+                                ->title('Aplicação revertida!')
+                                ->body('Estoque estornado e status atualizado.')
+                                ->send();
+                        });
+                    }),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Editar')
+                    ->visible(fn ($record) => $record->status !== 'aplicada'),
+                Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Excluir')
+                    ->visible(fn ($record) => $record->status !== 'aplicada'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

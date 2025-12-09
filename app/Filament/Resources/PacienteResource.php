@@ -48,7 +48,7 @@ class PacienteResource extends Resource
     public static function getGlobalSearchResultUrl(Model $record): string
     {
         /** @var Paciente $record */
-        return route('filament.admin.pages.consultorio', ['paciente' => $record->id]);
+        return route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $record->id]);
     }
 
     // Personalizar a query de busca global
