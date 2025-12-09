@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->string('documento')->nullable();
             $table->decimal('valor_unitario', 8, 2)->nullable();
+            $table->boolean('is_manual')->default(true);
             $table->timestamps();
             $table->softDeletes();
             $table->index('deleted_at');

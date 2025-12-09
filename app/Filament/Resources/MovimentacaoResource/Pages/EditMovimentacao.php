@@ -10,10 +10,26 @@ class EditMovimentacao extends EditRecord
 {
     protected static string $resource = MovimentacaoResource::class;
 
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        if (! $this->record->is_manual) {
+            \Filament\Notifications\Notification::make()
+                ->warning()
+                ->title('Acesso negado')
+                ->body('Esta movimentação é automática e não pode ser editada.')
+                ->send();
+
+            $this->redirect($this->getResource()::getUrl('index'));
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->visible(fn () => $this->record->is_manual),
         ];
     }
 

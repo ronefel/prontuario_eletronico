@@ -33,6 +33,7 @@ class MovimentacaoService
             'documento' => $dados['documento'] ?? null,
             'user_id' => $dados['user_id'] ?? Auth::id(),
             'valor_unitario' => $dados['valor_unitario'] ?? 0,
+            'is_manual' => $dados['is_manual'] ?? true,
         ]);
     }
 
@@ -62,6 +63,7 @@ class MovimentacaoService
             'documento' => $dados['documento'] ?? null,
             'user_id' => $dados['user_id'] ?? Auth::id(),
             'valor_unitario' => $dados['valor_unitario'] ?? $lote->valor_unitario,
+            'is_manual' => $dados['is_manual'] ?? true,
         ]);
     }
 
@@ -92,6 +94,7 @@ class MovimentacaoService
             'documento' => $dados['documento'] ?? null,
             'user_id' => $dados['user_id'] ?? Auth::id(),
             'valor_unitario' => $dados['valor_unitario'] ?? $lote->valor_unitario,
+            'is_manual' => $dados['is_manual'] ?? true,
         ]);
     }
 }

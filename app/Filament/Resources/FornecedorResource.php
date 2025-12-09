@@ -16,6 +16,10 @@ class FornecedorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
+    protected static ?string $modelLabel = 'Fornecedor';
+
+    protected static ?string $pluralModelLabel = 'Fornecedores';
+
     protected static ?string $navigationLabel = 'Fornecedores';
 
     protected static ?string $navigationGroup = 'Estoque';

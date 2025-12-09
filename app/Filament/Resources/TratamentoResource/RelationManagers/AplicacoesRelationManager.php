@@ -90,6 +90,8 @@ class AplicacoesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('id')
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('#'),
                 Tables\Columns\TextColumn::make('data_aplicacao')
                     ->label('Data/Hora')
                     ->dateTime('d/m/Y H:i')
@@ -169,16 +171,6 @@ class AplicacoesRelationManager extends RelationManager
                                 return;
                             }
 
-                            // if ($record->quantidade > $lote->quantidade_atual) {
-                            //     Notification::make()
-                            //         ->danger()
-                            //         ->title('Estoque insuficiente')
-                            //         ->body("Disponível: {$lote->quantidade_atual}")
-                            //         ->send();
-
-                            //     return;
-                            // }
-
                             // Atualiza status
                             $record->update(['status' => 'aplicada']);
 
@@ -189,10 +181,10 @@ class AplicacoesRelationManager extends RelationManager
                                 'lote_id' => $lote->id,
                                 'quantidade' => $record->quantidade,
                                 'data_movimentacao' => $record->data_aplicacao,
-                                'motivo' => "Aplicação clínica <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a>",
-                                'documento' => "APL-{$record->id}",
+                                'motivo' => "<p>Aplicação clínica <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
                                 'user_id' => $record->aplicador_id,
                                 'valor_unitario' => $lote->valor_unitario,
+                                'is_manual' => false,
                             ]);
 
                             Notification::make()
@@ -221,10 +213,10 @@ class AplicacoesRelationManager extends RelationManager
                                 'produto_id' => $record->lote->produto_id,
                                 'lote_id' => $record->lote_id,
                                 'quantidade' => $record->quantidade,
-                                'motivo' => "Estorno de aplicação <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a>",
-                                'documento' => "EST-{$record->id}",
+                                'motivo' => "<p>Estorno de aplicação <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
                                 'user_id' => Auth::id(),
                                 'valor_unitario' => $record->lote->valor_unitario,
+                                'is_manual' => false,
                             ]);
 
                             Notification::make()
@@ -244,9 +236,9 @@ class AplicacoesRelationManager extends RelationManager
                     ->visible(fn ($record) => $record->status !== 'aplicada'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ])
             ->paginated(false);
     }

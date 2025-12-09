@@ -16,6 +16,10 @@ class MovimentacaoResource extends Resource
 {
     protected static ?string $model = Movimentacao::class;
 
+    protected static ?string $modelLabel = 'Movimentação';
+
+    protected static ?string $pluralModelLabel = 'Movimentações';
+
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
 
     protected static ?string $navigationLabel = 'Movimentações';
@@ -66,9 +70,8 @@ class MovimentacaoResource extends Resource
                 Forms\Components\TextInput::make('documento')
                     ->label('Documento Relacionado (ex: Nota Fiscal)')
                     ->nullable(),
-                Forms\Components\RichEditor::make('motivo')
+                Forms\Components\Textarea::make('motivo')
                     ->nullable()
-                    ->
                     ->columnSpanFull(),
             ]);
     }
@@ -77,15 +80,26 @@ class MovimentacaoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tipo')->sortable(),
+                Tables\Columns\TextColumn::make('id')->label('#')->sortable(),
+                Tables\Columns\TextColumn::make('tipo'),
                 Tables\Columns\TextColumn::make('produto.nome')->searchable(),
                 Tables\Columns\TextColumn::make('lote.numero_lote')->searchable(),
                 Tables\Columns\TextColumn::make('quantidade')
                     ->color(fn ($record) => $record->quantidade < 0 ? 'danger' : 'success'),
                 Tables\Columns\TextColumn::make('data_movimentacao')->dateTime('d/m/Y H:i')->sortable(),
-                Tables\Columns\TextColumn::make('motivo')->html()->limit(200),
-                Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('motivo')->html()->words(11)
+                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if (count(explode(' ', $state)) <= $column->getWordLimit()) {
+                            return null;
+                        }
+
+                        // Only render the tooltip if the column content exceeds the length limit.
+                        return $state;
+                    }),
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('tipo')
                     ->options([
@@ -98,12 +112,19 @@ class MovimentacaoResource extends Resource
                     ->relationship('produto', 'nome'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Editar')
+                    ->visible(fn ($record) => $record->is_manual),
+                Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Excluir')
+                    ->visible(fn ($record) => $record->is_manual),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
+                // Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->recordUrl(fn (Movimentacao $record): ?string => $record->is_manual ? Pages\EditMovimentacao::getUrl(['record' => $record]) : null);
     }
 
     public static function getPages(): array

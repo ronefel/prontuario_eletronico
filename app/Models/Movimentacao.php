@@ -52,6 +52,20 @@ class Movimentacao extends BaseModel
 
     protected $casts = [
         'data_movimentacao' => DatetimeWithTimezone::class,
+        'is_manual' => 'boolean',
+    ];
+
+    protected $fillable = [
+        'tipo',
+        'produto_id',
+        'lote_id',
+        'quantidade',
+        'data_movimentacao',
+        'motivo',
+        'documento',
+        'user_id',
+        'valor_unitario',
+        'is_manual',
     ];
 
     protected static function booted()

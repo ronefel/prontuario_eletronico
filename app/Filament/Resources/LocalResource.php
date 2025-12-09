@@ -16,6 +16,10 @@ class LocalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
+    protected static ?string $modelLabel = 'Local';
+
+    protected static ?string $pluralModelLabel = 'Locais';
+
     protected static ?string $navigationLabel = 'Locais';
 
     protected static ?string $navigationGroup = 'Estoque';
