@@ -11,16 +11,21 @@ class CreateTratamento extends CreateRecord
 
     protected static ?string $title = 'Novo Tratamento';
 
+    public ?int $pacienteId = null;
+
     public function getBreadcrumbs(): array
     {
         return [];
     }
 
-    public ?int $pacienteId = null;
+    public ?\App\Models\Paciente $paciente = null;
 
     public function mount(): void
     {
         $this->pacienteId = (int) request()->route('pacienteId');
+        $this->paciente = \App\Models\Paciente::find($this->pacienteId);
+
+        parent::mount();
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -32,6 +37,6 @@ class CreateTratamento extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return TratamentoResource::getUrl('index', ['pacienteId' => $this->pacienteId]);
+        return route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $this->pacienteId, 'tab' => 'tratamentos']);
     }
 }

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->text('observacao')->nullable();
             $table->date('data_inicio');
             $table->date('data_fim')->nullable();
-            $table->enum('status', ['planejado', 'em_andamento', 'concluido', 'cancelado'])->default('planejado');
             $table->timestamps();
             $table->softDeletes();
         });

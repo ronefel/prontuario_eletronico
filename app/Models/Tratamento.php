@@ -27,4 +27,31 @@ class Tratamento extends BaseModel
     {
         return $this->hasMany(Aplicacao::class);
     }
+
+    public function getStatusAttribute(): string
+    {
+        if ($this->trashed()) {
+            return 'cancelado';
+        }
+
+        $aplicacoes = $this->aplicacoes;
+
+        if ($aplicacoes->isEmpty()) {
+            return 'planejado';
+        }
+
+        $hasAplicada = $aplicacoes->contains('status', 'aplicada');
+
+        if (! $hasAplicada) {
+            return 'planejado';
+        }
+
+        $allAplicada = $aplicacoes->every(fn ($app) => $app->status === 'aplicada');
+
+        if ($allAplicada) {
+            return 'concluido';
+        }
+
+        return 'em_andamento';
+    }
 }

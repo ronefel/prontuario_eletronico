@@ -53,23 +53,11 @@ class TratamentoResource extends Resource
                 Forms\Components\Grid::make([
                     'default' => 1,
                     'sm' => 2,
-                    'md' => 3,
-                    'lg' => 4,
-                    'xl' => 5,
+                    'md' => 2,
+                    'lg' => 3,
+                    'xl' => 4,
                 ])
                     ->schema([
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'planejado' => 'Planejado',
-                                'em_andamento' => 'Em Andamento',
-                                'concluido' => 'Concluído',
-                                'cancelado' => 'Cancelado',
-                            ])
-                            ->default('planejado')
-                            ->required()
-                            ->native(false)
-                            ->prefixIcon('heroicon-o-information-circle'),
-
                         Forms\Components\DatePicker::make('data_inicio')
                             ->label('Data de Início')
                             ->default(now())
@@ -90,10 +78,21 @@ class TratamentoResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                \Illuminate\Database\Eloquent\SoftDeletingScope::class,
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('#')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('nome')
                     ->label('Tratamento')
                     ->searchable()
@@ -128,19 +127,59 @@ class TratamentoResource extends Resource
                         return $state;
                     }),
             ])
+            ->defaultSort('data_inicio')
             ->filters([
-                // Adicione filtros se necessário
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'planejado' => 'Planejado',
+                        'em_andamento' => 'Em Andamento',
+                        'concluido' => 'Concluído',
+                        'cancelado' => 'Cancelado',
+                    ])
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data) {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+
+                        if ($data['value'] === 'cancelado') {
+                            return $query->onlyTrashed();
+                        }
+
+                        $query->whereNull('deleted_at');
+
+                        return match ($data['value']) {
+                            'planejado' => $query->where(function ($q) {
+                                $q->doesntHave('aplicacoes')
+                                    ->orWhereDoesntHave('aplicacoes', fn ($sq) => $sq->where('status', 'aplicada'));
+                            }),
+                            'concluido' => $query->whereHas('aplicacoes', fn ($q) => $q->where('status', 'aplicada'))
+                                ->whereDoesntHave('aplicacoes', fn ($q) => $q->where('status', '!=', 'aplicada')),
+                            'em_andamento' => $query->whereHas('aplicacoes', fn ($q) => $q->where('status', 'aplicada'))
+                                ->whereHas('aplicacoes', fn ($q) => $q->where('status', '!=', 'aplicada')),
+                            default => $query,
+                        };
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->hiddenLabel()->tooltip('Editar'),
-                Tables\Actions\DeleteAction::make()->hiddenLabel()->tooltip('Excluir'),
+                Tables\Actions\EditAction::make()->hiddenLabel()->tooltip('Editar')
+                    ->visible(function (Tratamento $record): bool {
+                        return $record->deleted_at === null;
+                    }),
+                Tables\Actions\DeleteAction::make()->hiddenLabel()->tooltip('Cancelar'),
+                Tables\Actions\RestoreAction::make()->hiddenLabel()->tooltip('Reativar'),
+
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
-            ->paginated(false);
+            ->paginated(false)
+            // deve editar apenas se o tratamento não estiver excluído
+            ->recordUrl(function (Tratamento $record): ?string {
+                return $record->trashed() ? null : route('filament.admin.resources.tratamentos.edit', $record);
+            });
     }
 
     public static function getRelations(): array
