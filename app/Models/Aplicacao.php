@@ -6,8 +6,8 @@ use App\Casts\DatetimeWithTimezone;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property \App\Models\Lote|null $lote
- * @property \App\Models\Produto|null $produto
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\AplicacaoLote[] $itens
+ * @property \Illuminate\Database\Eloquent\Collection|\App\Models\Lote[] $lotes
  * @property \App\Models\Tratamento|null $tratamento
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Aplicacao newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Aplicacao newQuery()
@@ -29,8 +29,16 @@ class Aplicacao extends BaseModel
         return $this->belongsTo(Tratamento::class);
     }
 
-    public function lote()
+    public function itens()
     {
-        return $this->belongsTo(Lote::class);
+        return $this->hasMany(AplicacaoLote::class);
+    }
+
+    public function lotes()
+    {
+        return $this->belongsToMany(Lote::class, 'aplicacao_lote')
+            ->using(AplicacaoLote::class)
+            ->withPivot('quantidade')
+            ->withTimestamps();
     }
 }

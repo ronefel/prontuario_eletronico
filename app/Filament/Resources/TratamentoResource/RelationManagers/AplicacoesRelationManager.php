@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
@@ -24,10 +25,24 @@ class AplicacoesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Grid::make()
+                Forms\Components\DateTimePicker::make('data_aplicacao')
+                    ->label('Data/Hora da Aplicação')
+                    ->required()
+                    ->seconds(false)
+                    ->default(now())
+                    ->columnSpanFull(),
+
+                Forms\Components\Textarea::make('observacoes')
+                    ->label('Observações')
+                    ->rows(3)
+                    ->columnSpanFull(),
+
+                Forms\Components\Repeater::make('itens')
+                    ->label('Itens')
+                    ->relationship('itens')
                     ->schema([
                         Forms\Components\Select::make('lote_id')
-                            ->label('Lote')
+                            ->label('Produto')
                             ->relationship(
                                 'lote',
                                 'numero_lote',
@@ -42,6 +57,7 @@ class AplicacoesRelationManager extends RelationManager
                             ->searchable(['numero_lote', 'produtos.nome'])
                             ->reactive()
                             ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('saldo_lote', Lote::find($state)->quantidade_atual ?? 0))
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->required()
                             ->columnSpan(2),
 
@@ -61,27 +77,14 @@ class AplicacoesRelationManager extends RelationManager
                                 return $lote ? "Disponível: {$lote->quantidade_atual}" : null;
                             })
                             ->columnSpan(1),
-
-                        Forms\Components\DateTimePicker::make('data_aplicacao')
-                            ->label('Data/Hora da Aplicação')
-                            ->required()
-                            ->seconds(false)
-                            ->default(now())
-                            ->columnSpan(1)
-                            ->rules([
-                                fn (Forms\Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                    $lote = Lote::find($get('lote_id'));
-                                    if ($lote && $lote->data_validade && \Illuminate\Support\Carbon::parse($value)->gt($lote->data_validade)) {
-                                        $fail("A data da aplicação não pode ser superior à validade do lote ({$lote->data_validade->format('d/m/Y')}).");
-                                    }
-                                },
-                            ]),
-                    ])->columns(4),
-
-                Forms\Components\Textarea::make('observacoes')
-                    ->label('Observações')
-                    ->rows(3)
-                    ->columnSpanFull(),
+                    ])
+                    ->addActionLabel('Adicionar Item')
+                    ->addActionAlignment(Alignment::Start)
+                    ->columns(3)
+                    ->columnSpanFull()
+                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
+                        return $data;
+                    }),
             ]);
     }
 
@@ -97,15 +100,19 @@ class AplicacoesRelationManager extends RelationManager
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('lote.produto.nome')
-                    ->label('Produto')
+                Tables\Columns\TextColumn::make('itens.lote.produto.nome')
+                    ->label('Produtos')
+                    ->listWithLineBreaks()
+                    ->bulleted()
                     ->weight('bold'),
 
-                Tables\Columns\TextColumn::make('lote.numero_lote')
-                    ->label('Lote'),
+                Tables\Columns\TextColumn::make('itens.lote.numero_lote')
+                    ->label('Lotes')
+                    ->listWithLineBreaks(),
 
-                Tables\Columns\TextColumn::make('quantidade')
+                Tables\Columns\TextColumn::make('itens.quantidade')
                     ->label('Qtd.')
+                    ->listWithLineBreaks()
                     ->suffix(' un'),
 
                 Tables\Columns\TextColumn::make('status')
@@ -142,55 +149,61 @@ class AplicacoesRelationManager extends RelationManager
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading(fn ($record) => "Aplicar {$record->lote->produto->nome}?")
-                    ->modalDescription(fn ($record) => "Confirmar aplicação de {$record->quantidade} unidade(s) do produto {$record->lote->produto->nome} do lote {$record->lote->numero_lote} nesta data {$record->data_aplicacao->format('d/m/Y H:i')}?")
-                    ->modalSubmitActionLabel('Sim, Aplicar')
+                    ->modalHeading(fn ($record) => "Confirmar Aplicação #{$record->id}?")
+                    ->modalDescription(function ($record) {
+                        $itens = $record->itens->map(fn ($item) => "{$item->quantidade}x {$item->lote->produto->nome} (Lote: {$item->lote->numero_lote})")->implode(', ');
+
+                        return "Confirmar aplicação dos itens: {$itens}? A data registrada será {$record->data_aplicacao->format('d/m/Y H:i')}.";
+                    })
                     ->visible(fn ($record) => $record->status === 'agendada')
                     ->action(function ($record) {
                         DB::transaction(function () use ($record) {
-                            $lote = $record->lote;
+                            // Validações
+                            foreach ($record->itens as $item) {
+                                $lote = $item->lote;
+                                if ($lote->status !== 'ativo') {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title("Lote {$lote->numero_lote} inativo")
+                                        ->body('Não é possivel aplicar um lote inativo.')
+                                        ->send();
 
-                            // Validações finais
-                            if ($lote->status !== 'ativo') {
-                                Notification::make()
-                                    ->danger()
-                                    ->title('Lote inativo')
-                                    ->body('Não é possivel aplicar um lote inativo.')
-                                    ->send();
+                                    return;
+                                }
 
-                                return;
-                            }
+                                if ($lote->data_validade < now(Auth::user()->timezone)) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title("Lote {$lote->numero_lote} vencido")
+                                        ->body('Nao é possivel aplicar um lote vencido.')
+                                        ->send();
 
-                            if ($lote->data_validade < now(Auth::user()->timezone)) {
-                                Notification::make()
-                                    ->danger()
-                                    ->title('Lote vencido')
-                                    ->body('Nao é possivel aplicar um lote vencido.')
-                                    ->send();
-
-                                return;
+                                    return;
+                                }
                             }
 
                             // Atualiza status
                             $record->update(['status' => 'aplicada']);
 
-                            // Usa o MovimentacaoService para criar saída
+                            // Registra saídas
                             $urlTratamento = TratamentoResource::getUrl('edit', ['record' => $record->tratamento_id]);
-                            MovimentacaoService::criarSaida([
-                                'produto_id' => $lote->produto_id,
-                                'lote_id' => $lote->id,
-                                'quantidade' => $record->quantidade,
-                                'data_movimentacao' => $record->data_aplicacao,
-                                'motivo' => "<p>Aplicação clínica <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
-                                'user_id' => $record->aplicador_id,
-                                'valor_unitario' => $lote->valor_unitario,
-                                'is_manual' => false,
-                            ]);
+                            foreach ($record->itens as $item) {
+                                MovimentacaoService::criarSaida([
+                                    'produto_id' => $item->lote->produto_id,
+                                    'lote_id' => $item->lote_id,
+                                    'quantidade' => $item->quantidade,
+                                    'data_movimentacao' => $record->data_aplicacao,
+                                    'motivo' => "<p>Aplicação clínica <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
+                                    'user_id' => $record->aplicador_id ?? Auth::id(), // Fallback to auth if aplicador_id is null/not present
+                                    'valor_unitario' => $item->lote->valor_unitario,
+                                    'is_manual' => false,
+                                ]);
+                            }
 
                             Notification::make()
                                 ->success()
                                 ->title('Aplicação realizada!')
-                                ->body("Saída registrada: {$record->quantidade} unidade(s) do lote {$lote->numero_lote}")
+                                ->body("Estoque atualizado para {$record->itens->count()} item(ns).")
                                 ->send();
                         });
                     }),
@@ -209,15 +222,17 @@ class AplicacoesRelationManager extends RelationManager
 
                             // Estorno de estoque (Entrada)
                             $urlTratamento = TratamentoResource::getUrl('edit', ['record' => $record->tratamento_id]);
-                            MovimentacaoService::criarEntrada([
-                                'produto_id' => $record->lote->produto_id,
-                                'lote_id' => $record->lote_id,
-                                'quantidade' => $record->quantidade,
-                                'motivo' => "<p>Estorno de aplicação <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
-                                'user_id' => Auth::id(),
-                                'valor_unitario' => $record->lote->valor_unitario,
-                                'is_manual' => false,
-                            ]);
+                            foreach ($record->itens as $item) {
+                                MovimentacaoService::criarEntrada([
+                                    'produto_id' => $item->lote->produto_id,
+                                    'lote_id' => $item->lote_id,
+                                    'quantidade' => $item->quantidade,
+                                    'motivo' => "<p>Estorno de aplicação <b>#{$record->id}</b> - Tratamento <a href=\"{$urlTratamento}\" target=\"_blank\" class=\"text-primary-600 hover:underline\">#{$record->tratamento_id}</a></p>",
+                                    'user_id' => Auth::id(),
+                                    'valor_unitario' => $item->lote->valor_unitario,
+                                    'is_manual' => false,
+                                ]);
+                            }
 
                             Notification::make()
                                 ->success()
