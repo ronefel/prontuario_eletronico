@@ -35,8 +35,8 @@ class CreateTratamento extends CreateRecord
         return $data;
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $this->pacienteId, 'tab' => 'tratamentos']);
-    }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $this->pacienteId, 'tab' => 'tratamentos']);
+    // }
 }

@@ -37,7 +37,7 @@ class AplicacoesRelationManager extends RelationManager
                     ->rows(3)
                     ->columnSpanFull(),
 
-                Forms\Components\Repeater::make('itens')
+                \App\Filament\Forms\Components\RepeaterInline::make('itens')
                     ->label('Itens')
                     ->relationship('itens')
                     ->schema([
@@ -46,18 +46,23 @@ class AplicacoesRelationManager extends RelationManager
                             ->relationship(
                                 'lote',
                                 'numero_lote',
-                                fn ($query) => $query
+                                fn ($query, Forms\Get $get) => $query
                                     ->join('produtos', 'lotes.produto_id', '=', 'produtos.id')
                                     ->where('lotes.status', 'ativo')
                                     ->where('lotes.data_validade', '>=', now())
                                     ->whereRaw('(SELECT SUM(quantidade) FROM movimentacoes WHERE lote_id = lotes.id AND deleted_at IS NULL) > 0')
+                                    ->whereNotIn('lotes.id', collect($get('../../itens'))
+                                        ->pluck('lote_id')
+                                        ->filter(fn ($id) => $id !== $get('lote_id')) // Mantém o atual
+                                        ->toArray()
+                                    )
                                     ->select('lotes.*')
                             )
                             ->getOptionLabelFromRecordUsing(fn (Lote $lote) => "{$lote->produto->nome} - Lote: {$lote->numero_lote} (Venc: {$lote->data_validade?->format('d/m/Y')})")
                             ->searchable(['numero_lote', 'produtos.nome'])
+                            ->preload()
                             ->reactive()
                             ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('saldo_lote', Lote::find($state)->quantidade_atual ?? 0))
-                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->required()
                             ->columnSpan(2),
 
@@ -70,7 +75,7 @@ class AplicacoesRelationManager extends RelationManager
                             ->helperText(function (Forms\Get $get) {
                                 $loteId = $get('lote_id');
                                 if (! $loteId) {
-                                    return null;
+                                    return 'Disponível:';
                                 }
                                 $lote = Lote::find($loteId);
 

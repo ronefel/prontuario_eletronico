@@ -4,7 +4,9 @@ namespace App\Filament\Resources\TratamentoResource\Pages;
 
 use App\Filament\Resources\TratamentoResource;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Js;
 
 class EditTratamento extends EditRecord
 {
@@ -34,8 +36,16 @@ class EditTratamento extends EditRecord
         return [];
     }
 
-    protected function getRedirectUrl(): string
+    protected function getCancelFormAction(): Action
     {
-        return $this->previousUrl ?? route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $this->pacienteId, 'tab' => 'tratamentos']);
+        return Action::make('cancel')
+            ->label('Voltar')
+            ->alpineClickHandler('document.referrer ? window.history.back() : (window.location.href = '.Js::from($this->previousUrl ?? static::getResource()::getUrl()).')')
+            ->color('gray');
     }
+
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->previousUrl ?? route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $this->pacienteId, 'tab' => 'tratamentos']);
+    // }
 }
