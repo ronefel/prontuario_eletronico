@@ -37,6 +37,93 @@ class AplicacoesRelationManager extends RelationManager
                     ->rows(3)
                     ->columnSpanFull(),
 
+                Forms\Components\Select::make('kit_id')
+                    ->label('Carregar Kit')
+                    ->options(\App\Models\Kit::where('ativo', true)->pluck('nome', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->reactive()
+                    ->dehydrated(false)
+                    ->placeholder('Selecione um Kit para preencher os itens...')
+                    ->columnSpanFull()
+                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                        if (! $state) {
+                            return;
+                        }
+
+                        $kit = \App\Models\Kit::with('itens.produto')->find($state);
+                        if (! $kit) {
+                            return;
+                        }
+
+                        $novosItens = [];
+                        $produtosFaltantes = [];
+
+                        // Para cada item do kit
+                        foreach ($kit->itens as $item) {
+                            $produto = $item->produto;
+                            if (! $produto) {
+                                continue;
+                            } // Should not happen if foreign key integrity
+
+                            $quantidadeNecessaria = $item->quantidade;
+                            $produtoId = $produto->id;
+
+                            // Buscar lotes VÁLIDOS (ativos, não vencidos, com saldo > 0)
+                            // Ordenados por validade (FIFO)
+                            $lotes = Lote::where('produto_id', $produtoId)
+                                ->where('status', 'ativo')
+                                ->where('data_validade', '>=', now())
+                                ->get()
+                                ->filter(fn ($lote) => $lote->quantidade_atual > 0)
+                                ->sortBy('data_validade');
+
+                            $quantidadeAtendida = 0;
+
+                            foreach ($lotes as $lote) {
+                                if ($quantidadeAtendida >= $quantidadeNecessaria) {
+                                    break;
+                                }
+
+                                $saldoLote = $lote->quantidade_atual;
+                                $quantidadeFaltante = $quantidadeNecessaria - $quantidadeAtendida;
+
+                                $quantidadeParaPegar = min($saldoLote, $quantidadeFaltante);
+
+                                $novosItens[] = [
+                                    'lote_id' => $lote->id,
+                                    'quantidade' => $quantidadeParaPegar,
+                                    // 'saldo_lote' => $saldoLote, // Opcional, se o campo existir no repeater, mas é dinâmico
+                                ];
+
+                                $quantidadeAtendida += $quantidadeParaPegar;
+                            }
+
+                            if ($quantidadeAtendida < $quantidadeNecessaria) {
+                                $produtosFaltantes[] = "{$produto->nome} (Faltam ".($quantidadeNecessaria - $quantidadeAtendida).')';
+                            }
+                        }
+
+                        // Atualiza o repeater
+                        // Mantém itens existentes? O usuário pediu para "selecionar o kit EM VEZ DE selecionar lote por lote"
+                        // Assumo que substitui ou adiciona. Vamos adicionar aos existentes para segurança, mas se estiver vazio, preenche.
+                        $itensAtuais = $get('itens') ?? [];
+                        $set('itens', array_merge($itensAtuais, $novosItens));
+
+                        // Notifica se faltar algo
+                        if (! empty($produtosFaltantes)) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Estoque Insuficiente para o Kit')
+                                ->body('Os seguintes produtos não possuem estoque suficiente para completar o kit:<br>'.implode('<br>', $produtosFaltantes))
+                                ->persistent()
+                                ->send();
+                        }
+
+                        // Limpa seleção do kit para permitir selecionar outro
+                        $set('kit_id', null);
+                    }),
+
                 \App\Filament\Forms\Components\RepeaterInline::make('itens')
                     ->label('Itens')
                     ->relationship('itens')
@@ -85,6 +172,7 @@ class AplicacoesRelationManager extends RelationManager
                     ])
                     ->addActionLabel('Adicionar Item')
                     ->addActionAlignment(Alignment::Start)
+                    ->defaultItems(0)
                     ->columns(3)
                     ->columnSpanFull()
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
