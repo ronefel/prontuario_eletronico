@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('observacao')->nullable();
             $table->date('data_inicio');
             $table->date('data_fim')->nullable();
+            $table->decimal('valor_cobrado', 10, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

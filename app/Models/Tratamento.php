@@ -18,6 +18,33 @@ class Tratamento extends BaseModel
 
     protected $table = 'tratamentos';
 
+    protected $guarded = [];
+
+    protected $casts = [
+        'valor_cobrado' => 'decimal:2',
+    ];
+
+    public function getCustoTotalAttribute(): float
+    {
+        $custo = 0;
+        foreach ($this->aplicacoes as $aplicacao) {
+            foreach ($aplicacao->lotes as $lote) {
+                $quantidade = $lote->pivot->quantidade ?? 0;
+                $valorUnitario = $lote->valor_unitario ?? 0;
+                $custo += $quantidade * $valorUnitario;
+            }
+        }
+
+        return round($custo, 2);
+    }
+
+    public function getSaldoAttribute(): float
+    {
+        $cobrado = $this->valor_cobrado ?? 0;
+
+        return round($cobrado - $this->custo_total, 2);
+    }
+
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);

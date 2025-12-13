@@ -44,20 +44,21 @@ class TratamentoResource extends Resource
 
                 Forms\Components\Hidden::make('paciente_id')
                     ->default(fn ($livewire) => $livewire->paciente?->id),
-                Forms\Components\TextInput::make('nome')
-                    ->label('Nome do Tratamento')
-                    ->required()
-                    ->maxLength(255)
-                    ->prefixIcon('heroicon-o-beaker')
-                    ->columnSpanFull(),
+
                 Forms\Components\Grid::make([
                     'default' => 1,
                     'sm' => 2,
                     'md' => 2,
-                    'lg' => 3,
+                    'lg' => 4,
                     'xl' => 4,
                 ])
                     ->schema([
+
+                        Forms\Components\TextInput::make('nome')
+                            ->label('Nome do Tratamento')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(2),
                         Forms\Components\DatePicker::make('data_inicio')
                             ->label('Data de Início')
                             ->default(now())
@@ -75,6 +76,26 @@ class TratamentoResource extends Resource
                     ->placeholder('Detalhes do protocolo, posologia, justificativa...')
                     ->rows(3)
                     ->columnSpanFull(),
+
+                Forms\Components\Section::make('Financeiro')
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        Forms\Components\TextInput::make('valor_cobrado')
+                            ->label('Valor Cobrado')
+                            ->numeric()
+                            ->prefix('R$')
+                            ->inputMode('decimal'),
+
+                        Forms\Components\Placeholder::make('custo_total')
+                            ->label('Custo Total')
+                            ->content(fn (?Tratamento $record): string => $record ? 'R$ '.number_format($record->custo_total, 2, ',', '.') : 'R$ 0,00'),
+
+                        Forms\Components\Placeholder::make('saldo')
+                            ->label('Saldo')
+                            ->content(fn (?Tratamento $record): string => $record ? 'R$ '.number_format($record->saldo, 2, ',', '.') : 'R$ 0,00'),
+                    ])
+                    ->columns(3),
             ]);
     }
 

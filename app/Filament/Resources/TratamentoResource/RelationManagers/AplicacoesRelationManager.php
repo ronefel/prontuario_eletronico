@@ -246,6 +246,30 @@ class AplicacoesRelationManager extends RelationManager
                                 ->send();
                         });
                     }),
+                Tables\Actions\ReplicateAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Duplicar')
+                    ->excludeAttributes(['data_aplicacao', 'status', 'created_at', 'updated_at', 'deleted_at'])
+                    ->beforeReplicaSaved(function (\App\Models\Aplicacao $replica) {
+                        $replica->status = 'agendada';
+                        $replica->data_aplicacao = now();
+                        $replica->created_at = now();
+                        $replica->updated_at = now();
+                    })
+                    ->after(function (\App\Models\Aplicacao $original, \App\Models\Aplicacao $replica) {
+                        foreach ($original->itens as $item) {
+                            $replica->itens()->create([
+                                'lote_id' => $item->lote_id,
+                                'quantidade' => $item->quantidade,
+                            ]);
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title('Aplicação duplicada com sucesso')
+                            ->body('A nova aplicação foi criada como "agendada".')
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make()
                     ->hiddenLabel()
                     ->tooltip('Editar')
