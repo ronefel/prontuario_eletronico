@@ -11,6 +11,7 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class MovimentacaoResource extends Resource
 {
@@ -86,7 +87,7 @@ class MovimentacaoResource extends Resource
                 Tables\Columns\TextColumn::make('lote.numero_lote')->searchable(),
                 Tables\Columns\TextColumn::make('quantidade')
                     ->color(fn ($record) => $record->quantidade < 0 ? 'danger' : 'success'),
-                Tables\Columns\TextColumn::make('data_movimentacao')->dateTime('d/m/Y H:i')->sortable(),
+                Tables\Columns\TextColumn::make('data_movimentacao')->dateTime('d/m/Y H:i', Auth::user()->timezone)->sortable(),
                 Tables\Columns\TextColumn::make('motivo')->html()->words(11)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();

@@ -41,7 +41,9 @@ class Inventario extends BaseModel
 
     protected $fillable = ['data_inventario', 'tipo', 'user_id', 'status'];
 
-    protected $dates = ['data_inventario'];
+    protected $casts = [
+        'data_inventario' => 'date:Y-m-d',
+    ];
 
     protected static function booted()
     {

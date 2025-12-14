@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class KitResource extends Resource
 {
@@ -73,7 +74,7 @@ class KitResource extends Resource
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Criado em')
-                    ->dateTime('d/m/Y H:i'),
+                    ->dateTime('d/m/Y H:i', Auth::user()->timezone),
             ])
             ->filters([
                 //

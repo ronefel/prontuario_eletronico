@@ -22,6 +22,8 @@ class Tratamento extends BaseModel
 
     protected $casts = [
         'valor_cobrado' => 'decimal:2',
+        'data_inicio' => 'date:Y-m-d',
+        'data_fim' => 'date:Y-m-d',
     ];
 
     public function getCustoTotalAttribute(): float
@@ -55,10 +57,20 @@ class Tratamento extends BaseModel
         return $this->hasMany(Aplicacao::class);
     }
 
+    public function getProgressoAttribute(): string
+    {
+        $aplicacoes = $this->aplicacoes;
+
+        $total = $aplicacoes->count();
+        $aplicadas = $aplicacoes->where('status', 'aplicada')->count();
+
+        return "{$aplicadas}/{$total}";
+    }
+
     public function getStatusAttribute(): string
     {
         if ($this->trashed()) {
-            return 'cancelado';
+            return 'excluido';
         }
 
         $aplicacoes = $this->aplicacoes;

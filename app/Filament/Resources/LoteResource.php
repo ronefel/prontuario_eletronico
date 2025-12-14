@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LoteResource\Pages;
 use App\Models\Lote;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class LoteResource extends Resource
 {
@@ -72,7 +74,19 @@ class LoteResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('data_validade')
                     ->date('d/m/Y')
-                    ->color(fn ($record) => $record->data_validade && $record->data_validade->isPast() ? 'danger' : 'success'),
+                    ->color(function ($record) {
+                        $date = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone);
+
+                        if ($date->endOfDay()->isPast()) {
+                            return 'danger';
+                        }
+                        if ($date->addDays(-30)->startOfDay()->isPast()) {
+                            return 'warning';
+                        }
+                        if ($date->isFuture()) {
+                            return 'success';
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('quantidade_atual')
                     ->sortable()
                     ->getStateUsing(fn ($record) => $record->quantidade_atual),

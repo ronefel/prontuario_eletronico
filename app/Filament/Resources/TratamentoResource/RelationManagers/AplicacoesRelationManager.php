@@ -190,7 +190,7 @@ class AplicacoesRelationManager extends RelationManager
                     ->label('#'),
                 Tables\Columns\TextColumn::make('data_aplicacao')
                     ->label('Data/Hora')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i', Auth::user()->timezone)
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('itens.lote.produto.nome')

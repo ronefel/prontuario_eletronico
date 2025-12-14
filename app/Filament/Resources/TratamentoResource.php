@@ -131,9 +131,14 @@ class TratamentoResource extends Resource
                         'planejado' => 'gray',
                         'em_andamento' => 'warning',
                         'concluido' => 'success',
-                        'cancelado' => 'danger',
+                        'excluido' => 'danger',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('progresso')
+                    ->label('Progresso')
+                    ->tooltip('Aplicada/Total')
+                    ->badge()
+                    ->color('gray'),
                 Tables\Columns\TextColumn::make('observacao')
                     ->label('Observações')
                     ->limit(30)
@@ -150,24 +155,18 @@ class TratamentoResource extends Resource
             ])
             ->defaultSort('data_inicio')
             ->filters([
+                Tables\Filters\TrashedFilter::make()->native(false),
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options([
                         'planejado' => 'Planejado',
                         'em_andamento' => 'Em Andamento',
                         'concluido' => 'Concluído',
-                        'cancelado' => 'Cancelado',
                     ])
                     ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data) {
                         if (empty($data['value'])) {
                             return $query;
                         }
-
-                        if ($data['value'] === 'cancelado') {
-                            return $query->onlyTrashed();
-                        }
-
-                        $query->whereNull('deleted_at');
 
                         return match ($data['value']) {
                             'planejado' => $query->where(function ($q) {
@@ -183,24 +182,22 @@ class TratamentoResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->hiddenLabel()->tooltip('Editar')
-                    ->visible(function (Tratamento $record): bool {
-                        return $record->deleted_at === null;
-                    }),
-                Tables\Actions\DeleteAction::make()->hiddenLabel()->tooltip('Cancelar'),
-                Tables\Actions\RestoreAction::make()->hiddenLabel()->tooltip('Reativar'),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Editar'),
+                Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Excluir')
+                    ->visible(fn (Tratamento $record) => $record->status === 'planejado'),
+                Tables\Actions\RestoreAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Restaurar'),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Excluir Definitivamente'),
 
             ])
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
-            ->paginated(false)
-            // deve editar apenas se o tratamento não estiver excluído
-            ->recordUrl(function (Tratamento $record): ?string {
-                return $record->trashed() ? null : route('filament.admin.resources.tratamentos.edit', $record);
-            });
+            ->paginated(false);
     }
 
     public static function getRelations(): array

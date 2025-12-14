@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Casts\DatetimeWithTimezone;
 use App\Services\Estoque\MovimentacaoService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -58,8 +57,8 @@ class Lote extends BaseModel
     protected $table = 'lotes';
 
     protected $casts = [
-        'data_fabricacao' => DatetimeWithTimezone::class,
-        'data_validade' => DatetimeWithTimezone::class,
+        'data_fabricacao' => 'date:Y-m-d',
+        'data_validade' => 'date:Y-m-d',
     ];
 
     protected static function booted()
