@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Relatorios;
 
+use App\Exports\TratamentosExport;
 use App\Models\Tratamento;
 use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
@@ -12,8 +13,11 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Mpdf;
 
 class RelatorioTratamentos extends Page implements HasTable
 {
@@ -50,15 +54,58 @@ class RelatorioTratamentos extends Page implements HasTable
                         'excluido' => 'danger',
                         default => 'gray',
                     }),
+                TextColumn::make('aplicacoes_info')
+                    ->label('Aplicações')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->html()
+                    ->state(function (Tratamento $record) {
+                        if ($record->aplicacoes->isEmpty()) {
+                            return '<span class="text-gray-500 text-xs">Nenhuma aplicação</span>';
+                        }
+                        $html = '<ul class="text-xs list-disc pl-4">';
+                        foreach ($record->aplicacoes as $app) {
+                            $itens = $app->lotes->map(fn ($l) => $l->produto->nome)->join(', ');
+                            $html .= "<li>
+                                <strong>{$app->data_aplicacao?->format('d/m/Y')}</strong>
+                                <span>(".ucfirst($app->status).")</span>
+                                <br><span class=\"text-gray-500\">{$itens}</span>
+                            </li>";
+                        }
+                        $html .= '</ul>';
+
+                        return $html;
+                    }),
                 TextColumn::make('valor_cobrado')
                     ->label('Valor Cobrado')
-                    ->money('BRL'),
+                    ->money('BRL')
+                    ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()
+                        ->money('BRL')
+                        ->label('')
+                    ),
                 TextColumn::make('custo_total')
                     ->label('Custo Total')
-                    ->money('BRL'),
+                    ->money('BRL')
+                    ->summarize(\Filament\Tables\Columns\Summarizers\Summarizer::make()
+                        ->label('')
+                        ->money('BRL')
+                        ->using(fn ($query) => Tratamento::whereIn('id', $query->clone()->pluck('tratamentos.id'))
+                            ->with(['aplicacoes.lotes'])
+                            ->get()
+                            ->sum(fn ($record) => $record->custo_total)
+                        )
+                    ),
                 TextColumn::make('saldo')
                     ->label('Saldo')
-                    ->money('BRL'),
+                    ->money('BRL')
+                    ->summarize(\Filament\Tables\Columns\Summarizers\Summarizer::make()
+                        ->label('')
+                        ->money('BRL')
+                        ->using(fn ($query) => Tratamento::whereIn('id', $query->clone()->pluck('tratamentos.id'))
+                            ->with(['aplicacoes.lotes'])
+                            ->get()
+                            ->sum(fn ($record) => $record->saldo)
+                        )
+                    ),
             ])
             ->filters([
                 SelectFilter::make('paciente')
@@ -67,19 +114,22 @@ class RelatorioTratamentos extends Page implements HasTable
                     ->multiple()
                     ->preload()
                     ->placeholder('Pacientes')
-                    ->relationship('paciente', 'nome'),
+                    ->relationship('paciente', 'nome')
+                    ->columnSpan(2),
                 Filter::make('data_inicio')
                     ->columns(2)
-                    ->columnSpan(2)
+                    ->columnSpan(3)
                     ->form([
                         DatePicker::make('data_inicio_from')
                             ->label('')
                             ->placeholder('Data Início')
-                            ->native(false),
+                            ->prefix('Data Início')
+                            ->native(true),
                         DatePicker::make('data_inicio_until')
                             ->label('')
                             ->placeholder('Data Fim')
-                            ->native(false),
+                            ->prefix('Até')
+                            ->native(true),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -97,10 +147,31 @@ class RelatorioTratamentos extends Page implements HasTable
                 Action::make('export_pdf')
                     ->label('Exportar PDF')
                     ->icon('heroicon-o-document-arrow-down')
-                    ->action(function ($livewire) {
+                    ->form([
+                        \Filament\Forms\Components\Checkbox::make('include_applications')
+                            ->label('Incluir Aplicações')
+                            ->default(false),
+                    ])
+                    ->action(function ($livewire, array $data) {
                         $records = $livewire->getFilteredTableQuery()->get();
-                        $pdf = new \Mpdf\Mpdf;
-                        $html = view('filament.pages.relatorios.relatorio-tratamentos-pdf', ['records' => $records])->render();
+                        $pdf = new Mpdf([
+                            'margin_left' => 10,
+                            'margin_right' => 10,
+                            'margin_top' => 10,
+                            'margin_bottom' => 5,
+                            'margin_header' => 0,
+                            'margin_footer' => 5,
+                            'pagenumPrefix' => 'Página ',
+                            'pagenumSuffix' => ' de ',
+                        ]);
+                        $html = view(
+                            'filament.pages.relatorios.relatorio-tratamentos-pdf',
+                            [
+                                'records' => $records,
+                                'includeApplications' => $data['include_applications'] ?? false,
+                            ]
+                        )->render();
+                        $pdf->setFooter('Gerado em: {DATE j/m/Y} - {PAGENO}{nbpg}');
                         $pdf->WriteHTML($html);
 
                         return response()->streamDownload(
@@ -111,23 +182,28 @@ class RelatorioTratamentos extends Page implements HasTable
                 Action::make('export_excel')
                     ->label('Exportar Excel')
                     ->icon('heroicon-o-table-cells')
-                    ->action(function ($livewire) {
+                    ->form([
+                        \Filament\Forms\Components\Checkbox::make('include_applications')
+                            ->label('Incluir Aplicações')
+                            ->default(false),
+                    ])
+                    ->action(function ($livewire, array $data) {
                         $records = $livewire->getFilteredTableQuery()->get();
 
-                        return \Maatwebsite\Excel\Facades\Excel::download(
-                            new \App\Exports\TratamentosExport($records),
+                        return Excel::download(
+                            new TratamentosExport($records, $data['include_applications'] ?? false),
                             'tratamentos.xlsx'
                         );
                     }),
             ])
             ->actions([
-                Action::make('view_applications')
-                    ->label('Ver Aplicações')
-                    ->icon('heroicon-m-eye')
-                    ->modalContent(fn (Tratamento $record) => view('filament.pages.relatorios.partials.applications-list', ['record' => $record]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelAction(false),
             ])
-            ->defaultGroup('paciente.nome');
+            ->groups([
+                Group::make('paciente.nome')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('paciente.nome')
+            ->groupingSettingsHidden()
+            ->paginated([100, 200, 500, 1000, 'all']);
     }
 }

@@ -1,6 +1,9 @@
 <div>
+    @php
+        $record = $getRecord();
+    @endphp
     <h3 class="text-lg font-bold mb-2">Aplicações do Tratamento</h3>
-    @if ($record->aplicacoes->isEmpty())
+    @if ($record && $record->aplicacoes->isEmpty())
         <p class="text-gray-500">Nenhuma aplicação registrada.</p>
     @else
         <div class="relative overflow-x-auto">
