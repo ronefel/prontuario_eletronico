@@ -27,6 +27,8 @@ class MovimentacaoResource extends Resource
 
     protected static ?string $navigationGroup = 'Estoque';
 
+    protected static ?int $navigationSort = 207;
+
     public static function form(Form $form): Form
     {
         return $form

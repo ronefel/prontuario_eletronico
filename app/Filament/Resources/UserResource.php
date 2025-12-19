@@ -17,7 +17,9 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationGroup = 'Sistema';
+
+    protected static ?int $navigationSort = 402;
 
     public static function getModelLabel(): string
     {

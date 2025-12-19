@@ -20,7 +20,9 @@ class MascaraResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Cadastros';
+
+    protected static ?int $navigationSort = 104;
 
     public static function getModelLabel(): string
     {

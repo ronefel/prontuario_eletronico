@@ -25,6 +25,8 @@ class InventarioResource extends Resource
 
     protected static ?string $navigationGroup = 'Estoque';
 
+    protected static ?int $navigationSort = 206;
+
     public static function form(Form $form): Form
     {
         return $form

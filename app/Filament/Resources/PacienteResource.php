@@ -32,6 +32,8 @@ class PacienteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+    protected static ?string $navigationGroup = null;
+
     protected static ?int $navigationSort = 1;
 
     public static function getGloballySearchableAttributes(): array

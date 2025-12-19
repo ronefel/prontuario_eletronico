@@ -27,6 +27,8 @@ class RelatorioTratamentos extends Page implements HasTable
 
     protected static ?string $navigationGroup = 'Relatórios';
 
+    protected static ?int $navigationSort = 301;
+
     protected static ?string $navigationLabel = 'Relatório de Tratamentos';
 
     protected static ?string $title = 'Relatório de Tratamentos';

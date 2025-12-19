@@ -24,6 +24,8 @@ class LocalResource extends Resource
 
     protected static ?string $navigationGroup = 'Estoque';
 
+    protected static ?int $navigationSort = 203;
+
     public static function form(Form $form): Form
     {
         return $form

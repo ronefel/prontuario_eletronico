@@ -20,6 +20,8 @@ class ProdutoResource extends Resource
 
     protected static ?string $navigationGroup = 'Estoque';
 
+    protected static ?int $navigationSort = 204;
+
     public static function form(Form $form): Form
     {
         return $form

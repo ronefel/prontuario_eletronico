@@ -22,6 +22,8 @@ class LoteResource extends Resource
 
     protected static ?string $navigationGroup = 'Estoque';
 
+    protected static ?int $navigationSort = 205;
+
     public static function form(Form $form): Form
     {
         return $form

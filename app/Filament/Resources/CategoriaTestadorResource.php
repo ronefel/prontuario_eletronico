@@ -17,7 +17,9 @@ class CategoriaTestadorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'Cadastros';
+
+    protected static ?int $navigationSort = 102;
 
     protected static ?string $slug = 'categorias-testadores';
 

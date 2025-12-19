@@ -17,7 +17,9 @@ class SettingsResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
-    protected static ?int $navigationSort = 999;
+    protected static ?string $navigationGroup = 'Sistema';
+
+    protected static ?int $navigationSort = 401;
 
     protected static ?string $modelLabel = 'Configurações';
 

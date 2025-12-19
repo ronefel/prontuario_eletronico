@@ -20,7 +20,9 @@ class CidadeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-map';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Cadastros';
+
+    protected static ?int $navigationSort = 105;
 
     public static function form(Form $form): Form
     {
