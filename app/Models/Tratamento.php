@@ -5,11 +5,39 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property int $id
+ * @property int $paciente_id
+ * @property string $nome
+ * @property string|null $observacao
+ * @property \Illuminate\Support\Carbon $data_inicio
+ * @property \Illuminate\Support\Carbon|null $data_fim
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property numeric|null $valor_cobrado
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Aplicacao> $aplicacoes
- * @property \App\Models\Paciente|null $paciente
+ * @property float $custo_total
+ * @property string $progresso
+ * @property float $saldo
+ * @property \App\Models\Paciente $paciente
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereDataFim($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereDataInicio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereNome($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereObservacao($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento wherePacienteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento whereValorCobrado($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tratamento withoutTrashed()
  * @mixin \Eloquent
  */
 class Tratamento extends BaseModel
