@@ -13,6 +13,11 @@ class TotalPacientes extends BaseWidget
 {
     protected static ?string $pollingInterval = null;
 
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     protected function getStats(): array
     {
         // Defina a data de início e fim para os últimos 30 dias
