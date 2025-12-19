@@ -49,17 +49,32 @@ class ValidadeProximaWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('data_validade')
                     ->label('Data de Validade')
                     ->date('d/m/Y')
-                    ->color('danger'),
+                    ->color(function ($record) {
+                        $date = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone);
+
+                        if ($date->endOfDay()->isPast()) {
+                            return 'danger';
+                        }
+                        if ($date->addDays(-30)->startOfDay()->isPast()) {
+                            return 'warning';
+                        }
+                        if ($date->isFuture()) {
+                            return 'success';
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('dias_restantes')
                     ->label('Dias Restantes')
                     ->getStateUsing(function ($record) {
-                        $validade = Carbon::parse($record->data_validade)->startOfDay();
+                        $validade = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone)->startOfDay();
                         $hoje = Carbon::now(Auth::user()->timezone)->startOfDay();
-                        if ($validade->lessThanOrEqualTo($hoje)) {
+
+                        if ($validade->lessThan($hoje)) {
                             return 'Vencido';
                         }
 
-                        return $hoje->diffInDays($validade);
+                        $dias = (int) $hoje->diffInDays($validade);
+
+                        return $dias === 0 ? 'Vence Hoje' : $dias;
                     }),
             ])
             ->recordUrl(fn ($record) => route('filament.admin.resources.lotes.edit', $record))

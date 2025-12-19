@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Adapters\DatabaseAdapter;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -12,6 +13,7 @@ use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -68,8 +70,14 @@ class AppServiceProvider extends ServiceProvider
             Js::make('ckeditor', asset('vendor/ckeditor/ckeditor.js'))->loadedOnRequest(),
         ]);
 
+        // Configuração do DateTimePicker para usar o timezone do usuário
         DateTimePicker::configureUsing(function (DateTimePicker $dateTimePicker): void {
-            $dateTimePicker->timezone(auth()->user()->timezone);
+            $dateTimePicker->timezone(optional(Auth::user())->timezone ?? config('app.timezone'));
+        });
+
+        // Configuração do DatePicker para usar o timezone UTC
+        DatePicker::configureUsing(function (DatePicker $datePicker): void {
+            $datePicker->timezone(config('app.timezone'));
         });
     }
 }
