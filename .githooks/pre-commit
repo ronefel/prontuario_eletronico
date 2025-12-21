@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Release Automation Pre-commit Hook
+# Este script verifica se estamos na branch master e, se sim, executa as validacoes do release.ps1
+
+# Obter o nome da branch atual
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "master" ]; then
+    echo "Master branch detectada. Iniciando validacoes obrigatorias de release..."
+
+    # Executa o powershell e propaga o exit code
+    powershell.exe -ExecutionPolicy Bypass -File ./release.ps1
+
+    EXIT_CODE=$?
+
+    if [ $EXIT_CODE -ne 0 ]; then
+        echo ""
+        echo "-----------------------------------------------------------------------"
+        echo "ALERTA: O commit foi bloqueado porque as validacoes falharam."
+        echo "Corrija os erros acima."
+        echo "-----------------------------------------------------------------------"
+        exit $EXIT_CODE
+    fi
+fi
+
+exit 0

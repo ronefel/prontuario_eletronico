@@ -82,7 +82,7 @@ class SettingsSeeder extends Seeder
             'type' => 'text-editor',
         ]);
 
-        //====================== EXEMPLO DE CAMPO SELECT ========================
+        // ====================== EXEMPLO DE CAMPO SELECT ========================
         // Setting::firstOrCreate([
         //     'key' => 'environment',
         //     'label' => 'Environment',
@@ -96,6 +96,6 @@ class SettingsSeeder extends Seeder
         //         ],
         //     ],
         // ]);
-        //=======================================================================
+        // =======================================================================
     }
 }

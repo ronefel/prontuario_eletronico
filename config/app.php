@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value is the application version. This version is used
+    | throughout the application, such as in the user interface or notifications.
+    |
+    */
+
+    'version' => '1.0.0',
+
 ];
