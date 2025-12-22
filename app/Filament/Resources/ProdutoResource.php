@@ -25,19 +25,29 @@ class ProdutoResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('nome')->required(),
-                Forms\Components\Textarea::make('descricao')->nullable(),
-                Forms\Components\TextInput::make('unidade_medida')->default('unidade'),
-                Forms\Components\TextInput::make('valor_unitario_referencia')->numeric()->prefix('R$'),
-                Forms\Components\TextInput::make('estoque_minimo')->numeric()->default(10),
-                Forms\Components\Select::make('categoria_id')
-                    ->relationship('categoria', 'nome')
-                    ->required(),
-                Forms\Components\Select::make('fornecedor_id')
-                    ->relationship('fornecedor', 'nome')
-                    ->nullable(),
-            ]);
+            ->schema(self::formFields());
+    }
+
+    public static function formFields(): array
+    {
+        return [
+            Forms\Components\TextInput::make('nome')->required(),
+            Forms\Components\Textarea::make('descricao')->nullable(),
+            Forms\Components\TextInput::make('unidade_medida')->default('unidade'),
+            Forms\Components\TextInput::make('valor_unitario_referencia')->numeric()->prefix('R$'),
+            Forms\Components\TextInput::make('estoque_minimo')->numeric()->default(10),
+            Forms\Components\Select::make('categoria_id')
+                ->relationship('categoria', 'nome')
+                ->searchable()
+                ->preload()
+                ->createOptionForm(CategoriaResource::formFields())
+                ->required(),
+            Forms\Components\Select::make('fornecedor_id')
+                ->relationship('fornecedor', 'nome')
+                ->searchable()
+                ->preload()
+                ->nullable(),
+        ];
     }
 
     public static function table(Table $table): Table

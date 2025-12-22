@@ -97,7 +97,10 @@ class InventarioResource extends Resource
                                         }
                                     }),
                                 Forms\Components\Select::make('produto_id')
+                                    ->label('Produto')
                                     ->options(Produto::pluck('nome', 'id')->toArray())
+                                    ->searchable()
+                                    ->preload()
                                     ->visible(fn ($get) => $get('tipo') === 'por_produto')
                                     ->reactive()
                                     ->hidden(fn ($context) => $context === 'edit')
@@ -123,6 +126,7 @@ class InventarioResource extends Resource
                                     }),
                                 Forms\Components\Select::make('local_id')
                                     ->options(Local::pluck('nome', 'id')->toArray())
+                                    ->default(fn () => \App\Models\Local::count() === 1 ? \App\Models\Local::first()->id : null)
                                     ->visible(fn ($get) => $get('tipo') === 'por_local')
                                     ->reactive()
                                     ->hidden(fn ($context) => $context === 'edit')

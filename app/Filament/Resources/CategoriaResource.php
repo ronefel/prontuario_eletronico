@@ -25,13 +25,18 @@ class CategoriaResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('nome')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('descricao')
-                    ->columnSpanFull(),
-            ]);
+            ->schema(self::formFields());
+    }
+
+    public static function formFields(): array
+    {
+        return [
+            Forms\Components\TextInput::make('nome')
+                ->required()
+                ->maxLength(255),
+            Forms\Components\Textarea::make('descricao')
+                ->columnSpanFull(),
+        ];
     }
 
     public static function table(Table $table): Table

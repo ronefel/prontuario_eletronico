@@ -29,16 +29,21 @@ class FornecedorResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('nome')->required(),
-                Forms\Components\TextInput::make('email')->email()->nullable(),
-                Forms\Components\TextInput::make('telefone')->nullable(),
-                Forms\Components\Textarea::make('endereco')->nullable(),
-                Forms\Components\TextInput::make('prazo_entrega')->numeric()->default(7),
-                Forms\Components\Select::make('status')
-                    ->options(['ativo' => 'Ativo', 'inativo' => 'Inativo'])
-                    ->default('ativo'),
-            ]);
+            ->schema(self::formFields());
+    }
+
+    public static function formFields(): array
+    {
+        return [
+            Forms\Components\TextInput::make('nome')->required(),
+            Forms\Components\TextInput::make('email')->email()->nullable(),
+            Forms\Components\TextInput::make('telefone')->nullable(),
+            Forms\Components\Textarea::make('endereco')->nullable(),
+            Forms\Components\TextInput::make('prazo_entrega')->numeric()->default(7),
+            Forms\Components\Select::make('status')
+                ->options(['ativo' => 'Ativo', 'inativo' => 'Inativo'])
+                ->default('ativo'),
+        ];
     }
 
     public static function table(Table $table): Table

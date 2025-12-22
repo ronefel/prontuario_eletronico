@@ -43,6 +43,8 @@ class MovimentacaoResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('produto_id')
                     ->relationship('produto', 'nome')
+                    ->searchable()
+                    ->preload()
                     ->required()
                     ->live(),
                 Forms\Components\Select::make('lote_id')

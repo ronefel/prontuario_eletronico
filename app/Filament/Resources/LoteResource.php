@@ -30,10 +30,10 @@ class LoteResource extends Resource
             ->schema([
                 Forms\Components\Select::make('produto_id')
                     ->relationship('produto', 'nome')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm(ProdutoResource::formFields())
                     ->required(),
-                Forms\Components\Select::make('fornecedor_id')
-                    ->relationship('fornecedor', 'nome')
-                    ->nullable(),
                 Forms\Components\TextInput::make('numero_lote')
                     ->required()
                     ->unique(ignoreRecord: true),
@@ -50,7 +50,14 @@ class LoteResource extends Resource
                     ->prefix('R$'),
                 Forms\Components\Select::make('local_id')
                     ->relationship('local', 'nome')
+                    ->default(fn () => \App\Models\Local::count() === 1 ? \App\Models\Local::first()->id : null)
                     ->required(),
+                Forms\Components\Select::make('fornecedor_id')
+                    ->relationship('fornecedor', 'nome')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm(FornecedorResource::formFields())
+                    ->nullable(),
                 Forms\Components\Select::make('status')
                     ->options([
                         'ativo' => 'Ativo',
