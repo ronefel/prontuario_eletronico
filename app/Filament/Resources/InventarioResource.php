@@ -47,6 +47,7 @@ class InventarioResource extends Resource
                                     ->default(today())
                                     ->required(),
                                 Forms\Components\ToggleButtons::make('status')
+                                    ->label('Status')
                                     ->options([
                                         'pendente' => 'Pendente',
                                         'aprovado' => 'Aprovado',
@@ -67,6 +68,7 @@ class InventarioResource extends Resource
                                     ->readOnly()
                                     ->dehydrateStateUsing(fn ($state, $context) => Auth::user()->id),
                                 Forms\Components\Select::make('tipo')
+                                    ->label('Tipo')
                                     ->options([
                                         'completo' => 'Completo',
                                         'por_local' => 'Por Local',
@@ -75,6 +77,7 @@ class InventarioResource extends Resource
                                     ->required()
                                     ->reactive()
                                     ->disabled(fn ($context) => $context === 'edit')
+                                    ->helperText('Selecione o tipo de inventário para carregar os lotes correspondentes.')
                                     ->afterStateUpdated(function (callable $set, $state, $context) {
                                         if ($context === 'create') {
                                             if ($state === 'completo') {
@@ -125,6 +128,7 @@ class InventarioResource extends Resource
                                         }
                                     }),
                                 Forms\Components\Select::make('local_id')
+                                    ->label('Local')
                                     ->options(Local::pluck('nome', 'id')->toArray())
                                     ->default(fn () => \App\Models\Local::count() === 1 ? \App\Models\Local::first()->id : null)
                                     ->visible(fn ($get) => $get('tipo') === 'por_local')
@@ -155,6 +159,7 @@ class InventarioResource extends Resource
                 Forms\Components\Section::make('Lotes do Inventário')
                     ->schema([
                         Forms\Components\Repeater::make('inventarioLotes')
+                            ->label('Lotes')
                             ->hiddenLabel()
                             ->relationship()
                             ->addActionLabel('')
@@ -166,6 +171,7 @@ class InventarioResource extends Resource
                                     Forms\Components\Group::make([
                                         Forms\Components\Hidden::make('lote_id'),
                                         Forms\Components\TextInput::make('numero_lote')
+                                            ->label('Número do Lote')
                                             ->disabled()
                                             ->formatStateUsing(function ($state, $get) {
                                                 $loteId = $get('lote_id');
@@ -174,6 +180,7 @@ class InventarioResource extends Resource
                                                 return $lote ? $lote->numero_lote : $state;
                                             }),
                                         Forms\Components\TextInput::make('vencimento')
+                                            ->label('Vencimento')
                                             ->disabled()
                                             ->formatStateUsing(function ($state, $get) {
                                                 $loteId = $get('lote_id');
@@ -182,6 +189,7 @@ class InventarioResource extends Resource
                                                 return $lote ? ($lote->data_validade ? $lote->data_validade->format('d/m/y') : '-') : $state;
                                             }),
                                         Forms\Components\TextInput::make('produto')
+                                            ->label('Produto')
                                             ->disabled()
                                             ->formatStateUsing(function ($state, $get) {
                                                 $loteId = $get('lote_id');
@@ -192,18 +200,23 @@ class InventarioResource extends Resource
                                     ])->columns(3),
                                     Forms\Components\Group::make([
                                         Forms\Components\TextInput::make('quantidade_registrada')
+                                            ->label('Quantidade Registrada')
                                             ->numeric()
                                             ->readOnly()
                                             ->default(0),
                                         Forms\Components\TextInput::make('quantidade_contada')
+                                            ->label('Quantidade Contada')
                                             ->numeric()
                                             ->reactive()
-                                            ->required(),
+                                            ->required()
+                                            ->helperText('Insira a quantidade física encontrada no estoque.'),
                                     ])->columns(2),
                                 ])->columns(2),
                                 Forms\Components\TextInput::make('motivo_discrepancia')
+                                    ->label('Motivo da Discrepancia')
                                     ->hidden(fn ($get) => $get('quantidade_registrada') == $get('quantidade_contada'))
-                                    ->nullable(),
+                                    ->nullable()
+                                    ->helperText('Justifique a diferença entre o registrado e o contado.'),
                             ])
                             ->required(),
                     ]),

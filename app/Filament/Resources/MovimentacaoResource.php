@@ -34,20 +34,24 @@ class MovimentacaoResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('tipo')
+                    ->label('Tipo')
                     ->options([
                         'entrada' => 'Entrada',
                         'saida' => 'Saída',
                         'ajuste' => 'Ajuste',
                         'transferencia' => 'Transferência',
                     ])
-                    ->required(),
+                    ->required()
+                    ->helperText('Tipo da movimentação. "Ajuste" é usado para correções manuais.'),
                 Forms\Components\Select::make('produto_id')
+                    ->label('Produto')
                     ->relationship('produto', 'nome')
                     ->searchable()
                     ->preload()
                     ->required()
                     ->live(),
                 Forms\Components\Select::make('lote_id')
+                    ->label('Lote')
                     ->options(fn (Get $get) => $get('produto_id')
                         ? Lote::where('produto_id', $get('produto_id'))
                             ->get()
@@ -59,6 +63,7 @@ class MovimentacaoResource extends Resource
                     ->required()
                     ->placeholder(fn (Get $get) => $get('produto_id') ? 'Selecione uma opção' : 'Selecione um produto primeiro'),
                 Forms\Components\TextInput::make('quantidade')
+                    ->label('Quantidade')
                     ->numeric()
                     ->required()
                     ->rules([
@@ -67,8 +72,10 @@ class MovimentacaoResource extends Resource
                     ->validationMessages([
                         'min' => 'A quantidade não pode ser zero ou negativa para entradas.',
                         'not_in' => 'A quantidade não pode ser zero.',
-                    ]),
+                    ])
+                    ->helperText('Para "Ajuste", use valores positivos para somar e negativos para subtrair.'),
                 Forms\Components\DateTimePicker::make('data_movimentacao')
+                    ->label('Data da Movimentação')
                     ->default(now())
                     ->seconds(false)
                     ->required(),
@@ -76,6 +83,7 @@ class MovimentacaoResource extends Resource
                     ->label('Documento Relacionado (ex: Nota Fiscal)')
                     ->nullable(),
                 Forms\Components\Textarea::make('motivo')
+                    ->label('Motivo')
                     ->nullable()
                     ->columnSpanFull(),
             ]);

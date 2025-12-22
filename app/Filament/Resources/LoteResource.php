@@ -29,42 +29,56 @@ class LoteResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('produto_id')
+                    ->label('Produto')
                     ->relationship('produto', 'nome')
                     ->searchable()
                     ->preload()
                     ->createOptionForm(ProdutoResource::formFields())
                     ->required(),
                 Forms\Components\TextInput::make('numero_lote')
+                    ->label('Número do Lote')
                     ->required()
-                    ->unique(ignoreRecord: true),
+                    ->unique(ignoreRecord: true)
+                    ->hint('Campo obrigatório e único'),
                 Forms\Components\DatePicker::make('data_fabricacao')
+                    ->label('Data de Fabricação')
+                    ->helperText('Data de fabricação do lote (opcional).')
                     ->nullable(),
                 Forms\Components\DatePicker::make('data_validade')
+                    ->label('Data de Validade')
+                    ->helperText('Data de validade. O sistema avisará quando estiver próximo do vencimento.')
                     ->nullable(),
                 Forms\Components\TextInput::make('quantidade_inicial')
+                    ->label('Quantidade Inicial')
                     ->numeric()
                     ->required()
-                    ->minValue(0),
+                    ->minValue(0)
+                    ->helperText('Quantidade total recebida.'),
                 Forms\Components\TextInput::make('valor_unitario')
-                    ->numeric()
-                    ->prefix('R$'),
+                    ->label('Valor Unitário')
+                    ->prefix('R$')
+                    ->helperText('Valor de custo por unidade.'),
                 Forms\Components\Select::make('local_id')
+                    ->label('Local')
                     ->relationship('local', 'nome')
                     ->default(fn () => \App\Models\Local::count() === 1 ? \App\Models\Local::first()->id : null)
                     ->required(),
                 Forms\Components\Select::make('fornecedor_id')
+                    ->label('Fornecedor')
                     ->relationship('fornecedor', 'nome')
                     ->searchable()
                     ->preload()
                     ->createOptionForm(FornecedorResource::formFields())
                     ->nullable(),
                 Forms\Components\Select::make('status')
+                    ->label('Status')
                     ->options([
                         'ativo' => 'Ativo',
                         'expirado' => 'Expirado',
                         'bloqueado' => 'Bloqueado',
                     ])
-                    ->default('ativo'),
+                    ->default('ativo')
+                    ->helperText('Status do lote.'),
                 Forms\Components\TextInput::make('documento')
                     ->label('Documento Relacionado (ex: Nota Fiscal)')
                     ->nullable(),

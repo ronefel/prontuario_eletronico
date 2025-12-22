@@ -31,21 +31,38 @@ class ProdutoResource extends Resource
     public static function formFields(): array
     {
         return [
-            Forms\Components\TextInput::make('nome')->required(),
-            Forms\Components\Textarea::make('descricao')->nullable(),
-            Forms\Components\TextInput::make('unidade_medida')->default('unidade'),
-            Forms\Components\TextInput::make('valor_unitario_referencia')->numeric()->prefix('R$'),
-            Forms\Components\TextInput::make('estoque_minimo')->numeric()->default(10),
+            Forms\Components\TextInput::make('nome')
+                ->label('Nome')
+                ->required(),
+            Forms\Components\Textarea::make('descricao')
+                ->label('Descrição')
+                ->nullable(),
+            Forms\Components\TextInput::make('unidade_medida')
+                ->label('Unidade de Medida')
+                ->default('unidade')
+                ->helperText('Ex: Unidade, Frasco, Ampola, Caixa.'),
+            Forms\Components\TextInput::make('valor_unitario_referencia')
+                ->label('Valor Unitário de Referência')
+                ->numeric()
+                ->prefix('R$'),
+            Forms\Components\TextInput::make('estoque_minimo')
+                ->label('Estoque Mínimo')
+                ->numeric()
+                ->default(10)
+                ->helperText('O sistema alertará quando o estoque total estiver abaixo deste valor.'),
             Forms\Components\Select::make('categoria_id')
+                ->label('Categoria')
                 ->relationship('categoria', 'nome')
                 ->searchable()
                 ->preload()
                 ->createOptionForm(CategoriaResource::formFields())
                 ->required(),
             Forms\Components\Select::make('fornecedor_id')
+                ->label('Fornecedor')
                 ->relationship('fornecedor', 'nome')
                 ->searchable()
                 ->preload()
+                ->createOptionForm(FornecedorResource::formFields())
                 ->nullable(),
         ];
     }
