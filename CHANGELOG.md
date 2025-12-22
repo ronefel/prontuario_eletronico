@@ -5,6 +5,17 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.1.0] - 2025-12-21
+
+### Adicionado
+- Recursos do Filament para gerenciamento de estoque:
+    - `CategoriaResource`
+    - `FornecedorResource`
+    - `InventarioResource`
+    - `LoteResource`
+    - `MovimentacaoResource`
+    - `ProdutoResource`
+
 ## [1.0.0] - 2025-12-20
 
 ### Adicionado
