@@ -21,6 +21,12 @@ class AplicacoesRelationManager extends RelationManager
 
     protected static ?string $title = 'Aplicações';
 
+    protected function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        // @phpstan-ignore staticMethod.notFound
+        return parent::getEloquentQuery()->with(['lotes.produto']);
+    }
+
     public function form(Form $form): Form
     {
         return $form
@@ -193,20 +199,28 @@ class AplicacoesRelationManager extends RelationManager
                     ->dateTime('d/m/Y H:i', Auth::user()->timezone)
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('itens.lote.produto.nome')
+                Tables\Columns\TextColumn::make('lotes_produtos')
                     ->label('Produtos')
                     ->listWithLineBreaks()
-                    ->bulleted()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->getStateUsing(fn ($record) => $record->lotes->map(fn ($lote) => $lote->produto->nome))
+                    ->limit(50),
 
-                Tables\Columns\TextColumn::make('itens.lote.numero_lote')
-                    ->label('Lotes')
-                    ->listWithLineBreaks(),
-
-                Tables\Columns\TextColumn::make('itens.quantidade')
+                Tables\Columns\TextColumn::make('lotes_quantidades')
                     ->label('Qtd.')
                     ->listWithLineBreaks()
-                    ->suffix(' un'),
+                    ->getStateUsing(fn ($record) => $record->lotes->map(fn ($lote) => $lote->pivot->quantidade.' un')),
+
+                Tables\Columns\TextColumn::make('lotes_valores')
+                    ->label('Valor Itens')
+                    ->money('BRL')
+                    ->listWithLineBreaks()
+                    ->getStateUsing(fn ($record) => $record->lotes->map(fn ($lote) => (float) ($lote->pivot->quantidade * $lote->valor_unitario))),
+
+                Tables\Columns\TextColumn::make('valor_total')
+                    ->label('Total')
+                    ->money('BRL')
+                    ->weight('bold'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -215,20 +229,6 @@ class AplicacoesRelationManager extends RelationManager
                         'aplicada' => 'success',
                         'cancelada' => 'danger',
                         default => 'gray',
-                    }),
-
-                Tables\Columns\TextColumn::make('observacoes')
-                    ->label('Observações')
-                    ->limit(30)
-                    ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
-                        $state = $column->getState();
-
-                        if (strlen($state) <= $column->getCharacterLimit()) {
-                            return null;
-                        }
-
-                        // Only render the tooltip if the column content exceeds the length limit.
-                        return $state;
                     }),
             ])
             ->filters([

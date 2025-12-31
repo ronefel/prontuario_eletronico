@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \App\Models\Aplicacao $aplicacao
  * @property \App\Models\Lote $lote
+ * @property float $valor_total
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AplicacaoLote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AplicacaoLote newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AplicacaoLote query()
@@ -42,5 +43,10 @@ class AplicacaoLote extends Pivot
     public function lote()
     {
         return $this->belongsTo(Lote::class);
+    }
+
+    public function getValorTotalAttribute(): float
+    {
+        return (float) ($this->quantidade * ($this->lote->valor_unitario ?? 0));
     }
 }

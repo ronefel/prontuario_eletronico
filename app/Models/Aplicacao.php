@@ -61,4 +61,9 @@ class Aplicacao extends BaseModel
             ->withPivot('quantidade')
             ->withTimestamps();
     }
+
+    public function getValorTotalAttribute(): float
+    {
+        return (float) $this->itens->sum('valor_total');
+    }
 }
