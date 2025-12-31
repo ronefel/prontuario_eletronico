@@ -85,7 +85,9 @@ class TratamentoResource extends Resource
                             ->label('Valor Cobrado')
                             ->numeric()
                             ->prefix('R$')
-                            ->inputMode('decimal'),
+                            ->inputMode('decimal')
+                            ->live()
+                            ->helperText(fn (?Tratamento $record) => 'Valor sugerido: '.($record ? number_format($record->custo_total * 12, 2, ',', '.') : '0,00')),
 
                         Forms\Components\Placeholder::make('custo_total')
                             ->label('Custo Total')
@@ -93,9 +95,30 @@ class TratamentoResource extends Resource
 
                         Forms\Components\Placeholder::make('saldo')
                             ->label('Saldo')
-                            ->content(fn (?Tratamento $record): string => $record ? 'R$ '.number_format($record->saldo, 2, ',', '.') : 'R$ 0,00'),
+                            ->content(function (Forms\Get $get, ?Tratamento $record): string {
+                                $cobrado = $get('valor_cobrado') ?? 0;
+                                if (is_string($cobrado)) {
+                                    $cobrado = (float) str_replace(',', '.', $cobrado);
+                                }
+                                $custo = $record->custo_total ?? 0;
+
+                                return 'R$ '.number_format((float) $cobrado - (float) $custo, 2, ',', '.');
+                            }),
+
+                        Forms\Components\Placeholder::make('porcentagem_ganho')
+                            ->label('')
+                            ->content(function (Forms\Get $get, ?Tratamento $record): string {
+                                $cobrado = $get('valor_cobrado') ?? 0;
+                                if (is_string($cobrado)) {
+                                    $cobrado = (float) str_replace(',', '.', $cobrado);
+                                }
+                                $custo = $record->custo_total ?? 0;
+                                $multiplicador = $custo > 0 ? ((float) $cobrado / (float) $custo) : ($cobrado > 0 ? 1 : 0);
+
+                                return number_format($multiplicador, 2, ',', '.').'x';
+                            }),
                     ])
-                    ->columns(3),
+                    ->columns(4),
             ]);
     }
 
