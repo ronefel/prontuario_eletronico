@@ -25,14 +25,26 @@ class UltimosPacientes extends BaseWidget
     {
         return $table
             ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-users class="h-5 w-5" /> Últimos 5 Pacientes Atendidos</div>')))
-            ->query(
-                Paciente::query()
-                    ->select('pacientes.*', DB::raw('MAX(prontuarios.data) as data'))
-                    ->join('prontuarios', 'pacientes.id', '=', 'prontuarios.paciente_id')
+            ->query(function () {
+                $atendimentos = DB::table('prontuarios')
+                    ->select('paciente_id', 'data as data_atendimento')
+                    ->unionAll(
+                        DB::table('exames')
+                            ->select('paciente_id', 'data as data_atendimento')
+                    )
+                    ->unionAll(
+                        DB::table('aplicacoes')
+                            ->join('tratamentos', 'aplicacoes.tratamento_id', '=', 'tratamentos.id')
+                            ->select('tratamentos.paciente_id', 'aplicacoes.data_aplicacao as data_atendimento')
+                    );
+
+                return Paciente::query()
+                    ->select('pacientes.*', DB::raw('MAX(atendimentos.data_atendimento) as data'))
+                    ->joinSub($atendimentos, 'atendimentos', 'pacientes.id', '=', 'atendimentos.paciente_id')
                     ->groupBy('pacientes.id')
                     ->orderBy('data', 'desc')
-                    ->limit(5)
-            )
+                    ->limit(5);
+            })
             ->columns([
                 TextColumn::make('nome')
                     ->weight(FontWeight::Bold),
