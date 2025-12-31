@@ -136,6 +136,7 @@ class AplicacoesRelationManager extends RelationManager
                     ->schema([
                         Forms\Components\Select::make('lote_id')
                             ->label('Produto')
+                            ->hiddenLabel()
                             ->relationship(
                                 'lote',
                                 'numero_lote',
@@ -157,14 +158,15 @@ class AplicacoesRelationManager extends RelationManager
                             ->reactive()
                             ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('saldo_lote', Lote::find($state)->quantidade_atual ?? 0))
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(4),
 
                         Forms\Components\TextInput::make('quantidade')
                             ->label('Quantidade')
+                            ->hiddenLabel()
                             ->numeric()
+                            ->default(1)
                             ->minValue(1)
                             ->required()
-                            ->suffix('unidades')
                             ->helperText(function (Forms\Get $get) {
                                 $loteId = $get('lote_id');
                                 if (! $loteId) {
@@ -179,7 +181,7 @@ class AplicacoesRelationManager extends RelationManager
                     ->addActionLabel('Adicionar Item')
                     ->addActionAlignment(Alignment::Start)
                     ->defaultItems(0)
-                    ->columns(3)
+                    ->columns(5)
                     ->columnSpanFull()
                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data) {
                         return $data;

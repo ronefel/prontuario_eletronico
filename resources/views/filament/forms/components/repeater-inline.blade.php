@@ -49,7 +49,7 @@
 
                         <li wire:key="{{ $this->getId() }}.{{ $item->getStatePath() }}.{{ $field::class }}.item"
                             x-sortable-item="{{ $uuid }}"
-                            class="fi-fo-repeater-item simple flex justify-start gap-x-3">
+                            class="fi-fo-repeater-item simple flex justify-start gap-x-3" style="align-items: start">
                             <div class="flex-1">
                                 {{ $item }}
                             </div>
@@ -61,7 +61,7 @@
                                     $cloneActionIsVisible ||
                                     $deleteActionIsVisible ||
                                     $visibleExtraItemActions)
-                                <ul class="flex items-center gap-x-1">
+                                <ul class="flex items-center gap-x-1" style="transform: translate(0%, 50%);">
                                     @if ($reorderActionIsVisible)
                                         <li x-sortable-handle>
                                             {{ $reorderAction }}

@@ -36,25 +36,29 @@ class KitResource extends Resource
                     ->required(),
                 Forms\Components\Section::make('Itens do Kit')
                     ->schema([
-                        Forms\Components\Repeater::make('itens')
+                        \App\Filament\Forms\Components\RepeaterInline::make('itens')
                             ->relationship('itens')
                             ->schema([
                                 Forms\Components\Select::make('produto_id')
                                     ->label('Produto')
+                                    ->hiddenLabel()
                                     ->options(\App\Models\Produto::all()->pluck('nome', 'id'))
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->distinct()
+                                    ->columnSpan(4)
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
                                 Forms\Components\TextInput::make('quantidade')
                                     ->label('Quantidade Total')
+                                    ->hiddenLabel()
                                     ->numeric()
                                     ->default(1)
                                     ->minValue(1)
                                     ->required(),
                             ])
-                            ->columns(2)
+                            ->columns(5)
+                            ->columnSpanFull()
                             ->defaultItems(1)
                             ->addActionLabel('Adicionar Produto'),
                     ]),
