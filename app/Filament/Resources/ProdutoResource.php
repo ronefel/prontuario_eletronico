@@ -90,15 +90,20 @@ class ProdutoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nome')->searchable(),
+                Tables\Columns\TextColumn::make('nome')
+                    ->sortable()
+                    ->searchable()
+                    ->limit(50)
+                    ->tooltip(fn (string $state): ?string => mb_strlen($state) > 50 ? $state : null),
                 Tables\Columns\TextColumn::make('categoria.nome'),
-                Tables\Columns\TextColumn::make('estoque_total')
-                    ->getStateUsing(fn ($record) => $record->lotes->sum('quantidade_atual'))
+                Tables\Columns\TextColumn::make('movimentacoes_sum_quantidade')
+                    ->label('Estoque Total')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('valor_unitario_referencia')->money('BRL'),
                 Tables\Columns\TextColumn::make('estoque_minimo')
-                    ->color(fn ($record) => $record->lotes->sum('quantidade_atual') < $record->estoque_minimo ? 'danger' : 'success'),
+                    ->color(fn ($record) => $record->movimentacoes_sum_quantidade < $record->estoque_minimo ? 'danger' : 'success'),
             ])
+            ->defaultSort('nome')
             ->filters([
                 Tables\Filters\SelectFilter::make('categoria')->relationship('categoria', 'nome'),
             ])
@@ -118,5 +123,11 @@ class ProdutoResource extends Resource
             'create' => Pages\CreateProduto::route('/create'),
             'edit' => Pages\EditProduto::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->withSum('movimentacoes', 'quantidade');
     }
 }
