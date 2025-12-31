@@ -65,6 +65,8 @@ class ProdutoResource extends Resource
                 ->createOptionForm(FornecedorResource::formFields())
                 ->nullable(),
             Forms\Components\Section::make('Informações de Estoque')
+                ->collapsible()
+                ->collapsed()
                 ->schema([
                     Forms\Components\Placeholder::make('quantidade_atual_estoque')
                         ->label('Quantidade Atual em Estoque')
@@ -75,11 +77,33 @@ class ProdutoResource extends Resource
                             if (! $record) {
                                 return 'R$ 0,00';
                             }
-                            $quantidade = $record->lotes->sum('quantidade_atual');
+                            $quantidade = $record->movimentacoes_sum_quantidade ?? $record->lotes->sum('quantidade_atual');
                             $valorUnitario = (float) $record->valor_unitario_referencia;
 
                             return 'R$ '.number_format($quantidade * $valorUnitario, 2, ',', '.');
                         }),
+                    Forms\Components\Repeater::make('lotes')
+                        ->relationship()
+                        ->schema([
+                            Forms\Components\Placeholder::make('numero_lote')
+                                ->label('Lote')
+                                ->content(fn ($record) => $record->numero_lote),
+                            Forms\Components\Placeholder::make('quantidade_atual')
+                                ->label('Qtd Atual')
+                                ->content(fn ($record) => $record->quantidade_atual),
+                            Forms\Components\Placeholder::make('data_validade')
+                                ->label('Validade')
+                                ->content(fn ($record) => $record->data_validade?->format('d/m/Y') ?? '-'),
+                            Forms\Components\Placeholder::make('local_nome')
+                                ->label('Local')
+                                ->content(fn ($record) => $record->local->nome ?? '-'),
+                        ])
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->columnSpanFull()
+                        ->columns(4)
+                        ->label('Lotes desse produto'),
                 ])
                 ->columns(2)
                 ->visible(fn (?Produto $record) => $record !== null),
