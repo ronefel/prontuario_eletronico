@@ -66,7 +66,13 @@ class LoteResource extends Resource
                 Forms\Components\DatePicker::make('data_validade')
                     ->label('Data de Validade')
                     ->helperText('Data de validade. O sistema avisará quando estiver próximo do vencimento.')
-                    ->nullable(),
+                    ->nullable()
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state) {
+                        if ($state && ! $get('data_fabricacao')) {
+                            $set('data_fabricacao', \Carbon\Carbon::parse($state)->subYear()->format('Y-m-d'));
+                        }
+                    }),
                 Forms\Components\TextInput::make('quantidade_inicial')
                     ->label('Quantidade Inicial')
                     ->numeric()
@@ -110,13 +116,24 @@ class LoteResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('produto.nome')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('fornecedor.nome')
-                    ->searchable(),
+                    ->label('Produto')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(50)
+                    ->tooltip(fn (string $state): ?string => mb_strlen($state) > 50 ? $state : null),
                 Tables\Columns\TextColumn::make('numero_lote')
-                    ->searchable(),
+                    ->label('N° Lote')
+                    ->searchable()
+                    ->limit(18)
+                    ->tooltip(fn (string $state): ?string => mb_strlen($state) > 18 ? $state : null),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Cadastro')
+                    ->dateTime('d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('data_validade')
+                    ->label('Validade')
                     ->date('d/m/Y')
+                    ->sortable()
                     ->color(function ($record) {
                         $date = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone);
 
@@ -130,12 +147,12 @@ class LoteResource extends Resource
                             return 'success';
                         }
                     }),
-                Tables\Columns\TextColumn::make('quantidade_atual')
-                    ->sortable()
-                    ->getStateUsing(fn ($record) => $record->quantidade_atual),
-                Tables\Columns\TextColumn::make('local.nome'),
+                Tables\Columns\TextColumn::make('movimentacoes_sum_quantidade')
+                    ->label('Qtd atual')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status'),
             ])
+            ->defaultSort('produto.nome')
             ->filters([
                 Tables\Filters\SelectFilter::make('produto')
                     ->relationship('produto', 'nome'),
@@ -160,5 +177,11 @@ class LoteResource extends Resource
             'create' => Pages\CreateLote::route('/create'),
             'edit' => Pages\EditLote::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->withSum('movimentacoes', 'quantidade');
     }
 }
