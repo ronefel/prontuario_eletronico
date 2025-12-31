@@ -56,7 +56,13 @@ class LoteResource extends Resource
                 Forms\Components\DatePicker::make('data_fabricacao')
                     ->label('Data de Fabricação')
                     ->helperText('Data de fabricação do lote (opcional).')
-                    ->nullable(),
+                    ->nullable()
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state) {
+                        if ($state && ! $get('data_validade')) {
+                            $set('data_validade', \Carbon\Carbon::parse($state)->addYear()->format('Y-m-d'));
+                        }
+                    }),
                 Forms\Components\DatePicker::make('data_validade')
                     ->label('Data de Validade')
                     ->helperText('Data de validade. O sistema avisará quando estiver próximo do vencimento.')
