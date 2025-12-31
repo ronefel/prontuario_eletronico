@@ -34,13 +34,13 @@ class KitResource extends Resource
                     ->label('Ativo')
                     ->default(true)
                     ->required(),
-                Forms\Components\Section::make('Itens do Kit')
+                Forms\Components\Section::make('Produtos do Kit')
                     ->schema([
                         \App\Filament\Forms\Components\RepeaterInline::make('itens')
+                            ->hiddenLabel()
                             ->relationship('itens')
                             ->schema([
                                 Forms\Components\Select::make('produto_id')
-                                    ->label('Produto')
                                     ->hiddenLabel()
                                     ->options(\App\Models\Produto::all()->pluck('nome', 'id'))
                                     ->searchable()
@@ -50,9 +50,9 @@ class KitResource extends Resource
                                     ->columnSpan(4)
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
                                 Forms\Components\TextInput::make('quantidade')
-                                    ->label('Quantidade Total')
                                     ->hiddenLabel()
                                     ->numeric()
+                                    ->suffix('un')
                                     ->default(1)
                                     ->minValue(1)
                                     ->required(),

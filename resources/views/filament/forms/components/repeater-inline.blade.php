@@ -50,7 +50,7 @@
                         <li wire:key="{{ $this->getId() }}.{{ $item->getStatePath() }}.{{ $field::class }}.item"
                             x-sortable-item="{{ $uuid }}"
                             class="fi-fo-repeater-item simple flex justify-start gap-x-3" style="align-items: start">
-                            <div class="flex-1">
+                            <div class="flex-1" style="align-items: baseline">
                                 {{ $item }}
                             </div>
 
