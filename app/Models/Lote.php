@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Auth;
  * @property mixed $quantidade_atual
  * @property \App\Models\Local $local
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
- * @property \App\Models\Produto $produto
+ * @property \App\Models\Produto|null $produto
  * @property-read \Illuminate\Database\Eloquent\Relations\Pivot|\stdClass $pivot
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newQuery()
