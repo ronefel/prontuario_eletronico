@@ -34,7 +34,20 @@ class LoteResource extends Resource
                     ->searchable()
                     ->preload()
                     ->createOptionForm(ProdutoResource::formFields())
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                        if (! $state) {
+                            return;
+                        }
+
+                        $produto = \App\Models\Produto::find($state);
+
+                        if ($produto) {
+                            $set('valor_unitario', $produto->valor_unitario_referencia);
+                            $set('fornecedor_id', $produto->fornecedor_id);
+                        }
+                    }),
                 Forms\Components\TextInput::make('numero_lote')
                     ->label('Número do Lote')
                     ->required()
