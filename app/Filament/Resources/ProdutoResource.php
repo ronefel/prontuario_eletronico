@@ -64,6 +64,25 @@ class ProdutoResource extends Resource
                 ->preload()
                 ->createOptionForm(FornecedorResource::formFields())
                 ->nullable(),
+            Forms\Components\Section::make('Informações de Estoque')
+                ->schema([
+                    Forms\Components\Placeholder::make('quantidade_atual_estoque')
+                        ->label('Quantidade Atual em Estoque')
+                        ->content(fn (?Produto $record): string => $record ? (string) $record->lotes->sum('quantidade_atual') : '0'),
+                    Forms\Components\Placeholder::make('valor_total_estoque')
+                        ->label('Valor Total em Estoque')
+                        ->content(function (?Produto $record): string {
+                            if (! $record) {
+                                return 'R$ 0,00';
+                            }
+                            $quantidade = $record->lotes->sum('quantidade_atual');
+                            $valorUnitario = (float) $record->valor_unitario_referencia;
+
+                            return 'R$ '.number_format($quantidade * $valorUnitario, 2, ',', '.');
+                        }),
+                ])
+                ->columns(2)
+                ->visible(fn (?Produto $record) => $record !== null),
         ];
     }
 
