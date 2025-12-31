@@ -56,6 +56,7 @@ class LoteResource extends Resource
                     ->helperText('Quantidade total recebida.'),
                 Forms\Components\TextInput::make('valor_unitario')
                     ->label('Valor Unitário')
+                    ->numeric()
                     ->prefix('R$')
                     ->helperText('Valor de custo por unidade.'),
                 Forms\Components\Select::make('local_id')

@@ -59,6 +59,7 @@ class Lote extends BaseModel
     protected $casts = [
         'data_fabricacao' => 'date:Y-m-d',
         'data_validade' => 'date:Y-m-d',
+        'valor_unitario' => 'decimal:2',
     ];
 
     protected static function booted()
