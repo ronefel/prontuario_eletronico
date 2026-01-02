@@ -15,7 +15,9 @@ use Illuminate\Support\HtmlString;
 
 class ValidadeProximaWidget extends BaseWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 2;
+
+    protected int|string|array $columnSpan = 'full';
 
     protected ?Collection $data = null;
 
@@ -45,9 +47,13 @@ class ValidadeProximaWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('numero_lote')
                     ->label('Lote'),
                 Tables\Columns\TextColumn::make('produto.nome')
-                    ->label('Produto'),
+                    ->label('Produto')
+                    ->limit(80)
+                    ->tooltip(fn (string $state): ?string => mb_strlen($state) > 80 ? $state : null),
+                Tables\Columns\TextColumn::make('quantidade_atual')
+                    ->label('Qtd Atual'),
                 Tables\Columns\TextColumn::make('data_validade')
-                    ->label('Data de Validade')
+                    ->label('Validade')
                     ->date('d/m/Y')
                     ->color(function ($record) {
                         $date = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone);
@@ -63,7 +69,7 @@ class ValidadeProximaWidget extends BaseWidget
                         }
                     }),
                 Tables\Columns\TextColumn::make('dias_restantes')
-                    ->label('Dias Restantes')
+                    ->label('Faltam')
                     ->getStateUsing(function ($record) {
                         $validade = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone)->startOfDay();
                         $hoje = Carbon::now(Auth::user()->timezone)->startOfDay();
@@ -74,7 +80,7 @@ class ValidadeProximaWidget extends BaseWidget
 
                         $dias = (int) $hoje->diffInDays($validade);
 
-                        return $dias === 0 ? 'Vence Hoje' : $dias;
+                        return $dias === 0 ? 'Vence Hoje' : $dias.' dias';
                     }),
             ])
             ->recordUrl(fn ($record) => route('filament.admin.resources.lotes.edit', $record))

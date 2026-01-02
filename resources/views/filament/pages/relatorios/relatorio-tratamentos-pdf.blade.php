@@ -74,13 +74,17 @@
                         @if ($includeApplications)
                             <td style="font-size: 10px;">
                                 @forelse($record->aplicacoes as $app)
-                                    <div style="margin-bottom: 4px;">
+                                    <div style="margin-bottom: 8px;">
                                         <strong>{{ $app->data_aplicacao?->format('d/m/Y') }}</strong>
                                         ({{ ucfirst($app->status) }})
-                                        <br>
-                                        <span style="color: #666;">
-                                            {{ $app->lotes->map(fn($l) => $l->produto->nome . ' (' . $l->pivot->quantidade . ')')->join(', ') }}
-                                        </span>
+                                        <ul style="margin: 2px 0 0 15px; padding: 0; color: #666; list-style: none;">
+                                            @foreach ($app->lotes as $lote)
+                                                <li>
+                                                    {{ $lote->pivot->quantidade }}x
+                                                    {{ \Illuminate\Support\Str::limit($lote->produto->nome, 60) }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 @empty
                                     <span style="color: #999;">Nenhuma</span>

@@ -13,7 +13,7 @@ use Illuminate\Support\HtmlString;
 
 class EstoqueBaixoWidget extends BaseWidget
 {
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 3;
 
     protected static ?string $pollingInterval = null;
 
@@ -40,12 +40,14 @@ class EstoqueBaixoWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('nome')
-                    ->label('Produto'),
+                    ->label('Produto')
+                    ->limit(40)
+                    ->tooltip(fn (string $state): ?string => mb_strlen($state) > 40 ? $state : null),
                 Tables\Columns\TextColumn::make('quantidade_atual')
-                    ->label('Quantidade Atual')
+                    ->label('Qtd Atual')
                     ->color('danger'),
                 Tables\Columns\TextColumn::make('estoque_minimo')
-                    ->label('Estoque Mínimo'),
+                    ->label('Qtd Mínima'),
             ])
             ->recordUrl(fn ($record) => route('filament.admin.resources.produtos.edit', $record))
             ->emptyStateHeading('Nenhum produto com estoque baixo')

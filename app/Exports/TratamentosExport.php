@@ -4,12 +4,14 @@ namespace App\Exports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class TratamentosExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class TratamentosExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles
 {
     protected $records;
 
@@ -57,10 +59,10 @@ class TratamentosExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         if ($this->includeApplications) {
             $apps = $row->aplicacoes->map(function ($app) {
-                $itens = $app->lotes->map(fn ($l) => "{$l->produto->nome} ({$l->pivot->quantidade})")->join(', ');
+                $itens = $app->lotes->map(fn ($l) => "  - {$l->pivot->quantidade}x {$l->produto->nome}")->join("\n");
 
-                return "{$app->data_aplicacao?->format('d/m/Y')} - {$app->status} - [{$itens}]";
-            })->join("\n");
+                return "• {$app->data_aplicacao?->format('d/m/Y')} ({$app->status})\n{$itens}";
+            })->join("\n\n");
 
             $data[] = $apps;
         }
@@ -72,7 +74,8 @@ class TratamentosExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         return [
             1 => ['font' => ['bold' => true]],
-            'G' => ['alignment' => ['wrapText' => true]], // Assumindo que a coluna de aplicações é a G (7ª coluna)
+            'A:G' => ['alignment' => ['vertical' => Alignment::VERTICAL_CENTER]],
+            'G' => ['alignment' => ['wrapText' => true]],
         ];
     }
 }

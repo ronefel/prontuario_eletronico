@@ -17,7 +17,7 @@ use Illuminate\Support\HtmlString;
  */
 class UltimosPacientes extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 4;
 
     protected static ?string $pollingInterval = null;
 

@@ -64,14 +64,16 @@ class RelatorioTratamentos extends Page implements HasTable
                         if ($record->aplicacoes->isEmpty()) {
                             return '<span class="text-gray-500 text-xs">Nenhuma aplicação</span>';
                         }
-                        $html = '<ul class="text-xs list-disc pl-4">';
+                        $html = '<ul class="text-xs list-disc pl-4 space-y-2">';
                         foreach ($record->aplicacoes as $app) {
-                            $itens = $app->lotes->map(fn ($l) => $l->produto->nome)->join(', ');
                             $html .= "<li>
                                 <strong>{$app->data_aplicacao?->format('d/m/Y')}</strong>
                                 <span>(".ucfirst($app->status).")</span>
-                                <br><span class=\"text-gray-500\">{$itens}</span>
-                            </li>";
+                                <ul class='list-circle pl-4 text-gray-500'>";
+                            foreach ($app->lotes as $lote) {
+                                $html .= '<li>- '.$lote->pivot->quantidade.'x '.\Illuminate\Support\Str::limit($lote->produto->nome, 40).'</li>';
+                            }
+                            $html .= '</ul></li>';
                         }
                         $html .= '</ul>';
 
@@ -163,6 +165,7 @@ class RelatorioTratamentos extends Page implements HasTable
                             'margin_bottom' => 5,
                             'margin_header' => 0,
                             'margin_footer' => 5,
+                            'orientation' => $data['include_applications'] ? 'L' : 'P',
                             'pagenumPrefix' => 'Página ',
                             'pagenumSuffix' => ' de ',
                         ]);
