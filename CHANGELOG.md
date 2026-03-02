@@ -5,6 +5,16 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.2.1] - 2026-03-01
+
+### Adicionado
+- Nova página de Consultório:
+    - Visualização detalhada do paciente com abas para Registros e Tratamentos.
+    - Integração completa para criação e edição de tratamentos diretamente na página.
+- Melhorias na UI:
+    - Cabeçalho do paciente aprimorado com informações de contato, idade e tipo sanguíneo.
+    - Uso de componentes Filament Infolist para exibição organizada de dados.
+
 ## [1.2.0] - 2026-01-02
 
 ### Adicionado
