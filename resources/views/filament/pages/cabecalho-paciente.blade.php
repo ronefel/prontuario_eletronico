@@ -21,10 +21,10 @@
                 </div>
 
                 <div class="flex flex-wrap items-center mt-1 text-gray-500 gap-x-3 gap-y-1 dark:text-gray-400">
-                    <div class="flex items-center gap-1.5" title="Idade">
+                    <div class="flex items-center gap-1.5" title="{{ $paciente->nascimento->format('d/m/Y') }}">
                         <x-filament::icon icon="heroicon-m-calendar-days"
                             class="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                        <span>Idade: {{ $paciente->idade() }}</span>
+                        <span>{{ $paciente->idade() }}</span>
                     </div>
 
                     <span class="text-gray-300 dark:text-gray-600">&bull;</span>
