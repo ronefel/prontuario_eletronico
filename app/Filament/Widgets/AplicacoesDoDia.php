@@ -3,14 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Aplicacao;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Widgets\TableWidget;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 
-class AplicacoesDoDia extends BaseWidget
+class AplicacoesDoDia extends TableWidget
 {
     protected static ?int $sort = 1;
 
@@ -27,15 +27,15 @@ class AplicacoesDoDia extends BaseWidget
                     ->orderBy('data_aplicacao')
             )
             ->columns([
-                Tables\Columns\TextColumn::make('data_aplicacao')
+                TextColumn::make('data_aplicacao')
                     ->label('Horário')
                     ->timezone(Auth::user()->timezone)
                     ->dateTime('H:i'),
-                Tables\Columns\TextColumn::make('tratamento.paciente.nome')
+                TextColumn::make('tratamento.paciente.nome')
                     ->label('Paciente'),
-                Tables\Columns\TextColumn::make('tratamento.nome')
+                TextColumn::make('tratamento.nome')
                     ->label('Tratamento'),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'agendada' => 'warning',

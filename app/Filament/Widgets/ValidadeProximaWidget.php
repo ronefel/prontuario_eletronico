@@ -4,16 +4,16 @@ namespace App\Filament\Widgets;
 
 use App\Models\Lote;
 use Carbon\Carbon;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
 
-class ValidadeProximaWidget extends BaseWidget
+class ValidadeProximaWidget extends TableWidget
 {
     protected static ?int $sort = 2;
 
@@ -44,15 +44,15 @@ class ValidadeProximaWidget extends BaseWidget
                 $this->getData()->toQuery()->with('produto')
             )
             ->columns([
-                Tables\Columns\TextColumn::make('numero_lote')
+                TextColumn::make('numero_lote')
                     ->label('Lote'),
-                Tables\Columns\TextColumn::make('produto.nome')
+                TextColumn::make('produto.nome')
                     ->label('Produto')
                     ->limit(80)
                     ->tooltip(fn (string $state): ?string => mb_strlen($state) > 80 ? $state : null),
-                Tables\Columns\TextColumn::make('quantidade_atual')
+                TextColumn::make('quantidade_atual')
                     ->label('Qtd Atual'),
-                Tables\Columns\TextColumn::make('data_validade')
+                TextColumn::make('data_validade')
                     ->label('Validade')
                     ->date('d/m/Y')
                     ->color(function ($record) {
@@ -68,7 +68,7 @@ class ValidadeProximaWidget extends BaseWidget
                             return 'success';
                         }
                     }),
-                Tables\Columns\TextColumn::make('dias_restantes')
+                TextColumn::make('dias_restantes')
                     ->label('Faltam')
                     ->getStateUsing(function ($record) {
                         $validade = Carbon::parse($record->getRawOriginal('data_validade'), Auth::user()->timezone)->startOfDay();

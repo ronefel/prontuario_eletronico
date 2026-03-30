@@ -6,16 +6,13 @@ use App\Models\Paciente;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Widgets\TableWidget;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 
-/**
- * Lista os últimos pacientes atendidos no prontuário
- */
-class UltimosPacientes extends BaseWidget
+class UltimosPacientes extends TableWidget
 {
     protected static ?int $sort = 4;
 

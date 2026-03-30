@@ -3,16 +3,18 @@
 namespace App\Filament\Pages;
 
 use App\Models\Paciente;
+use BackedEnum;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Url;
 
 class Consultorio extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected string $view = 'filament.pages.consultorio';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
     protected static ?string $title = '';
-
-    protected static string $view = 'filament.pages.consultorio';
 
     protected static ?string $slug = 'consultorio/{paciente}';
 

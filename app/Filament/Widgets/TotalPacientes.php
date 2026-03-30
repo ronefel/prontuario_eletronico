@@ -5,13 +5,13 @@ namespace App\Filament\Widgets;
 use App\Models\Paciente;
 use App\Models\Prontuario;
 use Carbon\Carbon;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
 
-class TotalPacientes extends BaseWidget
+class TotalPacientes extends StatsOverviewWidget
 {
-    protected static ?string $pollingInterval = null;
+    protected ?string $pollingInterval = null;
 
     public static function canView(): bool
     {

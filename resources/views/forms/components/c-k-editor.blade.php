@@ -1,17 +1,17 @@
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
-    <div wire:ignore x-ignore ax-load
-        ax-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('ckeditor-component') }}"
+    <div wire:ignore x-load
+        x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('ckeditor-component') }}"
         x-data="ckeditorComponent({
             state: $wire.{{ $applyStateBindingModifiers('entangle(\'' . $getStatePath() . '\')') }},
             record: {{ json_encode($getRecord()) }},
             settings: {{ json_encode($getSettings()) }},
         })">
 
-        <textarea id="{{ $getId() }}" wire:model.defer="{{ $getStatePath() }}"
-            {{ $attributes->merge(['class' => 'form-control']) }}></textarea>
-
-        @assets
-            <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
-        @endassets
+        <textarea id="{{ $getId() }}"
+            {{ $attributes->merge(['class' => 'form-control']) }}>{!! $getState() !!}</textarea>
     </div>
 </x-dynamic-component>
+
+@assets
+    <script src="{{ asset('vendor/ckeditor/ckeditor.js') }}"></script>
+@endassets

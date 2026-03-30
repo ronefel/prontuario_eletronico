@@ -1,15 +1,37 @@
-@import '/vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
 
-/* para usar com o plugin tiny editor */
-/* @import '/public/css/amidesfahani/filament-tinyeditor/document-format.css'; */
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
 
 /* para usar com o plugin ckeditor */
-@import '/public/vendor/ckeditor/document-content.css';
+@import '../../../../public/vendor/ckeditor/document-content.css';
 
+.table-bordered {
+    border-collapse: collapse;
+}
 
-@config 'tailwind.config.js';
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #ababab;
+    text-align: center;
+    padding: 4px;
+}
 
+.table-bordered th {
+    @apply bg-gray-100 dark:bg-gray-900;
+}
 
+.table-category {
+    @apply bg-gray-100 dark:bg-gray-900;
+}
+
+/* .table-bordered tbody tr:nth-child(odd) {
+    @apply bg-gray-100 dark:bg-gray-800;
+} */
+
+.table-bordered tbody tr:hover {
+    @apply bg-gray-100 dark:bg-gray-900;
+}
 .table-bordered {
     border-collapse: collapse;
 }

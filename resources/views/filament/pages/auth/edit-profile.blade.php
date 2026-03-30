@@ -1,7 +1,7 @@
-<x-dynamic-component :component="'filament-panels::page'">
-    <x-filament-panels::form id="form" wire:submit="save">
+<x-filament-panels::page>
+    <form id="form" wire:submit="save">
         {{ $this->form }}
 
-        <x-filament-panels::form.actions :actions="$this->getCachedFormActions()" :full-width="$this->hasFullWidthFormActions()" />
-    </x-filament-panels::form>
-</x-dynamic-component>
+        {{-- <x-filament::actions :actions="[$this->getSaveFormAction()]" :full-width="true" class="m-4" /> --}}
+    </form>
+</x-filament-panels::page>

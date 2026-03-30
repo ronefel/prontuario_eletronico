@@ -57,7 +57,7 @@
 
                         @if ($previousDate != $currentDate)
                             <span
-                                class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
+                                class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -inset-s-3 ring-white dark:ring-gray-900 dark:bg-blue-900">
                                 <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                     <path
@@ -76,7 +76,7 @@
                             class="flex flex-col items-start justify-between p-4 pt-2 rounded-lg bg-white shadow-sm ring-1 ring-gray-950/5 dark:divide-white/10 dark:bg-gray-900 dark:ring-white/10">
                             <div class="flex w-full justify-between">
                                 <span
-                                    class="prontuario-hora absolute flex items-center justify-center w-10 h-4 bg-blue-100 rounded -start-3 ring-white dark:ring-gray-900 dark:bg-blue-900 text-xs font-bold leading-none text-blue-800 dark:text-blue-300"
+                                    class="prontuario-hora absolute flex items-center justify-center w-10 h-4 bg-blue-100 rounded -inset-s-3 ring-white dark:ring-gray-900 dark:bg-blue-900 text-xs font-bold leading-none text-blue-800 dark:text-blue-300"
                                     style="left: -20px;">{{ \Carbon\Carbon::parse($prontuario->data)->translatedFormat('H:i') }}</span>
                                 <div class="flex w-full justify-end gap-6">
                                     {{ ($this->editAction)(['prontuario' => $prontuario->id]) }}

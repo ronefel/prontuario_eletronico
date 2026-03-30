@@ -3,15 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Produto;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
 
-class EstoqueBaixoWidget extends BaseWidget
+class EstoqueBaixoWidget extends TableWidget
 {
     protected static ?int $sort = 3;
 
@@ -39,14 +39,14 @@ class EstoqueBaixoWidget extends BaseWidget
                 $this->getData()->toQuery()->withSum('movimentacoes', 'quantidade')
             )
             ->columns([
-                Tables\Columns\TextColumn::make('nome')
+                TextColumn::make('nome')
                     ->label('Produto')
                     ->limit(40)
                     ->tooltip(fn (string $state): ?string => mb_strlen($state) > 40 ? $state : null),
-                Tables\Columns\TextColumn::make('quantidade_atual')
+                TextColumn::make('quantidade_atual')
                     ->label('Qtd Atual')
                     ->color('danger'),
-                Tables\Columns\TextColumn::make('estoque_minimo')
+                TextColumn::make('estoque_minimo')
                     ->label('Qtd Mínima'),
             ])
             ->recordUrl(fn ($record) => route('filament.admin.resources.produtos.edit', $record))

@@ -29,3 +29,8 @@ Route::get('/list-mascaras', [MascaraController::class, 'index'])
 Route::get('/files/{name}', [FileController::class, 'serve'])
     ->middleware('auth')
     ->name('files.serve');
+use App\Http\Controllers\InventarioController;
+
+Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
+    ->middleware('auth')
+    ->name('inventario.print');

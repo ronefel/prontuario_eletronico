@@ -11,12 +11,24 @@ parameters:
         - app/Providers
 
     level: 5
+
     checkModelProperties: true
+
+    inferPrivatePropertyTypeFromConstructor: true
+
+    treatPhpDocTypesAsCertain: false
+
+    universalObjectCratesClasses:
+        - Illuminate\Database\Eloquent\Model
+
+    reportUnmatchedIgnoredErrors: false
+
 
     ignoreErrors:
         - message: '#Unknown parameter \$get in call to Attribute constructor#'
         - message: '#Unknown parameter \$set in call to Attribute constructor#'
         - message: '#Call to an undefined method .+::acoff\(\)#'
+        - message: '#Cannot call method .+ on string.#'
         - message: '#Relation .+ is not found in App\\Models\\.+#'
         - message: '#Call to an undefined method Filament\\Notifications\\Notification::error\(\)#'
         - identifier: property.nonObject

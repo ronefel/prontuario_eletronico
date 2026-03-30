@@ -4,36 +4,43 @@ namespace App\Filament\Pages\Relatorios;
 
 use App\Exports\TratamentosExport;
 use App\Models\Tratamento;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
-use Filament\Tables\Actions\Action;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Mpdf\Mpdf;
+use UnitEnum;
 
 class RelatorioTratamentos extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected string $view = 'filament.pages.relatorios.relatorio-tratamentos';
 
-    protected static ?string $navigationGroup = 'Relatórios';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
     protected static ?int $navigationSort = 301;
 
     protected static ?string $navigationLabel = 'Relatório de Tratamentos';
 
     protected static ?string $title = 'Relatório de Tratamentos';
-
-    protected static string $view = 'filament.pages.relatorios.relatorio-tratamentos';
 
     public function table(Table $table): Table
     {
@@ -71,7 +78,7 @@ class RelatorioTratamentos extends Page implements HasTable
                                 <span>(".ucfirst($app->status).")</span>
                                 <ul class='list-circle pl-4 text-gray-500'>";
                             foreach ($app->lotes as $lote) {
-                                $html .= '<li>- '.$lote->pivot->quantidade.'x '.\Illuminate\Support\Str::limit($lote->produto->nome, 40).'</li>';
+                                $html .= '<li>- '.$lote->pivot->quantidade.'x '.Str::limit($lote->produto->nome, 40).'</li>';
                             }
                             $html .= '</ul></li>';
                         }
@@ -82,14 +89,14 @@ class RelatorioTratamentos extends Page implements HasTable
                 TextColumn::make('valor_cobrado')
                     ->label('Valor Cobrado')
                     ->money('BRL')
-                    ->summarize(\Filament\Tables\Columns\Summarizers\Sum::make()
+                    ->summarize(Sum::make()
                         ->money('BRL')
                         ->label('')
                     ),
                 TextColumn::make('custo_total')
                     ->label('Custo Total')
                     ->money('BRL')
-                    ->summarize(\Filament\Tables\Columns\Summarizers\Summarizer::make()
+                    ->summarize(Summarizer::make()
                         ->label('')
                         ->money('BRL')
                         ->using(fn ($query) => Tratamento::whereIn('id', $query->clone()->pluck('tratamentos.id'))
@@ -101,7 +108,7 @@ class RelatorioTratamentos extends Page implements HasTable
                 TextColumn::make('saldo')
                     ->label('Saldo')
                     ->money('BRL')
-                    ->summarize(\Filament\Tables\Columns\Summarizers\Summarizer::make()
+                    ->summarize(Summarizer::make()
                         ->label('')
                         ->money('BRL')
                         ->using(fn ($query) => Tratamento::whereIn('id', $query->clone()->pluck('tratamentos.id'))
@@ -112,25 +119,34 @@ class RelatorioTratamentos extends Page implements HasTable
                     ),
             ])
             ->filters([
-                SelectFilter::make('paciente')
-                    ->label('')
-                    ->searchable()
-                    ->multiple()
-                    ->preload()
-                    ->placeholder('Pacientes')
-                    ->relationship('paciente', 'nome')
-                    ->columnSpan(2),
+                Filter::make('paciente')
+                    ->columnSpan(2)
+                    ->schema([
+                        Select::make('paciente')
+                            ->hiddenLabel()
+                            ->searchable()
+                            ->multiple()
+                            ->preload()
+                            ->placeholder('Selecione os Pacientes')
+                            ->relationship('paciente', 'nome'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['paciente'],
+                            fn (Builder $query, $pacientes): Builder => $query->whereIn('paciente_id', $pacientes),
+                        );
+                    }),
                 Filter::make('data_inicio')
                     ->columns(2)
                     ->columnSpan(3)
-                    ->form([
+                    ->schema([
                         DatePicker::make('data_inicio_from')
-                            ->label('')
+                            ->hiddenLabel()
                             ->placeholder('Data Início')
-                            ->prefix('Data Início')
+                            ->prefix('De')
                             ->native(true),
                         DatePicker::make('data_inicio_until')
-                            ->label('')
+                            ->hiddenLabel()
                             ->placeholder('Data Fim')
                             ->prefix('Até')
                             ->native(true),
@@ -146,13 +162,15 @@ class RelatorioTratamentos extends Page implements HasTable
                                 fn (Builder $query, $date): Builder => $query->whereDate('data_inicio', '<=', $date),
                             );
                     }),
-            ], layout: FiltersLayout::AboveContent)->hiddenFilterIndicators()
+            ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(5)
+            ->hiddenFilterIndicators()
             ->headerActions([
                 Action::make('export_pdf')
                     ->label('Exportar PDF')
                     ->icon('heroicon-o-document-arrow-down')
-                    ->form([
-                        \Filament\Forms\Components\Checkbox::make('include_applications')
+                    ->schema([
+                        Checkbox::make('include_applications')
                             ->label('Incluir Aplicações')
                             ->default(false),
                     ])
@@ -169,13 +187,10 @@ class RelatorioTratamentos extends Page implements HasTable
                             'pagenumPrefix' => 'Página ',
                             'pagenumSuffix' => ' de ',
                         ]);
-                        $html = view(
-                            'filament.pages.relatorios.relatorio-tratamentos-pdf',
-                            [
-                                'records' => $records,
-                                'includeApplications' => $data['include_applications'] ?? false,
-                            ]
-                        )->render();
+                        $html = view('filament.pages.relatorios.relatorio-tratamentos-pdf', [
+                            'records' => $records,
+                            'includeApplications' => $data['include_applications'] ?? false,
+                        ])->render();
                         $pdf->setFooter('Gerado em: {DATE j/m/Y} - {PAGENO}{nbpg}');
                         $pdf->WriteHTML($html);
 
@@ -187,8 +202,8 @@ class RelatorioTratamentos extends Page implements HasTable
                 Action::make('export_excel')
                     ->label('Exportar Excel')
                     ->icon('heroicon-o-table-cells')
-                    ->form([
-                        \Filament\Forms\Components\Checkbox::make('include_applications')
+                    ->schema([
+                        Checkbox::make('include_applications')
                             ->label('Incluir Aplicações')
                             ->default(false),
                     ])
@@ -200,8 +215,6 @@ class RelatorioTratamentos extends Page implements HasTable
                             'tratamentos.xlsx'
                         );
                     }),
-            ])
-            ->actions([
             ])
             ->groups([
                 Group::make('paciente.nome')

@@ -4,7 +4,13 @@ export default function ckeditorComponent({ state, record, settings }) {
         record, // Objeto record passado como JSON pelo componente App\Forms\Components\CKEditor
         settings, // Objeto settings passado como JSON pelo componente App\Forms\Components\CKEditor
         init() {
-            const textareaId = this.$el.querySelector('textarea').id;
+            if (typeof window.CKEDITOR === 'undefined') {
+                console.error('CKEDITOR is not defined');
+                return;
+            }
+
+            const textarea = this.$el.querySelector('textarea');
+            const textareaId = textarea.id;
 
             if (window.CKEDITOR.instances[textareaId]) {
                 window.CKEDITOR.instances[textareaId].destroy(true);
@@ -57,8 +63,26 @@ export default function ckeditorComponent({ state, record, settings }) {
                 font_names: 'Roboto',
             });
 
+            editor.on('instanceReady', () => {
+                if (this.state) {
+                    editor.setData(this.state);
+                } else if (textarea.value) {
+                    this.state = textarea.value;
+                    editor.setData(this.state);
+                }
+            });
+
             editor.on('change', () => {
-                this.state = editor.getData();
+                const data = editor.getData();
+                if (this.state !== data) {
+                    this.state = data;
+                }
+            });
+
+            this.$watch('state', (value) => {
+                if (editor && value !== editor.getData()) {
+                    editor.setData(value ?? '');
+                }
             });
 
             // CKEDITOR.on('dialogDefinition', (ev) => {

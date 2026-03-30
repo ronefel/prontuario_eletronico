@@ -44,11 +44,11 @@
 
             <div wire:loading.remove>
                 @if ($activeTab === 'prontuario')
-                    @livewire(App\Filament\Resources\PacienteResource\Pages\ProntuarioPaciente::class, ['record' => $paciente->id], key('prontuario-' . $paciente->id))
+                    @livewire(App\Filament\Resources\Pacientes\Pages\ProntuarioPaciente::class, ['record' => $paciente->id], key('prontuario-' . $paciente->id))
                 @elseif ($activeTab === 'biorressonancia')
-                    @livewire(App\Filament\Resources\PacienteResource\Pages\Biorressonancia::class, ['record' => $paciente->id], key('biorressonancia-' . $paciente->id))
+                    @livewire(App\Filament\Resources\Pacientes\Pages\Biorressonancia::class, ['record' => $paciente->id], key('biorressonancia-' . $paciente->id))
                 @elseif ($activeTab === 'tratamentos')
-                    @livewire(App\Filament\Resources\TratamentoResource\Pages\ListTratamentos::class, ['pacienteId' => $paciente->id], key('tratamentos-' . $paciente->id))
+                    @livewire(App\Filament\Resources\Tratamentos\Pages\ListTratamentos::class, ['pacienteId' => $paciente->id], key('tratamentos-' . $paciente->id))
                 @endif
             </div>
         </div>

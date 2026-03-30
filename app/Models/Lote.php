@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Services\Estoque\MovimentacaoService;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -11,23 +14,23 @@ use Illuminate\Support\Facades\Auth;
  * @property int $produto_id
  * @property int|null $fornecedor_id
  * @property string $numero_lote
- * @property mixed|null $data_fabricacao
- * @property mixed|null $data_validade
+ * @property Carbon|null $data_fabricacao
+ * @property Carbon|null $data_validade
  * @property int $quantidade_inicial
  * @property string|null $documento
  * @property string|null $valor_unitario
  * @property int $local_id
  * @property string $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \App\Models\Fornecedor|null $fornecedor
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Fornecedor|null $fornecedor
  * @property string $display_name
  * @property mixed $quantidade_atual
- * @property \App\Models\Local $local
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
- * @property \App\Models\Produto|null $produto
- * @property-read \Illuminate\Database\Eloquent\Relations\Pivot|\stdClass $pivot
+ * @property Local $local
+ * @property Collection<int, Movimentacao> $movimentacoes
+ * @property Produto|null $produto
+ * @property-read Pivot|\stdClass $pivot
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lote onlyTrashed()
