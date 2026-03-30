@@ -47,6 +47,11 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function write(string $path, string $contents, Config $config): void
     {
+        if (str_contains($path, 'livewire-tmp/')) {
+            Storage::disk('local')->put($path, $contents);
+            return;
+        }
+
         $this->validatePath($path);
 
         // Checa se o conteúdo está vazio
@@ -98,6 +103,12 @@ class DatabaseAdapter implements FilesystemAdapter
 
             return;
         }
+
+        $content = stream_get_contents($contents);
+        if ($content === false) {
+            throw new UnableToWriteFile("Não foi possível ler o conteúdo do stream para o caminho {$path}");
+        }
+        $this->write($path, $content, $config);
     }
 
     /**
@@ -105,6 +116,13 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function read(string $path): string
     {
+        if (str_contains($path, 'livewire-tmp/')) {
+            if (Storage::disk('local')->exists($path)) {
+                return Storage::disk('local')->get($path);
+            }
+            throw new UnableToReadFile("Não foi possível localizar o arquivo {$path}");
+        }
+
         $this->validatePath($path);
 
         $file = File::where('name', $path);
@@ -151,15 +169,13 @@ class DatabaseAdapter implements FilesystemAdapter
     {
         // Verifica se o caminho contém o diretório temporário do Livewire
         if (str_contains($path, 'livewire-tmp/')) {
-            // Verifica se o arquivo existe no diretório temporário
-            if (Storage::disk('local')->exists($path)) {
-                // Obtém o conteúdo do arquivo
-                Storage::disk('local')->delete($path);
-
-                return;
-            } else {
-                throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}.");
+            Storage::disk('local')->delete($path);
+            
+            if (!str_ends_with($path, '.json')) {
+                Storage::disk('local')->delete($path . '.json');
             }
+            
+            return;
         }
 
         $this->validatePath($path);
@@ -173,7 +189,6 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function deleteDirectory(string $path): void
     {
-        dd('deleteDirectory', $path);
         $this->validatePath($path);
 
         File::where('name', $path)
@@ -209,6 +224,19 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function mimeType(string $path): FileAttributes
     {
+        if (str_contains($path, 'livewire-tmp/')) {
+            if (! Storage::disk('local')->exists($path)) {
+                throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}");
+            }
+            return new FileAttributes(
+                $path,
+                null,
+                null,
+                null,
+                mime_content_type(Storage::disk('local')->path($path))
+            );
+        }
+
         $this->validatePath($path);
 
         $file = File::where('name', $path)->first();
@@ -342,7 +370,35 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function move(string $source, string $destination, Config $config): void
     {
-        dd('move', $source, $destination, $config);
+        $sourceIsTemp = str_contains($source, 'livewire-tmp/');
+        $destIsTemp = str_contains($destination, 'livewire-tmp/');
+
+        if ($sourceIsTemp && $destIsTemp) {
+            if (! Storage::disk('local')->exists($source)) {
+                throw UnableToMoveFile::fromLocationTo($source, $destination);
+            }
+            Storage::disk('local')->move($source, $destination);
+            return;
+        }
+
+        if ($sourceIsTemp && !$destIsTemp) {
+            if (! Storage::disk('local')->exists($source)) {
+                throw UnableToMoveFile::fromLocationTo($source, $destination);
+            }
+
+            $contents = Storage::disk('local')->get($source);
+            
+            $this->write($destination, $contents, $config);
+            
+            return;
+        }
+
+        if (!$sourceIsTemp && $destIsTemp) {
+            $contents = $this->read($source);
+            Storage::disk('local')->put($destination, $contents);
+            return;
+        }
+
         // valida.
         $this->validatePath($source);
         $this->validatePath($destination);
@@ -370,7 +426,35 @@ class DatabaseAdapter implements FilesystemAdapter
      */
     public function copy(string $source, string $destination, Config $config): void
     {
-        dd('copy', $source, $destination, $config);
+        $sourceIsTemp = str_contains($source, 'livewire-tmp/');
+        $destIsTemp = str_contains($destination, 'livewire-tmp/');
+
+        if ($sourceIsTemp && $destIsTemp) {
+            if (! Storage::disk('local')->exists($source)) {
+                throw UnableToCopyFile::fromLocationTo($source, $destination);
+            }
+            Storage::disk('local')->copy($source, $destination);
+            return;
+        }
+
+        if ($sourceIsTemp && !$destIsTemp) {
+            if (! Storage::disk('local')->exists($source)) {
+                throw UnableToCopyFile::fromLocationTo($source, $destination);
+            }
+
+            $contents = Storage::disk('local')->get($source);
+            
+            $this->write($destination, $contents, $config);
+            
+            return;
+        }
+
+        if (!$sourceIsTemp && $destIsTemp) {
+            $contents = $this->read($source);
+            Storage::disk('local')->put($destination, $contents);
+            return;
+        }
+
         // valida.
         $this->validatePath($source);
         $this->validatePath($destination);
