@@ -64,7 +64,7 @@
 
                     </x-slot>
 
-                    <div class="text-sm text-gray-950 dark:text-white">
+                    <div class="text-sm text-gray-950 dark:text-white whitespace-pre-line">
                         {{ $paciente->observacao }}
                     </div>
                 </x-filament::modal>
