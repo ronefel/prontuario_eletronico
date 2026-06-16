@@ -2,22 +2,24 @@
 
 namespace App\Models;
 
+use App\Casts\DatetimeWithTimezone;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int|null $paciente_id
  * @property string|null $nome_paciente
  * @property string|null $whatsapp_paciente
- * @property \Illuminate\Support\Carbon $data_inicio
- * @property \Illuminate\Support\Carbon $data_fim
+ * @property Carbon $data_inicio
+ * @property Carbon $data_fim
  * @property string $status
  * @property string|null $observacoes
  * @property string|null $google_evento_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \App\Models\Paciente|null $paciente
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Paciente|null $paciente
  * @property-read string $obter_nome_paciente
  * @property-read string $obter_whatsapp_paciente
  */
@@ -39,8 +41,8 @@ class Agenda extends BaseModel
     ];
 
     protected $casts = [
-        'data_inicio' => 'datetime',
-        'data_fim' => 'datetime',
+        'data_inicio' => DatetimeWithTimezone::class,
+        'data_fim' => DatetimeWithTimezone::class,
     ];
 
     /**
@@ -73,5 +75,29 @@ class Agenda extends BaseModel
         }
 
         return $this->whatsapp_paciente ?? '';
+    }
+
+    /**
+     * Verifica se existe alguma consulta ativa que conflite com o período informado.
+     */
+    public static function possuiConflito(string|\Carbon\Carbon $dataInicio, string|\Carbon\Carbon $dataFim, ?int $excluirId = null): bool
+    {
+        $inicio = \Carbon\Carbon::parse($dataInicio);
+        $fim = \Carbon\Carbon::parse($dataFim);
+
+        $query = self::query()
+            ->where('status', '!=', 'cancelada')
+            ->where(function ($q) use ($inicio, $fim) {
+                $q->where(function ($sub) use ($inicio, $fim) {
+                    $sub->where('data_inicio', '<', $fim)
+                        ->where('data_fim', '>', $inicio);
+                });
+            });
+
+        if ($excluirId) {
+            $query->where('id', '!=', $excluirId);
+        }
+
+        return $query->exists();
     }
 }

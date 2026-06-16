@@ -3,9 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\Agenda as ModelAgenda;
-use App\Models\GoogleConfiguracao;
+use App\Models\AgendaConfiguracao;
 use App\Models\Paciente;
-use App\Services\GoogleCalendarService;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -17,15 +16,19 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\Width;
 use Filament\Support\RawJs;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Agenda extends Page
 {
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static ?string $title = 'Agenda de Consultas';
+    protected static ?string $title = '';
+
+    protected static ?string $navigationLabel = 'Agenda';
 
     protected string $view = 'filament.pages.agenda';
 
@@ -42,6 +45,11 @@ class Agenda extends Page
         $this->anoSelecionado = now()->year;
     }
 
+    public function getMaxContentWidth(): Width
+    {
+        return Width::Full;
+    }
+
     /**
      * Retorna a lista de consultas do dia selecionado.
      */
@@ -50,38 +58,138 @@ class Agenda extends Page
         return ModelAgenda::query()
             ->with('paciente')
             ->whereDate('data_inicio', $this->dataSelecionada)
+            ->where('status', '!=', 'cancelada')
             ->orderBy('data_inicio')
             ->get();
     }
 
     /**
-     * Retorna a lista de consultas agrupadas por hora do dia selecionado (0 a 23).
+     * Gera os slots horários da agenda com as consultas agrupadas.
+     * Expande dinamicamente caso existam consultas fora do horário comercial configurado.
      */
-    public function obterConsultasDoDiaPorHora(): array
+    public function obterSlotsGrade(): array
     {
-        $consultas = $this->obterConsultasDoDia();
-        $agrupadas = array_fill(0, 24, []);
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
+        $horaInicioConfig = $configuracao->hora_inicio ?: '08:00';
+        $horaFimConfig = $configuracao->hora_fim ?: '18:00';
+        $intervalo = (int) ($configuracao->intervalo ?: 30);
+
+        // Converte string 'HH:MM' para minutos desde a meia-noite
+        $converterParaMinutos = function (string $horaString): int {
+            [$h, $m] = explode(':', $horaString);
+
+            return ((int) $h * 60) + (int) $m;
+        };
+
+        $minutosInicio = $converterParaMinutos($horaInicioConfig);
+        $minutosFim = $converterParaMinutos($horaFimConfig);
+
+        $consultas = $this->obterConsultasDoDia();
+
+        // Expande os limites inicial/final da grade se houver consultas fora do horário comercial
         foreach ($consultas as $consulta) {
-            $hora = $consulta->data_inicio->hour;
-            $agrupadas[$hora][] = $consulta;
+            $minutosConsultaInicio = ($consulta->data_inicio->hour * 60) + $consulta->data_inicio->minute;
+            $duracao = abs($consulta->data_inicio->diffInMinutes($consulta->data_fim));
+            $minutosConsultaFim = $minutosConsultaInicio + $duracao;
+
+            if ($minutosConsultaInicio < $minutosInicio) {
+                // Alinha o início expandido ao intervalo
+                $minutosInicio = floor($minutosConsultaInicio / $intervalo) * $intervalo;
+            }
+            if ($minutosConsultaFim > $minutosFim) {
+                // Alinha o fim expandido ao intervalo
+                $minutosFim = ceil($minutosConsultaFim / $intervalo) * $intervalo;
+            }
         }
 
-        return $agrupadas;
+        // Garante que minutosInicio < minutosFim
+        if ($minutosInicio >= $minutosFim) {
+            $minutosFim = $minutosInicio + $intervalo;
+        }
+
+        // Calcula limites da pausa
+        $pausaInicio = null;
+        $pausaFim = null;
+        if (! empty($configuracao->pausa_inicio) && ! empty($configuracao->pausa_fim)) {
+            $pausaInicio = $converterParaMinutos($configuracao->pausa_inicio);
+            $pausaFim = $converterParaMinutos($configuracao->pausa_fim);
+        }
+
+        // Gera a lista de slots de minutos, omitindo os que caem na pausa
+        $slotsMinutos = [];
+        for ($m = $minutosInicio; $m < $minutosFim; $m += $intervalo) {
+            if ($pausaInicio !== null && $m >= $pausaInicio && $m < $pausaFim) {
+                continue;
+            }
+            $slotsMinutos[] = $m;
+        }
+
+        // Inicializa a grade com slots vazios
+        $grade = [];
+        foreach ($slotsMinutos as $minutosSlot) {
+            $horaLegivel = sprintf('%02d:%02d', floor($minutosSlot / 60), $minutosSlot % 60);
+            $grade[$minutosSlot] = [
+                'hora' => $horaLegivel,
+                'minutos' => $minutosSlot,
+                'consultas' => [],
+                'continua_consulta' => null,
+            ];
+        }
+
+        // Agrupa as consultas em cada slot e também marca as continuações de consulta
+        foreach ($consultas as $consulta) {
+            $minutosConsultaInicio = ($consulta->data_inicio->hour * 60) + $consulta->data_inicio->minute;
+
+            // Encontra o slot correspondente para início da consulta
+            $slotEscolhido = null;
+            foreach ($slotsMinutos as $minutosSlot) {
+                if ($minutosSlot <= $minutosConsultaInicio) {
+                    $slotEscolhido = $minutosSlot;
+                } else {
+                    break;
+                }
+            }
+
+            if ($slotEscolhido === null) {
+                $slotEscolhido = $slotsMinutos[0];
+            }
+
+            $grade[$slotEscolhido]['consultas'][] = $consulta;
+        }
+
+        // Identifica slots que continuam uma consulta em andamento
+        foreach ($grade as $minutosSlot => &$slotInfo) {
+            foreach ($consultas as $consulta) {
+                $minutosConsultaInicio = ($consulta->data_inicio->hour * 60) + $consulta->data_inicio->minute;
+                $duracao = abs($consulta->data_inicio->diffInMinutes($consulta->data_fim));
+                $minutosConsultaFim = $minutosConsultaInicio + $duracao;
+
+                // Um slot é continuação se for estritamente após o início e estritamente antes do fim da consulta
+                if ($minutosSlot > $minutosConsultaInicio && $minutosSlot < $minutosConsultaFim) {
+                    $slotInfo['continua_consulta'] = $consulta;
+                    break; // Um slot só pode ser continuação de uma consulta
+                }
+            }
+        }
+        unset($slotInfo);
+
+        return array_values($grade);
     }
 
     /**
-     * Retorna os dias que possuem consultas no mês selecionado.
-     * Usado para desenhar os pontos de marcação no calendário.
+     * Retorna a contagem de consultas por dia no mês selecionado.
+     * Usado para exibir o badge com total de agendamentos no calendário.
      */
-    public function obterDiasComConsulta(): array
+    public function obterContagemConsultasPorDia(): array
     {
         return ModelAgenda::query()
             ->whereYear('data_inicio', $this->anoSelecionado)
             ->whereMonth('data_inicio', $this->mesSelecionado)
-            ->select(DB::raw('DATE(data_inicio) as data'))
-            ->pluck('data')
-            ->unique()
+            ->where('status', '!=', 'cancelada')
+            ->select(DB::raw('DATE(data_inicio) as data'), DB::raw('COUNT(*) as total'))
+            ->groupBy('data')
+            ->pluck('total', 'data')
             ->toArray();
     }
 
@@ -154,13 +262,24 @@ class Agenda extends Page
 
         $diaSemanaAtual = $diaSemanaInicio;
 
+        $contagemPorDia = $this->obterContagemConsultasPorDia();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
+        $limiteDia = $configuracao->obterLimiteDia();
+        $hoje = now()->format('Y-m-d');
+
         for ($dia = 1; $dia <= $diasNoMes; $dia++) {
             $dataCompleta = Carbon::create($this->anoSelecionado, $this->mesSelecionado, $dia)->format('Y-m-d');
+            $totalConsultas = $contagemPorDia[$dataCompleta] ?? 0;
+            $ehPassado = $dataCompleta < $hoje;
+            $disponivel = ! $ehPassado && ($totalConsultas < $limiteDia);
+
             $semana[$diaSemanaAtual] = [
                 'numero' => $dia,
                 'data' => $dataCompleta,
-                'eh_hoje' => $dataCompleta === now()->format('Y-m-d'),
-                'tem_consulta' => in_array($dataCompleta, $this->obterDiasComConsulta()),
+                'eh_hoje' => $dataCompleta === $hoje,
+                'eh_passado' => $ehPassado,
+                'total_consultas' => $totalConsultas,
+                'disponivel' => $disponivel,
             ];
 
             if ($diaSemanaAtual === 6) {
@@ -181,6 +300,89 @@ class Agenda extends Page
     }
 
     /**
+     * Retorna o schema do formulário de agendamento reutilizado por criar e editar.
+     */
+    protected function obterSchemaAgendamento(bool $editando = false): array
+    {
+        return [
+            Grid::make(2)->schema([
+                Select::make('paciente_id')
+                    ->label('Paciente Cadastrado')
+                    ->options(Paciente::pluck('nome', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Selecione um paciente (opcional)')
+                    ->reactive()
+                    ->columnSpan(2),
+
+                TextInput::make('nome_paciente')
+                    ->label('Nome do Novo Paciente')
+                    ->required(fn (Get $get) => empty($get('paciente_id')))
+                    ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
+                    ->placeholder('Digite o nome do paciente')
+                    ->columnSpan(1),
+
+                TextInput::make('whatsapp_paciente')
+                    ->label('WhatsApp / Celular')
+                    ->required(fn (Get $get) => empty($get('paciente_id')))
+                    ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
+                    ->mask(RawJs::make(<<<'JS'
+                        $input.replace(/\D/g, '').length <= 10 
+                            ? '(99) 9999-9999' 
+                            : '(99) 99999-9999'
+                    JS))
+                    ->maxLength(15)
+                    ->tel()
+                    ->columnSpan(1),
+
+                DateTimePicker::make('data_inicio')
+                    ->label('Data e Hora de Início')
+                    ->required()
+                    ->seconds(false)
+                    ->columnSpan(1),
+
+                Select::make('duracao')
+                    ->label('Duração')
+                    ->options([
+                        15 => '00:15',
+                        30 => '00:30',
+                        45 => '00:45',
+                        60 => '01:00',
+                        75 => '01:15',
+                        90 => '01:30',
+                        105 => '01:45',
+                        120 => '02:00',
+                        135 => '02:15',
+                        150 => '02:30',
+                        165 => '02:45',
+                        180 => '03:00',
+                    ])
+                    ->default(60)
+                    ->required()
+                    ->columnSpan(1),
+
+                ...($editando ? [
+                    Select::make('status')
+                        ->label('Status')
+                        ->options([
+                            'agendada' => 'Agendada',
+                            'confirmada' => 'Confirmada',
+                            'cancelada' => 'Cancelada',
+                            'realizada' => 'Realizada',
+                        ])
+                        ->required()
+                        ->columnSpan(2),
+                ] : []),
+
+                Textarea::make('observacoes')
+                    ->label('Observações')
+                    ->rows(3)
+                    ->columnSpan(2),
+            ]),
+        ];
+    }
+
+    /**
      * Action do Filament para criar um novo agendamento.
      */
     public function criarAgendamentoAction(): Action
@@ -190,82 +392,27 @@ class Agenda extends Page
             ->modalHeading('Agendar Consulta')
             ->modalWidth('lg')
             ->fillForm(function (array $arguments) {
-                $hora = isset($arguments['hora']) ? (int) $arguments['hora'] : now()->hour;
-                $dataInicio = Carbon::parse($this->dataSelecionada)->setTime($hora, 0);
+                $horaString = $arguments['hora'] ?? now()->format('H:i');
+                if (is_numeric($horaString)) {
+                    $horaString = sprintf('%02d:00', $horaString);
+                }
+                [$hora, $minuto] = explode(':', $horaString);
+
+                $dataInicio = Carbon::parse($this->dataSelecionada, Auth::user()->timezone)
+                    ->setTime((int) $hora, (int) $minuto)
+                    ->setTimezone(config('app.timezone'));
 
                 return [
-                    'data_inicio' => $dataInicio->format('Y-m-d H:i'),
+                    'data_inicio' => $dataInicio,
                     'duracao' => 60,
                 ];
             })
-            ->schema([
-                Grid::make(2)->schema([
-                    Select::make('paciente_id')
-                        ->label('Paciente Cadastrado')
-                        ->options(Paciente::pluck('nome', 'id'))
-                        ->searchable()
-                        ->preload()
-                        ->placeholder('Selecione um paciente (opcional)')
-                        ->reactive()
-                        ->columnSpan(2),
-
-                    TextInput::make('nome_paciente')
-                        ->label('Nome do Novo Paciente')
-                        ->required(fn (Get $get) => empty($get('paciente_id')))
-                        ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
-                        ->placeholder('Digite o nome do paciente')
-                        ->columnSpan(1),
-
-                    TextInput::make('whatsapp_paciente')
-                        ->label('WhatsApp / Celular')
-                        ->required(fn (Get $get) => empty($get('paciente_id')))
-                        ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
-                        ->mask(RawJs::make(<<<'JS'
-                            $input.replace(/\D/g, '').length <= 10 
-                                ? '(99) 9999-9999' 
-                                : '(99) 99999-9999'
-                        JS))
-                        ->maxLength(15)
-                        ->tel()
-                        ->columnSpan(1),
-
-                    DateTimePicker::make('data_inicio')
-                        ->label('Data e Hora de Início')
-                        ->required()
-                        ->seconds(false)
-                        ->columnSpan(1),
-
-                    Select::make('duracao')
-                        ->label('Duração')
-                        ->options([
-                            15 => '00:15',
-                            30 => '00:30',
-                            45 => '00:45',
-                            60 => '01:00',
-                            75 => '01:15',
-                            90 => '01:30',
-                            105 => '01:45',
-                            120 => '02:00',
-                            135 => '02:15',
-                            150 => '02:30',
-                            165 => '02:45',
-                            180 => '03:00',
-                        ])
-                        ->default(60)
-                        ->required()
-                        ->columnSpan(1),
-
-                    Textarea::make('observacoes')
-                        ->label('Observações')
-                        ->rows(3)
-                        ->columnSpan(2),
-                ]),
-            ])
+            ->schema($this->obterSchemaAgendamento(editando: false))
             ->action(function (array $data) {
                 $dataInicio = Carbon::parse($data['data_inicio']);
                 $dataFim = $dataInicio->copy()->addMinutes((int) $data['duracao']);
 
-                $agenda = ModelAgenda::create([
+                ModelAgenda::create([
                     'paciente_id' => $data['paciente_id'] ?: null,
                     'nome_paciente' => $data['nome_paciente'] ?: null,
                     'whatsapp_paciente' => $data['whatsapp_paciente'] ?: null,
@@ -300,66 +447,13 @@ class Agenda extends Page
                     'paciente_id' => $agenda->paciente_id,
                     'nome_paciente' => $agenda->nome_paciente,
                     'whatsapp_paciente' => $agenda->whatsapp_paciente,
-                    'data_inicio' => $agenda->data_inicio->format('Y-m-d H:i'),
+                    'data_inicio' => $agenda->data_inicio,
                     'duracao' => $duracao,
                     'observacoes' => $agenda->observacoes,
                     'status' => $agenda->status,
                 ];
             })
-            ->schema([
-                Grid::make(2)->schema([
-                    Select::make('paciente_id')
-                        ->label('Paciente Cadastrado')
-                        ->options(Paciente::pluck('nome', 'id'))
-                        ->searchable()
-                        ->preload()
-                        ->placeholder('Selecione um paciente (opcional)')
-                        ->reactive()
-                        ->columnSpan(2),
-
-                    TextInput::make('nome_paciente')
-                        ->label('Nome do Novo Paciente')
-                        ->required(fn (Get $get) => empty($get('paciente_id')))
-                        ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
-                        ->placeholder('Digite o nome do paciente')
-                        ->columnSpan(1),
-
-                    TextInput::make('whatsapp_paciente')
-                        ->label('WhatsApp / Celular')
-                        ->required(fn (Get $get) => empty($get('paciente_id')))
-                        ->hidden(fn (Get $get) => ! empty($get('paciente_id')))
-                        ->placeholder('Ex: (11) 99999-9999')
-                        ->columnSpan(1),
-
-                    DateTimePicker::make('data_inicio')
-                        ->label('Data e Hora de Início')
-                        ->required()
-                        ->seconds(false)
-                        ->columnSpan(1),
-
-                    TextInput::make('duracao')
-                        ->label('Duração (minutos)')
-                        ->numeric()
-                        ->required()
-                        ->columnSpan(1),
-
-                    Select::make('status')
-                        ->label('Status')
-                        ->options([
-                            'agendada' => 'Agendada',
-                            'confirmada' => 'Confirmada',
-                            'cancelada' => 'Cancelada',
-                            'realizada' => 'Realizada',
-                        ])
-                        ->required()
-                        ->columnSpan(2),
-
-                    Textarea::make('observacoes')
-                        ->label('Observações')
-                        ->rows(3)
-                        ->columnSpan(2),
-                ]),
-            ])
+            ->schema($this->obterSchemaAgendamento(editando: true))
             ->action(function (array $data, array $arguments) {
                 $agenda = ModelAgenda::findOrFail($arguments['id']);
 
@@ -382,102 +476,6 @@ class Agenda extends Page
                     ->body('Os dados do agendamento foram atualizados com sucesso.')
                     ->send();
             });
-    }
-
-    /**
-     * Action do Filament para configurar as credenciais do Google API.
-     */
-    public function configurarGoogleAction(): Action
-    {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
-
-        return Action::make('configurarGoogle')
-            ->label('Configurar Integração')
-            ->modalHeading('Configurações do Google Calendar')
-            ->modalWidth('md')
-            ->fillForm([
-                'client_id' => $configuracao->client_id,
-                'client_secret' => $configuracao->client_secret,
-                'redirect_uri' => $configuracao->redirect_uri ?: url('/google/calendar/callback'),
-                'calendario_id' => $configuracao->calendario_id ?: 'primary',
-            ])
-            ->schema([
-                TextInput::make('client_id')
-                    ->label('Client ID do Google')
-                    ->required()
-                    ->placeholder('Cole o Client ID da API do Google'),
-
-                TextInput::make('client_secret')
-                    ->label('Client Secret do Google')
-                    ->required()
-                    ->password()
-                    ->revealable()
-                    ->placeholder('Cole o Client Secret da API do Google'),
-
-                TextInput::make('redirect_uri')
-                    ->label('URI de Redirecionamento Autenticada')
-                    ->required()
-                    ->helperText('Use esta mesma URL nas configurações do seu console de APIs do Google.'),
-
-                TextInput::make('calendario_id')
-                    ->label('ID do Calendário')
-                    ->required()
-                    ->helperText('Use "primary" para usar o calendário principal da conta vinculada.'),
-            ])
-            ->action(function (array $data) {
-                $configuracao = GoogleConfiguracao::obterConfiguracao();
-                $configuracao->update([
-                    'client_id' => $data['client_id'],
-                    'client_secret' => $data['client_secret'],
-                    'redirect_uri' => $data['redirect_uri'],
-                    'calendario_id' => $data['calendario_id'],
-                ]);
-
-                Notification::make()
-                    ->success()
-                    ->title('Configurações Salvas!')
-                    ->body('Credenciais salvas com sucesso. Agora você pode conectar ao Google.')
-                    ->send();
-            });
-    }
-
-    /**
-     * Inicia o fluxo de conexão OAuth 2.0 com o Google.
-     */
-    public function conectarGoogle(GoogleCalendarService $servico)
-    {
-        $url = $servico->obterUrlAutorizacao();
-
-        if (empty($url)) {
-            Notification::make()
-                ->danger()
-                ->title('Erro de Configuração')
-                ->body('Certifique-se de preencher o Client ID e URI de Redirecionamento nas configurações da integração.')
-                ->send();
-
-            return;
-        }
-
-        return redirect()->away($url);
-    }
-
-    /**
-     * Desconecta o Google Calendar limpando os tokens do banco.
-     */
-    public function desconectarGoogle()
-    {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
-        $configuracao->update([
-            'token_acesso' => null,
-            'token_atualizacao' => null,
-            'token_expira_em' => null,
-        ]);
-
-        Notification::make()
-            ->success()
-            ->title('Desconectado!')
-            ->body('A integração com o Google Calendar foi removida.')
-            ->send();
     }
 
     /**

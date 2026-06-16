@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Agenda;
-use App\Models\GoogleConfiguracao;
+use App\Models\AgendaConfiguracao;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +14,7 @@ class GoogleCalendarService
      */
     public function obterUrlAutorizacao(): string
     {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
         if (empty($configuracao->client_id) || empty($configuracao->redirect_uri)) {
             return '';
@@ -37,7 +37,7 @@ class GoogleCalendarService
      */
     public function autenticarCodigo(string $codigo): bool
     {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
         if (empty($configuracao->client_id) || empty($configuracao->client_secret) || empty($configuracao->redirect_uri)) {
             Log::error('Erro ao autenticar código: Credenciais do Google incompletas.');
@@ -71,7 +71,7 @@ class GoogleCalendarService
     /**
      * Garante que o token de acesso esteja ativo, renovando-o se necessário.
      */
-    protected function garantirTokenValido(GoogleConfiguracao $configuracao): bool
+    protected function garantirTokenValido(AgendaConfiguracao $configuracao): bool
     {
         if (empty($configuracao->token_acesso) || empty($configuracao->token_expira_em) || $configuracao->token_expira_em->isPast()) {
             if (empty($configuracao->token_atualizacao)) {
@@ -107,7 +107,7 @@ class GoogleCalendarService
      */
     public function criarEvento(Agenda $agenda): bool
     {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
         if (!$configuracao->estaConectado()) {
             return false;
@@ -155,7 +155,7 @@ class GoogleCalendarService
      */
     public function atualizarEvento(Agenda $agenda): bool
     {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
         if (!$configuracao->estaConectado()) {
             return false;
@@ -202,7 +202,7 @@ class GoogleCalendarService
      */
     public function deletarEvento(Agenda $agenda): bool
     {
-        $configuracao = GoogleConfiguracao::obterConfiguracao();
+        $configuracao = AgendaConfiguracao::obterConfiguracao();
 
         if (!$configuracao->estaConectado() || empty($agenda->google_evento_id)) {
             return false;
