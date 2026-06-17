@@ -21,6 +21,7 @@ use Filament\Support\RawJs;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Url;
 
 class Agenda extends Page
 {
@@ -34,7 +35,8 @@ class Agenda extends Page
 
     public string $tz;
 
-    public string $dataSelecionada;
+    #[Url(history: true)]
+    public string $dataSelecionada = '';
 
     public int $mesSelecionado;
 
@@ -42,10 +44,20 @@ class Agenda extends Page
 
     public function mount()
     {
-        $this->tz = Auth::user()->timezone;
-        $this->dataSelecionada = now($this->tz)->format('Y-m-d');
-        $this->mesSelecionado = now($this->tz)->month;
-        $this->anoSelecionado = now($this->tz)->year;
+        $this->tz = Auth::user()->timezone ?? config('app.timezone');
+
+        if (empty($this->dataSelecionada)) {
+            $this->dataSelecionada = now($this->tz)->format('Y-m-d');
+        }
+
+        try {
+            $dataCarbon = Carbon::parse($this->dataSelecionada);
+            $this->mesSelecionado = $dataCarbon->month;
+            $this->anoSelecionado = $dataCarbon->year;
+        } catch (\Exception $e) {
+            $this->mesSelecionado = now($this->tz)->month;
+            $this->anoSelecionado = now($this->tz)->year;
+        }
     }
 
     public function getMaxContentWidth(): Width
@@ -341,6 +353,7 @@ class Agenda extends Page
                 DateTimePicker::make('data_inicio')
                     ->label('Data e Hora de Início')
                     ->required()
+                    ->step(300)
                     ->seconds(false)
                     ->columnSpan(1),
 
@@ -419,12 +432,12 @@ class Agenda extends Page
 
                 ModelAgenda::create([
                     'paciente_id' => $data['paciente_id'] ?: null,
-                    'nome_paciente' => $data['nome_paciente'] ?: null,
-                    'whatsapp_paciente' => $data['whatsapp_paciente'] ?: null,
+                    'nome_paciente' => $data['nome_paciente'] ?? null,
+                    'whatsapp_paciente' => $data['whatsapp_paciente'] ?? null,
                     'data_inicio' => $dataInicio,
                     'data_fim' => $dataFim,
                     'status' => 'agendada',
-                    'observacoes' => $data['observacoes'] ?: null,
+                    'observacoes' => $data['observacoes'] ?? null,
                 ]);
 
                 Notification::make()
@@ -467,12 +480,12 @@ class Agenda extends Page
 
                 $agenda->update([
                     'paciente_id' => $data['paciente_id'] ?: null,
-                    'nome_paciente' => $data['nome_paciente'] ?: null,
-                    'whatsapp_paciente' => $data['whatsapp_paciente'] ?: null,
+                    'nome_paciente' => $data['nome_paciente'] ?? null,
+                    'whatsapp_paciente' => $data['whatsapp_paciente'] ?? null,
                     'data_inicio' => $dataInicio,
                     'data_fim' => $dataFim,
                     'status' => $data['status'],
-                    'observacoes' => $data['observacoes'] ?: null,
+                    'observacoes' => $data['observacoes'] ?? null,
                 ]);
 
                 Notification::make()

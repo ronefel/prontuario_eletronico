@@ -264,17 +264,15 @@
                                     <div
                                         class="item-consulta {{ $classeStatus }} flex items-center justify-between gap-2">
                                         <div class="flex-grow min-w-0 py-1">
-                                            <div class="flex items-center gap-2 flex-wrap">
+                                            <div class="flex items-center gap-1 flex-wrap">
                                                 {{-- Horário Específico --}}
-                                                <span
-                                                    class="font-extrabold text-primary-700 dark:text-primary-400 whitespace-nowrap">
-                                                    até
-                                                    {{ $consulta->data_fim->format('H:i') }}
+                                                <span class="text-primary-700 dark:text-primary-400 whitespace-nowrap">
+                                                    {{ $consulta->data_inicio->format('H:i') }}-{{ $consulta->data_fim->format('H:i') }}
                                                 </span>
 
                                                 {{-- Nome do Paciente --}}
                                                 <span
-                                                    class="font-bold text-gray-900 dark:text-white truncate max-w-[140px] sm:max-w-[250px]"
+                                                    class="font-bold text-gray-900 dark:text-white truncate max-w-[136px] sm:max-w-[250px]"
                                                     title="{{ $consulta->obter_nome_paciente }}">
                                                     {{ $consulta->obter_nome_paciente }}
                                                 </span>
@@ -286,7 +284,7 @@
                                                         Novo
                                                     </span>
                                                 @else
-                                                    <a href="{{ route('filament.admin.resources.pacientes.edit', ['record' => $consulta->paciente_id]) }}"
+                                                    <a href="{{ route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $consulta->paciente_id]) }}"
                                                         target="_blank"
                                                         class="inline-flex items-center gap-0.5 text-[9px] font-medium text-primary-600 hover:underline"
                                                         title="Ver Prontuário">
@@ -352,7 +350,8 @@
                             @elseif (!empty($slot['continua_consulta']))
                                 {{-- Slot ocupado por continuação de consulta --}}
                                 <div class="text-gray-500 dark:text-gray-400 select-none">
-                                    <span class="text-xs font-semibold">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 italic ml-2">
+                                        {{ $slot['continua_consulta']->data_fim->format('H:i') }}
                                         {{ $slot['continua_consulta']->obter_nome_paciente }}
                                     </span>
                                 </div>
