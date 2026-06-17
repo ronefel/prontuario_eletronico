@@ -3,9 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\AgendaConfiguracao;
-use App\Services\GoogleCalendarService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -125,35 +123,6 @@ class AgendaConfiguracoes extends Page
                                     ->columnSpan(2),
                             ])
                             ->columnSpan(2),
-
-                        Fieldset::make('Integração com o Google Calendar')
-                            ->schema([
-                                TextInput::make('client_id')
-                                    ->label('Google Client ID')
-                                    ->placeholder('Insira o Client ID da API do Google')
-                                    ->columnSpan(2),
-
-                                TextInput::make('client_secret')
-                                    ->label('Google Client Secret')
-                                    ->placeholder('Insira o Client Secret da API do Google')
-                                    ->password()
-                                    ->revealable()
-                                    ->columnSpan(2),
-
-                                Placeholder::make('redirect_uri_informativo')
-                                    ->label('URI de Redirecionamento do Google OAuth')
-                                    ->content(url('/google/calendar/callback'))
-                                    ->helperText('Copie esta URL exata e cole no campo "URIs de redirecionamento autorizadas" nas credenciais da sua API no Google Cloud Console.')
-                                    ->columnSpan(2),
-
-                                TextInput::make('calendario_id')
-                                    ->label('ID do Calendário')
-                                    ->default('primary')
-                                    ->helperText('Utilize "primary" para a agenda principal.')
-                                    ->required()
-                                    ->columnSpan(2),
-                            ])
-                            ->columnSpan(2),
                     ]),
                 ])
                     ->livewireSubmitHandler('salvar')
@@ -187,44 +156,5 @@ class AgendaConfiguracoes extends Page
     public function getRecord(): AgendaConfiguracao
     {
         return AgendaConfiguracao::obterConfiguracao();
-    }
-
-    /**
-     * Inicia o fluxo de conexão OAuth 2.0 com o Google.
-     */
-    public function conectarGoogle(GoogleCalendarService $servico)
-    {
-        $url = $servico->obterUrlAutorizacao();
-
-        if (empty($url)) {
-            Notification::make()
-                ->danger()
-                ->title('Erro de Configuração')
-                ->body('Certifique-se de salvar as credenciais de Client ID e URI de Redirecionamento antes de conectar.')
-                ->send();
-
-            return;
-        }
-
-        return redirect()->away($url);
-    }
-
-    /**
-     * Desconecta o Google Calendar limpando os tokens do banco.
-     */
-    public function desconectarGoogle()
-    {
-        $configuracao = $this->getRecord();
-        $configuracao->update([
-            'token_acesso' => null,
-            'token_atualizacao' => null,
-            'token_expira_em' => null,
-        ]);
-
-        Notification::make()
-            ->success()
-            ->title('Desconectado!')
-            ->body('A integração com o Google Calendar foi removida com sucesso.')
-            ->send();
     }
 }

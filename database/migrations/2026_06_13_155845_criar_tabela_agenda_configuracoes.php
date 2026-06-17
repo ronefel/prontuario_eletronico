@@ -13,13 +13,6 @@ return new class extends Migration
     {
         Schema::create('agenda_configuracoes', function (Blueprint $table) {
             $table->id();
-            $table->string('client_id')->nullable();
-            $table->string('client_secret')->nullable();
-            $table->string('redirect_uri')->nullable();
-            $table->string('calendario_id')->nullable()->default('primary');
-            $table->text('token_acesso')->nullable();
-            $table->text('token_atualizacao')->nullable();
-            $table->dateTime('token_expira_em')->nullable();
             
             // Novas configurações de atendimento
             $table->string('hora_inicio')->default('08:00');

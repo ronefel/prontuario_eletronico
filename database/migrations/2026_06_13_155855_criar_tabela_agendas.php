@@ -23,7 +23,6 @@ return new class extends Migration
             $table->dateTime('data_fim');
             $table->string('status')->default('agendado');
             $table->text('observacoes')->nullable();
-            $table->string('google_evento_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

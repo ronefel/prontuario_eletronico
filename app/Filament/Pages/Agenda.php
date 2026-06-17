@@ -32,6 +32,8 @@ class Agenda extends Page
 
     protected string $view = 'filament.pages.agenda';
 
+    public string $tz;
+
     public string $dataSelecionada;
 
     public int $mesSelecionado;
@@ -40,9 +42,10 @@ class Agenda extends Page
 
     public function mount()
     {
-        $this->dataSelecionada = now()->format('Y-m-d');
-        $this->mesSelecionado = now()->month;
-        $this->anoSelecionado = now()->year;
+        $this->tz = Auth::user()->timezone;
+        $this->dataSelecionada = now($this->tz)->format('Y-m-d');
+        $this->mesSelecionado = now($this->tz)->month;
+        $this->anoSelecionado = now($this->tz)->year;
     }
 
     public function getMaxContentWidth(): Width
@@ -265,7 +268,7 @@ class Agenda extends Page
         $contagemPorDia = $this->obterContagemConsultasPorDia();
         $configuracao = AgendaConfiguracao::obterConfiguracao();
         $limiteDia = $configuracao->obterLimiteDia();
-        $hoje = now()->format('Y-m-d');
+        $hoje = now($this->tz)->format('Y-m-d');
 
         for ($dia = 1; $dia <= $diasNoMes; $dia++) {
             $dataCompleta = Carbon::create($this->anoSelecionado, $this->mesSelecionado, $dia)->format('Y-m-d');
@@ -388,7 +391,9 @@ class Agenda extends Page
     public function criarAgendamentoAction(): Action
     {
         return Action::make('criarAgendamento')
-            ->label('Novo Agendamento')
+            ->label('+')
+            ->tooltip('Novo Agendamento')
+            ->size('sm')
             ->modalHeading('Agendar Consulta')
             ->modalWidth('lg')
             ->fillForm(function (array $arguments) {
@@ -398,7 +403,7 @@ class Agenda extends Page
                 }
                 [$hora, $minuto] = explode(':', $horaString);
 
-                $dataInicio = Carbon::parse($this->dataSelecionada, Auth::user()->timezone)
+                $dataInicio = Carbon::parse($this->dataSelecionada, $this->tz)
                     ->setTime((int) $hora, (int) $minuto)
                     ->setTimezone(config('app.timezone'));
 

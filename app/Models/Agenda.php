@@ -15,7 +15,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon $data_fim
  * @property string $status
  * @property string|null $observacoes
- * @property string|null $google_evento_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -37,7 +36,6 @@ class Agenda extends BaseModel
         'data_fim',
         'status',
         'observacoes',
-        'google_evento_id',
     ];
 
     protected $casts = [

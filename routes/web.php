@@ -30,13 +30,10 @@ Route::get('/files/{name}', [FileController::class, 'serve'])
     ->middleware('auth')
     ->name('files.serve');
 use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\GoogleAutenticacaoController;
 
 Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
     ->middleware('auth')
     ->name('inventario.print');
 
-Route::get('/google/calendar/callback', [GoogleAutenticacaoController::class, 'callback'])
-    ->middleware('auth')
-    ->name('google.calendar.callback');
+
 

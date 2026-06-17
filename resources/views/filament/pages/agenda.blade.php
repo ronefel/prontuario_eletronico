@@ -3,8 +3,6 @@
         .grade-horaria-container {
             display: block;
             width: 100%;
-            height: 600px;
-            overflow-y: auto;
             box-sizing: border-box;
         }
 
@@ -51,7 +49,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 6px;
         }
 
         .botao-agendar-rapido {
@@ -111,14 +108,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
             border-radius: 0px;
             font-size: 12px;
             font-weight: 500;
             transition: all 0.2s ease;
             width: 100%;
-            min-height: 29px;
-            padding: 4px 8px;
+            min-height: 32px;
+            padding-left: 8px;
         }
     </style>
 
@@ -133,17 +130,13 @@
             <div>
                 {{-- Cabeçalho do Mês --}}
                 <div class="flex items-center justify-between">
-                    <button type="button" wire:click="mesAnterior"
-                        class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all">
-                        <x-heroicon-s-chevron-left class="h-4 w-4" />
-                    </button>
+                    <x-filament::icon-button wire:click="mesAnterior" size="sm" color="gray"
+                        icon="heroicon-o-chevron-left" />
                     <h2 class="text-sm font-bold text-gray-800 dark:text-white">
                         {{ $this->obterNomeMes() }}
                     </h2>
-                    <button type="button" wire:click="proximoMes"
-                        class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all">
-                        <x-heroicon-s-chevron-right class="h-4 w-4" />
-                    </button>
+                    <x-filament::icon-button wire:click="proximoMes" size="sm" color="gray"
+                        icon="heroicon-o-chevron-right" />
                 </div>
 
                 {{-- Dias da Semana --}}
@@ -182,7 +175,7 @@
                                     @endphp
                                     <x-filament::button wire:click="selecionarData('{{ $dia['data'] }}')"
                                         :color="$corBotao" :outlined="$outlinedBotao" size="sm" :loading-indicator="false"
-                                        :badge="$dia['total_consultas'] > 0 ? $dia['total_consultas'] : null" badge-color="gray" style="width: 38px;">
+                                        :badge="$dia['total_consultas'] > 0 ? $dia['total_consultas'] : null" badge-color="gray" style="width: 32px;">
                                         {{ $dia['numero'] }}
                                     </x-filament::button>
                                 @endif
@@ -214,7 +207,7 @@
             style="flex: 2 1 500px; min-width: 300px;">
             {{-- Cabeçalho da Lista --}}
             <div
-                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-2 border-b border-gray-100 dark:border-gray-700">
+                class="flex flex-row items-center justify-between gap-4 p-2 border-b border-gray-100 dark:border-gray-700">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                         {{ \Carbon\Carbon::parse($dataSelecionada)->translatedFormat('d \d\e F \d\e Y') }}
@@ -243,7 +236,7 @@
                     <div class="linha-horaria">
                         {{-- Horário Lateral --}}
                         <div class="coluna-hora">
-                            <span class="text-xs font-bold text-gray-400">
+                            <span class="text-xs font-bold">
                                 {{ $horaSlot }}
                             </span>
                         </div>
@@ -270,18 +263,18 @@
 
                                     <div
                                         class="item-consulta {{ $classeStatus }} flex items-center justify-between gap-2">
-                                        <div class="flex-grow min-w-0">
+                                        <div class="flex-grow min-w-0 py-1">
                                             <div class="flex items-center gap-2 flex-wrap">
                                                 {{-- Horário Específico --}}
                                                 <span
                                                     class="font-extrabold text-primary-700 dark:text-primary-400 whitespace-nowrap">
-                                                    {{ $consulta->data_inicio->format('H:i') }} -
+                                                    até
                                                     {{ $consulta->data_fim->format('H:i') }}
                                                 </span>
 
                                                 {{-- Nome do Paciente --}}
                                                 <span
-                                                    class="font-bold text-gray-900 dark:text-white truncate max-w-[150px] sm:max-w-[250px]"
+                                                    class="font-bold text-gray-900 dark:text-white truncate max-w-[140px] sm:max-w-[250px]"
                                                     title="{{ $consulta->obter_nome_paciente }}">
                                                     {{ $consulta->obter_nome_paciente }}
                                                 </span>
@@ -314,7 +307,7 @@
 
                                             {{-- Observação em linha própria abaixo --}}
                                             @if (!empty($consulta->observacoes))
-                                                <div class="text-[11px] text-gray-500 dark:text-gray-400 italic mt-0.5 break-words whitespace-normal"
+                                                <div class="text-[11px] text-gray-500 dark:text-gray-400 italic break-words whitespace-normal"
                                                     title="{{ $consulta->observacoes }}">
                                                     {{ $consulta->observacoes }}
                                                 </div>

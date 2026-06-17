@@ -56,7 +56,5 @@ class AppServiceProvider extends ServiceProvider
             $datePicker->timezone(config('app.timezone'));
         });
 
-        // Registro do Observer para o model de Agenda
-        \App\Models\Agenda::observe(\App\Observers\AgendaObserver::class);
     }
 }

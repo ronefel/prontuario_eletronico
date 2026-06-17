@@ -4,13 +4,6 @@ namespace App\Models;
 
 /**
  * @property int $id
- * @property string|null $client_id
- * @property string|null $client_secret
- * @property string|null $redirect_uri
- * @property string|null $calendario_id
- * @property string|null $token_acesso
- * @property string|null $token_atualizacao
- * @property \Illuminate\Support\Carbon|null $token_expira_em
  * @property string $hora_inicio
  * @property string $hora_fim
  * @property int $intervalo
@@ -26,13 +19,6 @@ class AgendaConfiguracao extends BaseModel
     protected $table = 'agenda_configuracoes';
 
     protected $fillable = [
-        'client_id',
-        'client_secret',
-        'redirect_uri',
-        'calendario_id',
-        'token_acesso',
-        'token_atualizacao',
-        'token_expira_em',
         'hora_inicio',
         'hora_fim',
         'intervalo',
@@ -43,7 +29,6 @@ class AgendaConfiguracao extends BaseModel
     ];
 
     protected $casts = [
-        'token_expira_em' => 'datetime',
         'intervalo' => 'integer',
         'limite_consultas_dia' => 'integer',
     ];
@@ -53,30 +38,12 @@ class AgendaConfiguracao extends BaseModel
      */
     public static function obterConfiguracao(): self
     {
-        $configuracao = self::firstOrCreate([], [
-            'calendario_id' => 'primary',
+        return self::firstOrCreate([], [
             'hora_inicio' => '08:00',
             'hora_fim' => '18:00',
             'intervalo' => 30,
             'modo_limite' => 'slots',
         ]);
-
-        $urlCallback = url('/google/calendar/callback');
-        if ($configuracao->redirect_uri !== $urlCallback) {
-            $configuracao->updateQuietly([
-                'redirect_uri' => $urlCallback,
-            ]);
-        }
-
-        return $configuracao;
-    }
-
-    /**
-     * Verifica se o sistema possui conexão autenticada (refresh token ativo).
-     */
-    public function estaConectado(): bool
-    {
-        return ! empty($this->token_atualizacao);
     }
 
     /**
