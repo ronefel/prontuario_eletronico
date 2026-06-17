@@ -150,7 +150,7 @@ class Lote extends BaseModel
 
     public function getQuantidadeAtualAttribute()
     {
-        return $this->movimentacoes()->sum('quantidade');
+        return $this->movimentacoes_sum_quantidade ?? $this->movimentacoes()->sum('quantidade') ?? 0;
     }
 
     public function getDisplayNameAttribute(): string

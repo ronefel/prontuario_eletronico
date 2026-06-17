@@ -25,9 +25,16 @@ class ValidadeProximaWidget extends TableWidget
     {
         return Cache::remember('validade_proxima_widget', 60, fn () => Lote::query()
             ->with('produto')
+            ->withSum('movimentacoes', 'quantidade')
             ->where('status', 'ativo')
             ->whereNotNull('data_validade')
             ->where('data_validade', '<=', Carbon::now()->addDays(30))
+            ->whereRaw('(
+                SELECT COALESCE(SUM(quantidade), 0)
+                FROM movimentacoes
+                WHERE movimentacoes.lote_id = lotes.id
+                AND movimentacoes.deleted_at IS NULL
+            ) > 0')
             ->get());
     }
 
@@ -41,7 +48,7 @@ class ValidadeProximaWidget extends TableWidget
         return $table
             ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-cube class="h-5 w-5" /> Lotes Vencidos ou com Validade Próxima</div>')))
             ->query(
-                $this->getData()->toQuery()->with('produto')
+                $this->getData()->toQuery()->with('produto')->withSum('movimentacoes', 'quantidade')
             )
             ->columns([
                 TextColumn::make('numero_lote')

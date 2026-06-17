@@ -23,11 +23,13 @@ class AgendaConfiguracoes extends Page
 {
     protected string $view = 'filament.pages.agenda-configuracoes';
 
-    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCog;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $title = 'Configurações da Agenda';
+    protected static ?string $title = 'Config. Agenda';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
+    protected static ?int $navigationSort = 403;
 
     public ?array $dados = [];
 
@@ -143,7 +145,7 @@ class AgendaConfiguracoes extends Page
     {
         $dadosForm = $this->form->getState();
         $configuracao = $this->getRecord();
-        
+
         $configuracao->update($dadosForm);
 
         Notification::make()

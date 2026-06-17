@@ -27,6 +27,8 @@ class Agenda extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
+    protected static ?int $navigationSort = 0;
+
     protected static ?string $title = '';
 
     protected static ?string $navigationLabel = 'Agenda';
