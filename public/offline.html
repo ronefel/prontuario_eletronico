@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sem Conexão - Prontuário Eletrônico</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glow Backgrounds */
+        .glow-bg {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(11, 15, 25, 0) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            top: -150px;
+            left: -150px;
+        }
+
+        .glow-2 {
+            bottom: -150px;
+            right: -150px;
+        }
+
+        /* Main Container Card */
+        .container {
+            position: relative;
+            z-index: 10;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Animated Custom Wi-Fi Offline Icon */
+        .icon-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wifi-icon {
+            width: 80px;
+            height: 80px;
+            fill: none;
+            stroke: var(--text-secondary);
+            stroke-width: 4;
+            stroke-linecap: round;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .wifi-slash {
+            stroke: #ef4444;
+            stroke-width: 5;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawSlash 1.2s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #ffffff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        /* Interactive Button */
+        .btn-retry {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-retry:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-retry:active {
+            transform: translateY(1px);
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.03);
+                opacity: 1;
+                filter: drop-shadow(0 0 8px rgba(156, 163, 175, 0.3));
+            }
+        }
+
+        @keyframes drawSlash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Connection Badge status */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <div class="container">
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            Sem internet
+        </div>
+
+        <div class="icon-container">
+            <svg class="wifi-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Wi-Fi Waves -->
+                <path d="M1 8a22 22 0 0 1 22 0" />
+                <path d="M5 12.5a13 13 0 0 1 14 0" />
+                <path d="M9 17a6.5 6.5 0 0 1 6 0" />
+                <circle cx="12" cy="21" r="1" fill="currentColor" />
+                <!-- Slash indicating no connection -->
+                <line class="wifi-slash" x1="3" y1="21" x2="21" y2="3" />
+            </svg>
+        </div>
+
+        <h1>Conectividade Interrompida</h1>
+        <p>Não foi possível carregar esta página porque o dispositivo está desconectado. Verifique sua conexão de rede e tente novamente.</p>
+
+        <button class="btn-retry" onclick="recarregarPagina()">
+            Tentar Novamente
+        </button>
+    </div>
+
+    <script>
+        function recarregarPagina() {
+            const btn = document.querySelector('.btn-retry');
+            btn.textContent = 'Verificando conexão...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    window.location.reload();
+                } else {
+                    btn.textContent = 'Tentar Novamente';
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                    
+                    // Simple toast or effect to show still offline
+                    btn.style.animation = 'none';
+                    btn.offsetHeight; /* trigger reflow */
+                    btn.style.animation = 'pulse 0.3s ease-in-out';
+                }
+            }, 600);
+        }
+
+        // Auto-reloads when connection recovers
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
