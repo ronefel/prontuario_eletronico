@@ -412,7 +412,7 @@ class Agenda extends Page
             ->modalHeading('Agendar Consulta')
             ->modalWidth('lg')
             ->fillForm(function (array $arguments) {
-                $horaString = $arguments['hora'] ?? now()->format('H:i');
+                $horaString = $arguments['hora'] ?? now($this->tz)->format('H:i');
                 if (is_numeric($horaString)) {
                     $horaString = sprintf('%02d:00', $horaString);
                 }

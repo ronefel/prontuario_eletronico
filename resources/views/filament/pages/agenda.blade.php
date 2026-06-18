@@ -126,7 +126,7 @@
 
         {{-- Coluna 1: Calendário de Navegação (Esquerda / Superior) --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-gray-700 flex flex-col justify-between h-fit w-full"
-            style="flex: 1 1 290px; max-width: 350px; min-width: 260px;">
+            style="flex: 1 1 290px; max-width: 350px; min-width: 310px;">
             <div>
                 {{-- Cabeçalho do Mês --}}
                 <div class="flex items-center justify-between">
