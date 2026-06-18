@@ -203,7 +203,7 @@
         </div>
 
         {{-- Coluna 2: Lista de Consultas (Direita / Inferior) --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col min-h-[400px] w-full"
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col w-full"
             style="flex: 2 1 500px; min-width: 300px;">
             {{-- Cabeçalho da Lista --}}
             <div
@@ -296,7 +296,7 @@
                                                 {{-- Whatsapp --}}
                                                 @if (!empty($consulta->obter_whatsapp_paciente))
                                                     <a href="https://wa.me/55{{ $limpoWhatsapp }}" target="_blank"
-                                                        class="text-success-600 hover:text-success-700 flex items-center gap-0.5 font-semibold text-[11px]"
+                                                        class="text-success-600 flex items-center gap-0.5 font-semibold text-[11px] hover:underline"
                                                         title="Enviar mensagem no WhatsApp">
                                                         <span>{{ $consulta->obter_whatsapp_paciente }}</span>
                                                     </a>
