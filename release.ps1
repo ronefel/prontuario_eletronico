@@ -1,11 +1,26 @@
 # Release Automation Script
 # Este script automatiza o processo de verificacao antes de um fechamento de versao.
 
+# Detecta se deve usar o WSL para rodar os comandos PHP
+$useWsl = $false
+if ($env:OS -like "*Windows*" -and (Get-Command wsl -ErrorAction SilentlyContinue) -and -not (Get-Command php -ErrorAction SilentlyContinue)) {
+    $useWsl = $true
+    Write-Host "Ambiente Windows detectado (sem PHP local). Executando comandos dentro do WSL..." -ForegroundColor Gray
+}
+
+function Run-PhpCommand ([string]$cmd) {
+    if ($useWsl) {
+        Invoke-Expression "wsl $cmd"
+    } else {
+        Invoke-Expression $cmd
+    }
+}
+
 Write-Host "Iniciando processo de verificacao de release..." -ForegroundColor Cyan
 
 # 1. Executar Testes
 Write-Host "Executando testes (Pest)..." -ForegroundColor Yellow
-php artisan test
+Run-PhpCommand "php artisan test"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERRO: Os testes falharam. Corrija-os antes de fechar a versao." -ForegroundColor Red
     exit $LASTEXITCODE
@@ -13,7 +28,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # 2. Executar Analise Estatica
 Write-Host "Executando analise estatica (PHPStan)..." -ForegroundColor Yellow
-./vendor/bin/phpstan analyze --memory-limit=2G
+Run-PhpCommand "./vendor/bin/phpstan analyze --memory-limit=2G"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERRO: A analise estatica falhou. Corrija os erros antes de fechar a versao." -ForegroundColor Red
     exit $LASTEXITCODE
@@ -21,7 +36,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # 3. Verificar Estilo de Codigo
 Write-Host "Verificando estilo de codigo (Pint)..." -ForegroundColor Yellow
-./vendor/bin/pint --test
+Run-PhpCommand "./vendor/bin/pint --test"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "AVISO: O estilo de codigo nao esta padronizado. Execute './vendor/bin/pint' para corrigir." -ForegroundColor Yellow
 }
