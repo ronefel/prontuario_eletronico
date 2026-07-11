@@ -239,29 +239,41 @@
     </div>
 
     <script>
-        function recarregarPagina() {
+        async function recarregarPagina() {
             const btn = document.querySelector('.btn-retry');
             btn.textContent = 'Verificando conexão...';
             btn.style.opacity = '0.7';
             btn.disabled = true;
 
-            setTimeout(() => {
-                if (navigator.onLine) {
-                    window.location.reload();
-                } else {
-                    btn.textContent = 'Tentar Novamente';
-                    btn.style.opacity = '1';
-                    btn.disabled = false;
-                    
-                    // Simple toast or effect to show still offline
-                    btn.style.animation = 'none';
-                    btn.offsetHeight; /* trigger reflow */
-                    btn.style.animation = 'pulse 0.3s ease-in-out';
-                }
-            }, 600);
+            try {
+                // Tenta fazer uma requisição rápida ao servidor (ping) com timeout de 3 segundos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                await fetch('/favicon.ico', {
+                    method: 'HEAD',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // Se a requisição obteve resposta (servidor online), recarrega a página
+                window.location.reload();
+            } catch (error) {
+                // Se falhou (sem conexão de rede ou servidor fora do ar)
+                btn.textContent = 'Tentar Novamente';
+                btn.style.opacity = '1';
+                btn.disabled = false;
+                
+                // Efeito visual para indicar que continua sem conexão
+                btn.style.animation = 'none';
+                btn.offsetHeight; /* trigger reflow */
+                btn.style.animation = 'pulse 0.3s ease-in-out';
+            }
         }
 
-        // Auto-reloads when connection recovers
+        // Recarrega automaticamente quando o navegador dispara o evento de online
         window.addEventListener('online', () => {
             window.location.reload();
         });

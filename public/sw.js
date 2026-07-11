@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontuario-pwa-v1';
+const CACHE_NAME = 'prontuario-pwa-v1.0.1';
 const OFFLINE_URL = '/offline.html';
 
 // Arquivos para cachear imediatamente durante a instalação
@@ -49,16 +49,39 @@ self.addEventListener('fetch', (event) => {
     // Estratégia para navegação (páginas HTML)
     if (request.mode === 'navigate') {
         event.respondWith(
-            fetch(request).catch(() => {
-                // Se o fetch falhar (sem internet), retorna o fallback offline
-                return caches.match(OFFLINE_URL);
+            fetch(request).catch(async () => {
+                try {
+                    const cache = await caches.open(CACHE_NAME);
+                    const cachedResponse = await cache.match(OFFLINE_URL);
+                    if (cachedResponse) {
+                        // Modifica a resposta para evitar que o navegador cacheie o fallback offline sob a URL requisitada
+                        const newHeaders = new Headers(cachedResponse.headers);
+                        newHeaders.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+                        newHeaders.set('Pragma', 'no-cache');
+                        newHeaders.set('Expires', '0');
+
+                        return new Response(cachedResponse.body, {
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: newHeaders
+                        });
+                    }
+                } catch (e) {
+                    console.error('Erro ao servir página offline do cache:', e);
+                }
+
+                // Fallback de contingência caso o cache falhe
+                return new Response('Sem conexão com a internet.', {
+                    status: 503,
+                    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                });
             })
         );
         return;
     }
 
     // Estratégia para assets estáticos (CSS, JS, Imagens, Fontes)
-    const isStaticAsset = 
+    const isStaticAsset =
         url.pathname.includes('/build/assets/') || // Pasta de builds do Vite
         url.pathname.endsWith('.css') ||
         url.pathname.endsWith('.js') ||
