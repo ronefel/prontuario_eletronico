@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -10,9 +11,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $nome
  * @property int $categoria_testador_id
  * @property bool $ativo
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\CategoriaTestador $categoria
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property CategoriaTestador $categoria
  * @method static \Database\Factories\TestadorFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Testador newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Testador newQuery()

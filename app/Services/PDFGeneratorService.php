@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
 
 class PDFGeneratorService
@@ -140,7 +141,7 @@ class PDFGeneratorService
 
         // Adiciona o conteúdo HTML e o CSS
         $stylesheet = file_get_contents(public_path('vendor/ckeditor/document-content.css'));
-        $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+        $mpdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
 
         $htmlContent = $this->replaceVariables($htmlContent);
         $htmlContent = $this->replaceHr($htmlContent);

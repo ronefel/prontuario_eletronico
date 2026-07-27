@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\DatetimeWithTimezone;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -17,12 +18,12 @@ use Illuminate\Support\Facades\Auth;
  * @property int $user_id
  * @property string|null $documento
  * @property string|null $valor_unitario
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \App\Models\Lote $lote
- * @property \App\Models\Produto $produto
- * @property \App\Models\User $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Lote $lote
+ * @property Produto $produto
+ * @property User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Movimentacao onlyTrashed()

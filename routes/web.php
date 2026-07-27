@@ -34,6 +34,3 @@ use App\Http\Controllers\InventarioController;
 Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
     ->middleware('auth')
     ->name('inventario.print');
-
-
-

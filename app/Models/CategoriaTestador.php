@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
  * @property string|null $nota
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $ordem
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Testador> $testadores
+ * @property Collection<int, Testador> $testadores
  * @method static \Database\Factories\CategoriaTestadorFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CategoriaTestador newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CategoriaTestador newQuery()

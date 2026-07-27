@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use DateTime;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
- * @property \Illuminate\Support\Carbon $nascimento
+ * @property Carbon $nascimento
  * @property string $sexo
  * @property string|null $tiposanguineo
  * @property string $cpf
@@ -21,11 +23,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $bairro
  * @property int|null $cidade_id
  * @property string|null $observacao
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\Cidade|null $cidade
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exame> $exames
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Prontuario> $prontuarios
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Cidade|null $cidade
+ * @property Collection<int, Exame> $exames
+ * @property Collection<int, Prontuario> $prontuarios
  * @method static \Database\Factories\PacienteFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newQuery()

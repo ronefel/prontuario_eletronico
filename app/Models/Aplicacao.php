@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Casts\DatetimeWithTimezone;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -11,13 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property mixed $data_aplicacao
  * @property string|null $observacoes
  * @property string $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\AplicacaoLote> $itens
- * @property \App\Models\AplicacaoLote|null $pivot
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
- * @property \App\Models\Tratamento $tratamento
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Collection<int, AplicacaoLote> $itens
+ * @property AplicacaoLote|null $pivot
+ * @property Collection<int, Lote> $lotes
+ * @property Tratamento $tratamento
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Aplicacao newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Aplicacao newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Aplicacao onlyTrashed()

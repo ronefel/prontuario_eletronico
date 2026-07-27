@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('agenda_configuracoes', function (Blueprint $table) {
             $table->id();
-            
+
             // Novas configurações de atendimento
             $table->string('hora_inicio')->default('08:00');
             $table->string('hora_fim')->default('18:00');

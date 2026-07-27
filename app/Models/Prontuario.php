@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\DatetimeWithTimezone;
 use App\Enums\ProntuarioTipoEnum;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -13,9 +14,9 @@ use Illuminate\Support\Facades\Storage;
  * @property mixed $data
  * @property ProntuarioTipoEnum|null $tipo
  * @property array<array-key, mixed>|null $arquivos
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\Paciente|null $paciente
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Paciente|null $paciente
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prontuario query()

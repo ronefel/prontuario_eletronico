@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+
 /**
  * @property string $key
  * @property string $label
  * @property string|null $value
  * @property array<array-key, mixed>|null $attributes
  * @property string $type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Setting query()
