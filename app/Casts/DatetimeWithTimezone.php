@@ -11,9 +11,13 @@ class DatetimeWithTimezone implements CastsAttributes
 {
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
+        if (is_null($value)) {
+            return null;
+        }
+
         $date = Carbon::make($value);
 
-        if (Auth::check()) {
+        if ($date && Auth::check() && Auth::user()?->timezone) {
             $date->setTimezone(Auth::user()->timezone);
         }
 
@@ -22,7 +26,11 @@ class DatetimeWithTimezone implements CastsAttributes
 
     public function set(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if (Auth::check()) {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if (Auth::check() && Auth::user()?->timezone) {
             return Carbon::parse($value)->setTimezone('UTC');
         }
 

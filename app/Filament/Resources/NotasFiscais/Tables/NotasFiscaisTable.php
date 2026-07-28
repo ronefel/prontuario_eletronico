@@ -5,6 +5,8 @@ namespace App\Filament\Resources\NotasFiscais\Tables;
 use App\Models\NotaFiscal;
 use App\Services\NotaFiscal\EmissorNfseService;
 use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -61,7 +63,7 @@ class NotasFiscaisTable
 
                 TextColumn::make('data_emissao_nfse')
                     ->label('Data Emissão')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i', timezone: auth()->user()?->timezone)
                     ->placeholder('-')
                     ->sortable(),
             ])
@@ -76,6 +78,9 @@ class NotasFiscaisTable
                     ]),
             ])
             ->recordActions([
+                ViewAction::make(),
+                EditAction::make()
+                    ->visible(fn (NotaFiscal $record): bool => $record->status === 'rascunho'),
                 Action::make('emitir')
                     ->label('Emitir NFS-e')
                     ->icon('heroicon-o-paper-airplane')
@@ -87,16 +92,26 @@ class NotasFiscaisTable
                             $emissor = app(EmissorNfseService::class);
                             $emissor->emitir($record);
 
-                            Notification::make()
-                                ->success()
-                                ->title('NFS-e Emitida com Sucesso!')
-                                ->body("Nota Fiscal de Serviço nº {$record->numero_nfse} autorizada.")
-                                ->send();
+                            if ($record->status === 'autorizada') {
+                                Notification::make()
+                                    ->success()
+                                    ->title('NFS-e Emitida com Sucesso!')
+                                    ->body("Nota Fiscal de Serviço nº {$record->numero_nfse} autorizada.")
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('NFS-e Rejeitada pela Prefeitura')
+                                    ->body($record->mensagem_erro ?? 'Erro no processamento da NFS-e.')
+                                    ->persistent()
+                                    ->send();
+                            }
                         } catch (\Throwable $e) {
                             Notification::make()
                                 ->danger()
                                 ->title('Falha na Emissão da NFS-e')
                                 ->body($e->getMessage())
+                                ->persistent()
                                 ->send();
                         }
                     }),

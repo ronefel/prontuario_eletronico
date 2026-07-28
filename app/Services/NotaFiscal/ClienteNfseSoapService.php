@@ -4,6 +4,7 @@ namespace App\Services\NotaFiscal;
 
 use App\Models\ConfiguracaoNotaFiscal;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class ClienteNfseSoapService
 {
@@ -67,8 +68,16 @@ class ClienteNfseSoapService
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
         // Se houver certificado A1 configurado, aplicar mTLS via cURL
+        $caminhoArquivoTemp = null;
         if ($configuracao->caminho_certificado) {
             $caminhoCert = storage_path('app/'.ltrim($configuracao->caminho_certificado, '/'));
+
+            if (! file_exists($caminhoCert) && Storage::exists($configuracao->caminho_certificado)) {
+                $caminhoArquivoTemp = storage_path('app/temp_cert_'.uniqid().'.pfx');
+                file_put_contents($caminhoArquivoTemp, Storage::get($configuracao->caminho_certificado));
+                $caminhoCert = $caminhoArquivoTemp;
+            }
+
             if (file_exists($caminhoCert)) {
                 curl_setopt($ch, CURLOPT_SSLCERT, $caminhoCert);
                 curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $configuracao->senha_certificado_descriptografada ?? '');
@@ -80,6 +89,10 @@ class ClienteNfseSoapService
         $erroCurl = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+        if ($caminhoArquivoTemp && file_exists($caminhoArquivoTemp)) {
+            @unlink($caminhoArquivoTemp);
+        }
 
         if ($erroCurl) {
             throw new Exception("Erro de comunicação cURL WebService: {$erroCurl}");

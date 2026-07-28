@@ -12,13 +12,13 @@ return new class extends Migration
             $table->id();
 
             // Dados da Empresa / Emitente
-            $table->string('cnpj', 14);
+            $table->string('cnpj', 20);
             $table->string('inscricao_municipal', 20)->nullable();
             $table->string('razao_social');
             $table->string('nome_fantasia')->nullable();
 
             // Endereço do Emitente
-            $table->string('cep', 8)->nullable();
+            $table->string('cep', 10)->nullable();
             $table->string('logradouro')->nullable();
             $table->string('numero', 10)->nullable();
             $table->string('complemento')->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->string('serie_rps', 5)->default('1');
             $table->unsignedBigInteger('ultimo_numero_rps')->default(0);
             $table->string('ambiente', 15)->default('homologacao'); // homologacao / producao
-            $table->string('url_webservice_homologacao')->nullable();
+            $table->string('url_webservice_homologacao')->default('https://homologacao.webiss.com.br/ws/nfse.asmx');
             $table->string('url_webservice_producao')->nullable();
 
             $table->timestamps();

@@ -62,7 +62,7 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->columnSpan(1),
 
                                 TextInput::make('inscricao_municipal')
-                                    ->label('Inscrição Municipal')
+                                    ->label('Inscrição Municipal (IM)')
                                     ->columnSpan(1),
 
                                 TextInput::make('razao_social')
@@ -77,12 +77,12 @@ class ConfiguracaoNotaFiscalPage extends Page
                                 TextInput::make('codigo_municipio_ibge')
                                     ->label('Código IBGE do Município')
                                     ->default('1100049')
-                                    ->helperText('Cacoal / RO = 1100049')
+                                    ->helperText('Código IBGE de Cacoal / RO = 1100049. Direciona o envio ao município correto.')
                                     ->required()
                                     ->columnSpan(1),
 
                                 TextInput::make('uf')
-                                    ->label('UF')
+                                    ->label('UF (Estado)')
                                     ->default('RO')
                                     ->maxLength(2)
                                     ->required()
@@ -95,27 +95,29 @@ class ConfiguracaoNotaFiscalPage extends Page
                                 Select::make('regime_especial_tributacao')
                                     ->label('Regime Especial de Tributação')
                                     ->options([
-                                        0 => 'Nenhum',
-                                        1 => 'Microempresa Municipal',
-                                        2 => 'Estimativa',
-                                        3 => 'Sociedade de Profissionais',
-                                        4 => 'Cooperativa',
-                                        5 => 'Microempresário Individual (MEI)',
-                                        6 => 'Microempresário e Empresa de Pequeno Porte (ME/EPP)',
+                                        0 => '0 - Nenhum',
+                                        1 => '1 - Microempresa Municipal',
+                                        2 => '2 - Estimativa',
+                                        3 => '3 - Sociedade de Profissionais',
+                                        4 => '4 - Cooperativa',
+                                        5 => '5 - Microempresário Individual (MEI)',
+                                        6 => '6 - Microempresário e EPP (ME/EPP)',
                                     ])
                                     ->default(0)
                                     ->required()
+                                    ->helperText('Enquadramento de regime especial conforme modelo conceitual ABRASF v2.02. Selecione "0 - Nenhum" se for tributado normalmente.')
                                     ->columnSpan(1),
 
                                 TextInput::make('item_lista_servico')
-                                    ->label('Item da Lista de Serviço (LC 116)')
+                                    ->label('Item da Lista de Serviço (LC 116/2003)')
                                     ->default('04.01')
-                                    ->helperText('Ex: 04.01 - Medicina e biomedicina')
+                                    ->helperText('Código do serviço da Lei Complementar 116 (Ex: 04.01 - Medicina e biomedicina, 04.03 - Enfermagem, 04.06 - Fisioterapia).')
                                     ->required()
                                     ->columnSpan(1),
 
                                 TextInput::make('codigo_tributacao_municipio')
                                     ->label('Código de Tributação Municipal')
+                                    ->helperText('Código específico da atividade no cadastro de receitas da Prefeitura de Cacoal (deixe em branco se for idêntico ao item da LC 116).')
                                     ->columnSpan(1),
 
                                 TextInput::make('aliquota_iss')
@@ -123,16 +125,19 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->numeric()
                                     ->default(2.00)
                                     ->required()
+                                    ->helperText('Alíquota percentual do ISSQN recolhido no município (ex: 2.00 para 2%).')
                                     ->columnSpan(1),
 
                                 Toggle::make('optante_simples_nacional')
-                                    ->label('Optante Simples Nacional')
+                                    ->label('Optante do Simples Nacional')
                                     ->default(true)
+                                    ->helperText('Se ativado, gera a tag <OptanteSimplesNacional>1</OptanteSimplesNacional> no XML do RPS.')
                                     ->columnSpan(1),
 
                                 Toggle::make('incentivador_cultural')
                                     ->label('Incentivador Cultural')
                                     ->default(false)
+                                    ->helperText('Se ativado, gera a tag <IncentivoFiscal>1</IncentivoFiscal> no XML do RPS.')
                                     ->columnSpan(1),
                             ])
                             ->columnSpan(2),
@@ -141,8 +146,9 @@ class ConfiguracaoNotaFiscalPage extends Page
                             ->schema([
                                 FileUpload::make('caminho_certificado')
                                     ->label('Arquivo do Certificado A1 (.pfx / .p12)')
-                                    ->directory('certificados')
-                                    ->acceptedFileTypes(['application/x-pkcs12', 'application/x-pkcs12-certificate', 'application/octet-stream'])
+                                    ->acceptedFileTypes(['.pfx', '.p12', 'application/x-pkcs12', 'application/x-pkcs12-certificate', 'application/pkcs12', 'application/octet-stream'])
+                                    ->disk('database')
+                                    ->preserveFilenames()
                                     ->columnSpan(1),
 
                                 TextInput::make('senha_certificado')
@@ -158,17 +164,19 @@ class ConfiguracaoNotaFiscalPage extends Page
                                 Select::make('ambiente')
                                     ->label('Ambiente de Emissão')
                                     ->options([
-                                        'homologacao' => 'Homologação (Testes)',
-                                        'producao' => 'Produção (Real)',
+                                        'homologacao' => 'Homologação (Ambiente de Testes da Prefeitura)',
+                                        'producao' => 'Produção (Notas Reais com Valor Jurídico)',
                                     ])
                                     ->default('homologacao')
                                     ->required()
-                                    ->columnSpan(1),
+                                    ->helperText('Utilize "Homologação" para realizar testes sem gerar obrigação tributária real.')
+                                    ->columnSpan(2),
 
                                 TextInput::make('serie_rps')
                                     ->label('Série do RPS')
                                     ->default('1')
                                     ->required()
+                                    ->helperText('Identificação da série do RPS (geralmente 1 ou A).')
                                     ->columnSpan(1),
 
                                 TextInput::make('ultimo_numero_rps')
@@ -176,18 +184,19 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->numeric()
                                     ->default(0)
                                     ->required()
+                                    ->helperText('Número sequencial do último RPS emitido. O sistema incrementa esse valor automaticamente a cada nova nota.')
                                     ->columnSpan(1),
 
                                 TextInput::make('url_webservice_homologacao')
                                     ->label('URL WebService Homologação')
-                                    ->placeholder('https://...')
-                                    ->columnSpan(1),
+                                    ->default('https://homologacao.webiss.com.br/ws/nfse.asmx')
+                                    ->required()
+                                    ->columnSpan(2),
 
                                 TextInput::make('url_webservice_producao')
                                     ->label('URL WebService Produção')
-                                    ->placeholder('https://...')
                                     ->columnSpan(2),
-                            ])
+                            ])->columns(4)
                             ->columnSpan(2),
                     ]),
                 ])
@@ -224,7 +233,7 @@ class ConfiguracaoNotaFiscalPage extends Page
     {
         $config = ConfiguracaoNotaFiscal::first();
 
-        if (! $config) {
+        if (!$config) {
             $config = ConfiguracaoNotaFiscal::create([
                 'cnpj' => '00000000000191',
                 'razao_social' => 'Clínica Médica Exemplo',
@@ -239,6 +248,7 @@ class ConfiguracaoNotaFiscalPage extends Page
                 'serie_rps' => '1',
                 'ultimo_numero_rps' => 0,
                 'ambiente' => 'homologacao',
+                'url_webservice_homologacao' => 'https://homologacao.webiss.com.br/ws/nfse.asmx',
             ]);
         }
 

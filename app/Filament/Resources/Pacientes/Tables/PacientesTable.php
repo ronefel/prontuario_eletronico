@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pacientes\Tables;
 
+use App\Filament\Resources\NotasFiscais\NotaFiscalResource;
 use App\Models\Paciente;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -64,7 +65,7 @@ class PacientesTable
                     ->label('Gerar NFS-e')
                     ->icon('heroicon-o-document-text')
                     ->color('success')
-                    ->url(fn (Paciente $record): string => route('filament.admin.resources.notas-fiscais.create', ['paciente_id' => $record->id])),
+                    ->url(fn (Paciente $record): string => NotaFiscalResource::getUrl('create', ['paciente_id' => $record->id])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

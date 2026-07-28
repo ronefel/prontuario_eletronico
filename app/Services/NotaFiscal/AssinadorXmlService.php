@@ -5,6 +5,7 @@ namespace App\Services\NotaFiscal;
 use App\Models\ConfiguracaoNotaFiscal;
 use DOMDocument;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class AssinadorXmlService
 {
@@ -25,19 +26,24 @@ class AssinadorXmlService
             throw new Exception('Certificado digital não configurado.');
         }
 
-        $caminhoAbsolutoCertificado = storage_path('app/'.ltrim($configuracao->caminho_certificado, '/'));
+        $conteudoCertificado = null;
 
-        if (! file_exists($caminhoAbsolutoCertificado)) {
-            // Tentar como caminho direto
-            $caminhoAbsolutoCertificado = $configuracao->caminho_certificado;
-            if (! file_exists($caminhoAbsolutoCertificado)) {
-                throw new Exception("Arquivo de certificado digital não encontrado: {$configuracao->caminho_certificado}");
+        if (Storage::exists($configuracao->caminho_certificado)) {
+            $conteudoCertificado = Storage::get($configuracao->caminho_certificado);
+        } else {
+            $caminhoAbsoluto = storage_path('app/'.ltrim($configuracao->caminho_certificado, '/'));
+            if (file_exists($caminhoAbsoluto)) {
+                $conteudoCertificado = file_get_contents($caminhoAbsoluto);
+            } elseif (file_exists($configuracao->caminho_certificado)) {
+                $conteudoCertificado = file_get_contents($configuracao->caminho_certificado);
             }
         }
 
-        $senha = $configuracao->senha_certificado_descriptografada ?? '';
+        if (empty($conteudoCertificado)) {
+            throw new Exception("Arquivo de certificado digital não encontrado ou vazio: {$configuracao->caminho_certificado}");
+        }
 
-        $conteudoCertificado = file_get_contents($caminhoAbsolutoCertificado);
+        $senha = $configuracao->senha_certificado_descriptografada ?? '';
         $dadosCertificado = [];
 
         if (! openssl_pkcs12_read($conteudoCertificado, $dadosCertificado, $senha)) {
