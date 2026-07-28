@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\ConfiguracaoNotaFiscal;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -90,7 +91,7 @@ class ConfiguracaoNotaFiscalPage extends Page
                             ])
                             ->columnSpan(2),
 
-                        Fieldset::make('Parâmetros Fiscais (ABRASF v2.02)')
+                        Fieldset::make('Parâmetros Fiscais Gerais (ABRASF v2.02)')
                             ->schema([
                                 Select::make('regime_especial_tributacao')
                                     ->label('Regime Especial de Tributação')
@@ -105,27 +106,15 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ])
                                     ->default(0)
                                     ->required()
-                                    ->helperText('Enquadramento de regime especial conforme modelo conceitual ABRASF v2.02. Selecione "0 - Nenhum" se for tributado normalmente.')
-                                    ->columnSpan(1),
-
-                                TextInput::make('item_lista_servico')
-                                    ->label('Item da Lista de Serviço (LC 116/2003)')
-                                    ->default('04.01')
-                                    ->helperText('Código do serviço da Lei Complementar 116 (Ex: 04.01 - Medicina e biomedicina, 04.03 - Enfermagem, 04.06 - Fisioterapia).')
-                                    ->required()
-                                    ->columnSpan(1),
-
-                                TextInput::make('codigo_tributacao_municipio')
-                                    ->label('Código de Tributação Municipal')
-                                    ->helperText('Código específico da atividade no cadastro de receitas da Prefeitura de Cacoal (deixe em branco se for idêntico ao item da LC 116).')
+                                    ->helperText('Enquadramento de regime especial conforme modelo conceitual ABRASF v2.02.')
                                     ->columnSpan(1),
 
                                 TextInput::make('aliquota_iss')
-                                    ->label('Alíquota ISS (%)')
+                                    ->label('Alíquota Geral ISS (%)')
                                     ->numeric()
                                     ->default(2.00)
                                     ->required()
-                                    ->helperText('Alíquota percentual do ISSQN recolhido no município (ex: 2.00 para 2%).')
+                                    ->helperText('Alíquota percentual padrão do ISSQN recolhido no município (ex: 2.00 para 2%).')
                                     ->columnSpan(1),
 
                                 Toggle::make('optante_simples_nacional')
@@ -139,6 +128,70 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->default(false)
                                     ->helperText('Se ativado, gera a tag <IncentivoFiscal>1</IncentivoFiscal> no XML do RPS.')
                                     ->columnSpan(1),
+                            ])
+                            ->columnSpan(2),
+
+                        Fieldset::make('Tipos de Atividades no Município')
+                            ->schema([
+                                Repeater::make('atividades')
+                                    ->label('Atividades de Prestação de Serviço Cadastradas')
+                                    ->schema([
+                                        TextInput::make('descricao')
+                                            ->label('Descrição da Atividade')
+                                            ->placeholder('Ex: Medicina e Biomedicina / Consultas Médicas')
+                                            ->required()
+                                            ->columnSpan(2),
+
+                                        TextInput::make('item_lista_servico')
+                                            ->label('Item LC 116/2003')
+                                            ->placeholder('04.01')
+                                            ->default('04.01')
+                                            ->required()
+                                            ->columnSpan(1),
+
+                                        TextInput::make('codigo_tributacao_municipio')
+                                            ->label('Código Tributação Municipal')
+                                            ->placeholder('4010')
+                                            ->columnSpan(1),
+
+                                        Toggle::make('is_principal')
+                                            ->label('Atividade Principal')
+                                            ->default(false)
+                                            ->columnSpan(2),
+                                    ])
+                                    ->columns(2)
+                                    ->defaultItems(1)
+                                    ->addActionLabel('Adicionar Nova Atividade Municipal')
+                                    ->columnSpanFull(),
+                            ])
+                            ->columnSpan(2),
+
+                        Fieldset::make('Códigos CNAE da Clínica')
+                            ->schema([
+                                Repeater::make('cnaes')
+                                    ->label('CNAEs da Empresa')
+                                    ->schema([
+                                        TextInput::make('codigo')
+                                            ->label('Código CNAE')
+                                            ->placeholder('8630503')
+                                            ->required()
+                                            ->columnSpan(1),
+
+                                        TextInput::make('descricao')
+                                            ->label('Descrição do CNAE')
+                                            ->placeholder('Ex: Atividade médica ambulatorial restrita a consultas')
+                                            ->required()
+                                            ->columnSpan(1),
+
+                                        Toggle::make('is_principal')
+                                            ->label('CNAE Principal')
+                                            ->default(false)
+                                            ->columnSpan(2),
+                                    ])
+                                    ->columns(2)
+                                    ->defaultItems(1)
+                                    ->addActionLabel('Adicionar Novo CNAE')
+                                    ->columnSpanFull(),
                             ])
                             ->columnSpan(2),
 
@@ -233,7 +286,7 @@ class ConfiguracaoNotaFiscalPage extends Page
     {
         $config = ConfiguracaoNotaFiscal::first();
 
-        if (!$config) {
+        if (! $config) {
             $config = ConfiguracaoNotaFiscal::create([
                 'cnpj' => '00000000000191',
                 'razao_social' => 'Clínica Médica Exemplo',

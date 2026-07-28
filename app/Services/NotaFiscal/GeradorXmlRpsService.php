@@ -94,6 +94,14 @@ class GeradorXmlRpsService
         $servico->appendChild($dom->createElement('IssRetido', '2'));
         $servico->appendChild($dom->createElement('ItemListaServico', $notaFiscal->item_lista_servico ?: $configuracao->item_lista_servico ?: '04.01'));
 
+        $codigoCnae = $notaFiscal->codigo_cnae ?: ($configuracao->cnae_principal['codigo'] ?? null);
+        if ($codigoCnae) {
+            $cnaeLimpo = preg_replace('/\D/', '', $codigoCnae);
+            if ($cnaeLimpo) {
+                $servico->appendChild($dom->createElement('CodigoCnae', $cnaeLimpo));
+            }
+        }
+
         if ($notaFiscal->codigo_tributacao_municipio || $configuracao->codigo_tributacao_municipio) {
             $servico->appendChild($dom->createElement('CodigoTributacaoMunicipio', $notaFiscal->codigo_tributacao_municipio ?: $configuracao->codigo_tributacao_municipio));
         }

@@ -12,8 +12,8 @@ use App\Models\NotaFiscal;
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
@@ -68,7 +68,7 @@ class NotaFiscalResource extends Resource
                             TextEntry::make('status')
                                 ->label('Status')
                                 ->badge()
-                                ->formatStateUsing(fn(string $state): string => match ($state) {
+                                ->formatStateUsing(fn (string $state): string => match ($state) {
                                     'rascunho' => 'Rascunho',
                                     'processando' => 'Processando',
                                     'autorizada' => 'Autorizada',
@@ -76,7 +76,7 @@ class NotaFiscalResource extends Resource
                                     'rejeitada' => 'Rejeitada',
                                     default => ucfirst($state),
                                 })
-                                ->color(fn(string $state): string => match ($state) {
+                                ->color(fn (string $state): string => match ($state) {
                                     'rascunho' => 'gray',
                                     'processando' => 'warning',
                                     'autorizada' => 'success',
@@ -131,7 +131,7 @@ class NotaFiscalResource extends Resource
 
                             TextEntry::make('paciente.logradouro')
                                 ->label('Endereço')
-                                ->formatStateUsing(fn($state, $record) => trim("{$record->paciente?->logradouro}, {$record->paciente?->numero} - {$record->paciente?->bairro} | {$record->paciente?->cidade->nome} - {$record->paciente?->cidade->uf}"))
+                                ->formatStateUsing(fn ($state, $record) => trim("{$record->paciente?->logradouro}, {$record->paciente?->numero} - {$record->paciente?->bairro} | {$record->paciente?->cidade->nome} - {$record->paciente?->cidade->uf}"))
                                 ->columnSpanFull(),
                         ]),
                     ]),
@@ -141,13 +141,13 @@ class NotaFiscalResource extends Resource
                     ->schema([
                         Grid::make(5)->schema([
                             TextEntry::make('valor_servicos')
-                                ->label('Valor dos Serviços')
+                                ->label('Valor do Serviço')
                                 ->money('BRL')
                                 ->weight(FontWeight::Bold),
 
                             TextEntry::make('aliquota_iss')
                                 ->label('Alíquota ISS')
-                                ->formatStateUsing(fn($state) => number_format((float) $state, 2, ',', '.') . '%'),
+                                ->formatStateUsing(fn ($state) => number_format((float) $state, 2, ',', '.').'%'),
 
                             TextEntry::make('valor_iss')
                                 ->label('Valor do ISS')
@@ -209,7 +209,7 @@ class NotaFiscalResource extends Resource
                                 ->columnSpanFull(),
                         ]),
                     ])
-                    ->visible(fn($record) => !empty($record->mensagem_erro)),
+                    ->visible(fn ($record) => ! empty($record->mensagem_erro)),
             ]);
     }
 

@@ -47,7 +47,43 @@ class ConfiguracaoNotaFiscal extends BaseModel
         'aliquota_iss' => 'decimal:2',
         'regime_especial_tributacao' => 'integer',
         'ultimo_numero_rps' => 'integer',
+        'atividades' => 'array',
+        'cnaes' => 'array',
     ];
+
+    public function getAtividadePrincipalAttribute(): ?array
+    {
+        $atividades = $this->atividades ?? [];
+
+        if (empty($atividades)) {
+            return null;
+        }
+
+        foreach ($atividades as $atividade) {
+            if (! empty($atividade['is_principal'])) {
+                return $atividade;
+            }
+        }
+
+        return $atividades[0] ?? null;
+    }
+
+    public function getCnaePrincipalAttribute(): ?array
+    {
+        $cnaes = $this->cnaes ?? [];
+
+        if (empty($cnaes)) {
+            return null;
+        }
+
+        foreach ($cnaes as $cnae) {
+            if (! empty($cnae['is_principal'])) {
+                return $cnae;
+            }
+        }
+
+        return $cnaes[0] ?? null;
+    }
 
     public function setSenhaCertificadoAttribute(?string $valor): void
     {

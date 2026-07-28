@@ -43,6 +43,7 @@ class NotaFiscalTest extends TestCase
             'desconto_incondicionado' => 0.00,
             'desconto_condicionado' => 0.00,
             'item_lista_servico' => '04.01',
+            'codigo_cnae' => '8630503',
             'discriminacao_servico' => 'Consulta Médica de Rotina',
             'codigo_municipio_ibge' => '1100049',
         ]);
@@ -66,6 +67,7 @@ class NotaFiscalTest extends TestCase
         $this->assertStringContainsString('<GerarNfseEnvio', $xml);
         $this->assertStringContainsString('<Numero>101</Numero>', $xml);
         $this->assertStringContainsString('<ValorServicos>250.00</ValorServicos>', $xml);
+        $this->assertStringContainsString('<CodigoCnae>8630503</CodigoCnae>', $xml);
         $this->assertStringContainsString('<Cnpj>00000000000191</Cnpj>', $xml);
         $this->assertStringContainsString('<Cpf>12345678901</Cpf>', $xml);
         $this->assertStringContainsString('<RazaoSocial>João da Silva</RazaoSocial>', $xml);

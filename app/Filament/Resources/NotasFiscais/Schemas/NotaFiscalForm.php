@@ -8,8 +8,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class NotaFiscalForm
@@ -17,6 +17,29 @@ class NotaFiscalForm
     public static function configure(Schema $schema): Schema
     {
         $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
+
+        $atividadesOptions = [];
+        if (! empty($configuracao?->atividades)) {
+            foreach ($configuracao->atividades as $index => $act) {
+                $key = $act['item_lista_servico'] ?? "04.0{$index}";
+                $label = ($act['item_lista_servico'] ?? '').' - '.($act['descricao'] ?? 'Atividade');
+                $atividadesOptions[$key] = $label;
+            }
+        } else {
+            $atividadesOptions['04.01'] = '04.01 - Medicina e Biomedicina';
+        }
+
+        $cnaesOptions = [];
+        if (! empty($configuracao?->cnaes)) {
+            foreach ($configuracao->cnaes as $cnaeItem) {
+                $cnaesOptions[$cnaeItem['codigo']] = "{$cnaeItem['codigo']} - {$cnaeItem['descricao']}";
+            }
+        } else {
+            $cnaesOptions['8630503'] = '8630503 - Atividade médica ambulatorial';
+        }
+
+        $atividadePadrao = $configuracao?->atividade_principal['item_lista_servico'] ?? array_key_first($atividadesOptions);
+        $cnaePadrao = $configuracao?->cnae_principal['codigo'] ?? array_key_first($cnaesOptions);
 
         return $schema
             ->components([
@@ -30,7 +53,7 @@ class NotaFiscalForm
                                 Select::make('paciente_id')
                                     ->label('Paciente / Tomador')
                                     ->options(Paciente::all()->pluck('nome', 'id'))
-                                    ->default(fn() => request()->query('paciente_id'))
+                                    ->default(fn () => request()->query('paciente_id'))
                                     ->searchable()
                                     ->required(),
                                 Grid::make([
@@ -50,24 +73,20 @@ class NotaFiscalForm
 
                                         TextEntry::make('paciente.logradouro')
                                             ->label('Endereço')
-                                            ->formatStateUsing(fn($state, $record) => trim("{$record->paciente?->logradouro}, {$record->paciente?->numero} - {$record->paciente?->bairro} | {$record->paciente?->cidade->nome} - {$record->paciente?->cidade->uf}"))
+                                            ->formatStateUsing(fn ($state, $record) => trim("{$record->paciente?->logradouro}, {$record->paciente?->numero} - {$record->paciente?->bairro} | {$record->paciente?->cidade->nome} - {$record->paciente?->cidade->uf}"))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
                     ]),
 
-                Section::make('Detalhamento dos Valores do Serviço')
+                Section::make('Valores')
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make([
-                            'sm' => 2,
-                            'md' => 3,
-                            'lg' => 5,
-                        ])
+                        Grid::make(3)
                             ->schema([
                                 TextInput::make('valor_servicos')
-                                    ->label('Valor dos Serviços')
+                                    ->label('Valor do Serviço')
                                     ->numeric()
                                     ->prefix('R$')
                                     ->required(),
@@ -78,14 +97,17 @@ class NotaFiscalForm
                                     ->default($configuracao?->aliquota_iss ?? 2.00)
                                     ->required(),
 
-                                TextInput::make('valor_iss')
-                                    ->label('Valor do ISS')
+                                TextInput::make('valor_deducoes')
+                                    ->label('Deduções')
                                     ->numeric()
                                     ->prefix('R$')
                                     ->default(0.00),
-
-                                TextInput::make('valor_deducoes')
-                                    ->label('Deduções')
+                            ]),
+                        Section::make('Outros Impostos')
+                            ->collapsed(true)
+                            ->schema([
+                                TextInput::make('valor_iss')
+                                    ->label('Valor do ISS')
                                     ->numeric()
                                     ->prefix('R$')
                                     ->default(0.00),
@@ -119,17 +141,30 @@ class NotaFiscalForm
                                     ->numeric()
                                     ->prefix('R$')
                                     ->default(0.00),
+                            ])
+                            ->secondary()
+                            ->compact()
+                            ->columns([
+                                'sm' => 2,
+                                'md' => 3,
+                                'xl' => 6,
                             ]),
                     ]),
 
                 Section::make('Informações da Prestação')
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('item_lista_servico')
-                                ->label('Item Lista Serviço LC 116')
-                                ->default($configuracao?->item_lista_servico ?? '04.01')
+                        Grid::make(3)->schema([
+                            Select::make('item_lista_servico')
+                                ->label('Atividade Municipal')
+                                ->options($atividadesOptions)
+                                ->default($atividadePadrao)
                                 ->required(),
+
+                            Select::make('codigo_cnae')
+                                ->label('Código CNAE')
+                                ->options($cnaesOptions)
+                                ->default($cnaePadrao),
 
                             TextInput::make('codigo_municipio_ibge')
                                 ->label('Município da Prestação (IBGE)')
