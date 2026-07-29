@@ -37,7 +37,7 @@ class Cep extends TextInput
 
             $livewire->validateOnly($component->getKey());
 
-            $request = Http::get('viacep.com.br/ws/'.$state.'/json/')->json();
+            $request = Http::get('https://viacep.com.br/ws/'.$state.'/json/')->json();
 
             if (! $request || isset($request['erro'])) {
                 return;
@@ -45,12 +45,31 @@ class Cep extends TextInput
 
             foreach ($setFields as $key => $value) {
                 if ($key === 'localidade') {
-                    $cidade = Cidade::where('uf', $request['uf'])->where('nome', $request['localidade'])->first();
-                    if ($cidade) {
-                        $set($value, $cidade->id);
+                    if (! empty($request['localidade']) && ! empty($request['uf'])) {
+                        $cidade = Cidade::where('uf', $request['uf'])
+                            ->where('nome', $request['localidade'])
+                            ->first();
 
-                        return;
+                        $codigoIbgeViaCep = $request['ibge'] ?? null;
+
+                        if ($cidade) {
+                            if ($codigoIbgeViaCep && $cidade->codigo_ibge !== $codigoIbgeViaCep) {
+                                $cidade->update(['codigo_ibge' => $codigoIbgeViaCep]);
+                            }
+                        } else {
+                            $cidade = Cidade::create([
+                                'nome' => $request['localidade'],
+                                'uf' => $request['uf'],
+                                'codigo_ibge' => $codigoIbgeViaCep,
+                            ]);
+                        }
+
+                        if ($cidade) {
+                            $set($value, $cidade->id);
+                        }
                     }
+
+                    continue;
                 }
                 $set($value, $request[$key] ?? null);
             }

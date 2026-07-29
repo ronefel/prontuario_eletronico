@@ -113,27 +113,95 @@ class EmissorNfseService
             return;
         }
 
-        // Buscar Número da NFS-e e Código de Verificação
-        $nosNumero = $dom->getElementsByTagName('Numero');
-        $nosCodigo = $dom->getElementsByTagName('CodigoVerificacao');
-        $nosDataEmissao = $dom->getElementsByTagName('DataEmissao');
-        $nosMensagemRetorno = $dom->getElementsByTagName('MensagemRetorno');
+        // Tentar desempacotar XML interno se a resposta for um envelope SOAP contendo o XML codificado em entidades HTML (ex: <outputXML>)
+        $domProcessamento = $dom;
+        $tagsEnvelopeRetorno = ['outputXML', 'outputXml', 'GerarNfseResult', 'return', 'output'];
 
-        if ($nosMensagemRetorno->length > 0) {
-            /** @var \DOMElement $noMensagem */
-            $noMensagem = $nosMensagemRetorno->item(0);
-            $noCodigo = $noMensagem->getElementsByTagName('Codigo')->item(0);
-            $noTextoMensagem = $noMensagem->getElementsByTagName('Mensagem')->item(0);
+        foreach ($tagsEnvelopeRetorno as $tag) {
+            $nos = $dom->getElementsByTagName($tag);
+            if ($nos->length > 0) {
+                $conteudoInterno = $nos->item(0)->nodeValue;
+                if (! empty($conteudoInterno) && (str_contains($conteudoInterno, '<') || str_contains($conteudoInterno, '&lt;'))) {
+                    $xmlDesempacotado = htmlspecialchars_decode(html_entity_decode($conteudoInterno, ENT_QUOTES | ENT_XML1, 'UTF-8'));
+                    $domInterno = new DOMDocument;
+                    if ($domInterno->loadXML($xmlDesempacotado)) {
+                        $domProcessamento = $domInterno;
+                        break;
+                    }
+                }
+            }
+        }
 
-            $codigo = $noCodigo ? $noCodigo->nodeValue : 'ERRO';
-            $mensagem = $noTextoMensagem ? $noTextoMensagem->nodeValue : 'Erro no processamento da NFS-e';
+        // Verificar erros SOAP Fault
+        $nosFault = $domProcessamento->getElementsByTagName('Fault');
+        if ($nosFault->length === 0 && $domProcessamento !== $dom) {
+            $nosFault = $dom->getElementsByTagName('Fault');
+        }
+
+        if ($nosFault->length > 0) {
+            /** @var \DOMElement $noFault */
+            $noFault = $nosFault->item(0);
+            $faultCode = $noFault->getElementsByTagName('faultcode')->item(0)?->nodeValue ?? 'SOAP_FAULT';
+            $faultString = $noFault->getElementsByTagName('faultstring')->item(0)?->nodeValue ?? 'Erro na chamada SOAP do WebService.';
 
             $notaFiscal->status = 'rejeitada';
-            $notaFiscal->codigo_erro = $codigo;
-            $notaFiscal->mensagem_erro = $mensagem;
+            $notaFiscal->codigo_erro = $faultCode;
+            $notaFiscal->mensagem_erro = "Erro SOAP: {$faultString}";
             $notaFiscal->save();
 
             return;
+        }
+
+        // Buscar Mensagens de Retorno da Prefeitura (Alertas / Erros de Validação da Prefeitura)
+        $nosMensagemRetorno = $domProcessamento->getElementsByTagName('MensagemRetorno');
+        if ($nosMensagemRetorno->length === 0 && $domProcessamento !== $dom) {
+            $nosMensagemRetorno = $dom->getElementsByTagName('MensagemRetorno');
+        }
+
+        if ($nosMensagemRetorno->length > 0) {
+            $errosDetalhados = [];
+            $primeiroCodigo = null;
+
+            for ($i = 0; $i < $nosMensagemRetorno->length; $i++) {
+                /** @var \DOMElement $noMensagem */
+                $noMensagem = $nosMensagemRetorno->item($i);
+                $noCodigo = $noMensagem->getElementsByTagName('Codigo')->item(0);
+                $noTexto = $noMensagem->getElementsByTagName('Mensagem')->item(0);
+                $noCorrecao = $noMensagem->getElementsByTagName('Correcao')->item(0);
+
+                $codigo = $noCodigo ? trim($noCodigo->nodeValue) : 'ERRO';
+                $mensagem = $noTexto ? trim($noTexto->nodeValue) : 'Erro no processamento da NFS-e';
+                $correcao = $noCorrecao ? trim($noCorrecao->nodeValue) : null;
+
+                if (! $primeiroCodigo) {
+                    $primeiroCodigo = $codigo;
+                }
+
+                $textoFormatado = "[{$codigo}] {$mensagem}";
+                if ($correcao) {
+                    $textoFormatado .= " (Correção: {$correcao})";
+                }
+
+                $errosDetalhados[] = $textoFormatado;
+            }
+
+            $notaFiscal->status = 'rejeitada';
+            $notaFiscal->codigo_erro = $primeiroCodigo ?: 'ERRO';
+            $notaFiscal->mensagem_erro = implode(' | ', $errosDetalhados);
+            $notaFiscal->save();
+
+            return;
+        }
+
+        // Buscar Número da NFS-e e Código de Verificação
+        $nosNumero = $domProcessamento->getElementsByTagName('Numero');
+        $nosCodigo = $domProcessamento->getElementsByTagName('CodigoVerificacao');
+        $nosDataEmissao = $domProcessamento->getElementsByTagName('DataEmissao');
+
+        if ($nosNumero->length === 0 && $domProcessamento !== $dom) {
+            $nosNumero = $dom->getElementsByTagName('Numero');
+            $nosCodigo = $dom->getElementsByTagName('CodigoVerificacao');
+            $nosDataEmissao = $dom->getElementsByTagName('DataEmissao');
         }
 
         if ($nosNumero->length > 0 && $nosCodigo->length > 0) {
@@ -156,7 +224,7 @@ class EmissorNfseService
             $notaFiscal->codigo_erro = null;
         } else {
             $notaFiscal->status = 'rejeitada';
-            $notaFiscal->mensagem_erro = 'Não foi possível localizar o número e código de verificação da NFS-e no retorno.';
+            $notaFiscal->mensagem_erro = 'Não foi possível localizar o número e código de verificação da NFS-e no retorno da prefeitura.';
         }
 
         $notaFiscal->save();

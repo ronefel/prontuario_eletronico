@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $nome
  * @property string $uf
+ * @property string|null $codigo_ibge
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Collection<int, Paciente> $pacientes
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade whereCodigoIbge($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Cidade whereNome($value)

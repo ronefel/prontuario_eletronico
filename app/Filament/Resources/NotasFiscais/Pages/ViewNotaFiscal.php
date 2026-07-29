@@ -6,6 +6,7 @@ use App\Filament\Resources\NotasFiscais\NotaFiscalResource;
 use App\Models\NotaFiscal;
 use App\Services\NotaFiscal\EmissorNfseService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -79,7 +80,9 @@ class ViewNotaFiscal extends ViewRecord
                 }),
 
             EditAction::make()
-                ->visible(fn (): bool => $this->record->status === 'rascunho'),
+                ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
+            DeleteAction::make()
+                ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
         ];
     }
 }

@@ -4,16 +4,20 @@ namespace App\Services\NotaFiscal;
 
 use App\Models\ConfiguracaoNotaFiscal;
 use Exception;
-use Illuminate\Support\Facades\Storage;
 
 class ClienteNfseSoapService
 {
+    public function __construct(
+        protected LeitorCertificadoService $leitorCertificado,
+    ) {}
+
     /**
      * Transmite a mensagem SOAP para o WebService de NFS-e do município.
      *
      * @param  string  $operacao  Nome da operação SOAP (ex: 'GerarNfse', 'CancelarNfse').
      * @param  string  $xmlDados  Conteúdo do XML de dados.
      * @return string Resposta XML devolvida pelo WebService.
+     *
      * @throws Exception Em caso de erro de conexão ou transmissão HTTP/SOAP.
      */
     public function enviar(string $operacao, string $xmlDados): string
@@ -67,21 +71,14 @@ class ClienteNfseSoapService
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
-        // Se houver certificado A1 configurado, aplicar mTLS via cURL
-        $caminhoArquivoTemp = null;
+        // Se houver certificado A1 configurado, extrair PEM temporário e aplicar mTLS no cURL
+        $caminhoPemTemporario = null;
         if ($configuracao->caminho_certificado) {
-            $caminhoCert = storage_path('app/'.ltrim($configuracao->caminho_certificado, '/'));
+            $caminhoPemTemporario = $this->leitorCertificado->criarArquivoPemTemporario($configuracao);
 
-            if (! file_exists($caminhoCert) && Storage::exists($configuracao->caminho_certificado)) {
-                $caminhoArquivoTemp = storage_path('app/temp_cert_'.uniqid().'.pfx');
-                file_put_contents($caminhoArquivoTemp, Storage::get($configuracao->caminho_certificado));
-                $caminhoCert = $caminhoArquivoTemp;
-            }
-
-            if (file_exists($caminhoCert)) {
-                curl_setopt($ch, CURLOPT_SSLCERT, $caminhoCert);
-                curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $configuracao->senha_certificado_descriptografada ?? '');
-                curl_setopt($ch, CURLOPT_SSLCERTTYPE, 'P12');
+            if ($caminhoPemTemporario && file_exists($caminhoPemTemporario)) {
+                curl_setopt($ch, CURLOPT_SSLCERT, $caminhoPemTemporario);
+                curl_setopt($ch, CURLOPT_SSLCERTTYPE, 'PEM');
             }
         }
 
@@ -90,8 +87,8 @@ class ClienteNfseSoapService
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($caminhoArquivoTemp && file_exists($caminhoArquivoTemp)) {
-            @unlink($caminhoArquivoTemp);
+        if ($caminhoPemTemporario && file_exists($caminhoPemTemporario)) {
+            @unlink($caminhoPemTemporario);
         }
 
         if ($erroCurl) {

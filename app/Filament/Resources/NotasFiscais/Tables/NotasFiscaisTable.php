@@ -5,6 +5,7 @@ namespace App\Filament\Resources\NotasFiscais\Tables;
 use App\Models\NotaFiscal;
 use App\Services\NotaFiscal\EmissorNfseService;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
@@ -80,7 +81,9 @@ class NotasFiscaisTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn (NotaFiscal $record): bool => $record->status === 'rascunho'),
+                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
+                DeleteAction::make()
+                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
                 Action::make('emitir')
                     ->label('Emitir NFS-e')
                     ->icon('heroicon-o-paper-airplane')

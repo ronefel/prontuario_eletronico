@@ -4,9 +4,10 @@ namespace App\Filament\Pages;
 
 use App\Filament\Forms\Components\KeyValueCustom;
 use App\Models\ConfiguracaoNotaFiscal;
+use App\Services\NotaFiscal\LeitorCertificadoService;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -41,7 +42,7 @@ class ConfiguracaoNotaFiscalPage extends Page
         $record = $this->getRecord();
         $this->dados = $record->attributesToArray();
 
-        if (!empty($this->dados['atividades']) && is_array($this->dados['atividades'])) {
+        if (! empty($this->dados['atividades']) && is_array($this->dados['atividades'])) {
             $atividadesConvertidas = [];
             foreach ($this->dados['atividades'] as $chave => $item) {
                 if (is_array($item)) {
@@ -55,7 +56,7 @@ class ConfiguracaoNotaFiscalPage extends Page
             $this->dados['atividades'] = $atividadesConvertidas;
         }
 
-        if (!empty($this->dados['cnaes']) && is_array($this->dados['cnaes'])) {
+        if (! empty($this->dados['cnaes']) && is_array($this->dados['cnaes'])) {
             $cnaesConvertidos = [];
             foreach ($this->dados['cnaes'] as $chave => $item) {
                 if (is_array($item)) {
@@ -239,6 +240,12 @@ class ConfiguracaoNotaFiscalPage extends Page
                                 ->label('Salvar Configurações')
                                 ->submit('salvar')
                                 ->keyBindings(['mod+s']),
+
+                            Action::make('testarCertificado')
+                                ->label('Testar Certificado Digital')
+                                ->action('testarCertificado')
+                                ->color('warning')
+                                ->icon('heroicon-o-key'),
                         ]),
                     ]),
             ])
@@ -253,7 +260,7 @@ class ConfiguracaoNotaFiscalPage extends Page
 
         $configuracao->fill($dadosForm);
 
-        $primeiroCodigo = !empty($configuracao->atividades) ? array_key_first($configuracao->atividades) : '04.01';
+        $primeiroCodigo = ! empty($configuracao->atividades) ? array_key_first($configuracao->atividades) : '04.01';
         $configuracao->item_lista_servico = $primeiroCodigo;
         $configuracao->codigo_tributacao_municipio = $primeiroCodigo;
 
@@ -266,11 +273,50 @@ class ConfiguracaoNotaFiscalPage extends Page
             ->send();
     }
 
+    public function testarCertificado(LeitorCertificadoService $leitorCertificado): void
+    {
+        $this->salvar();
+        $configuracao = $this->getRecord();
+
+        if (empty($configuracao->caminho_certificado)) {
+            Notification::make()
+                ->warning()
+                ->title('Nenhum certificado informado')
+                ->body('Selecione um arquivo de certificado digital A1 (.pfx/.p12) antes de testar.')
+                ->send();
+
+            return;
+        }
+
+        try {
+            $dados = $leitorCertificado->obterDadosCertificado($configuracao);
+            $metadados = $dados['metadados'];
+
+            $statusValidade = $metadados['expirado']
+                ? '⚠️ CERTIFICADO EXPIRADO!'
+                : '✅ Certificado Válido';
+
+            Notification::make()
+                ->title('Certificado Digital A1 Lido com Sucesso!')
+                ->success()
+                ->body("Status: {$statusValidade}\nTitular: {$metadados['titular']}\nEmissor: {$metadados['emissor']}\nValidade: {$metadados['validade']}")
+                ->persistent()
+                ->send();
+        } catch (Exception $e) {
+            Notification::make()
+                ->danger()
+                ->title('Falha ao Ler o Certificado Digital A1')
+                ->body($e->getMessage())
+                ->persistent()
+                ->send();
+        }
+    }
+
     public function getRecord(): ConfiguracaoNotaFiscal
     {
         $config = ConfiguracaoNotaFiscal::first();
 
-        if (!$config) {
+        if (! $config) {
             $config = ConfiguracaoNotaFiscal::create([
                 'cnpj' => '00000000000191',
                 'razao_social' => 'Clínica Médica Exemplo',

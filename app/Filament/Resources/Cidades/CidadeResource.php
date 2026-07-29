@@ -45,6 +45,9 @@ class CidadeResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('uf'),
+                TextColumn::make('codigo_ibge')
+                    ->label('Código IBGE')
+                    ->searchable(),
             ])
             ->defaultSort('nome', 'asc')
             ->filters([
@@ -115,6 +118,11 @@ class CidadeResource extends Resource
                     'SP' => 'São Paulo',
                     'TO' => 'Tocantins',
                 ])->searchable(),
+            TextInput::make('codigo_ibge')
+                ->label('Código IBGE')
+                ->length(7)
+                ->placeholder('Ex: 1100205')
+                ->nullable(),
         ];
     }
 }

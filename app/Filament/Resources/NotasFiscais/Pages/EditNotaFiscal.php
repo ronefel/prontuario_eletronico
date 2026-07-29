@@ -15,10 +15,10 @@ class EditNotaFiscal extends EditRecord
     {
         parent::mount($record);
 
-        if ($this->getRecord()->status !== 'rascunho') {
+        if (! in_array($this->getRecord()->status, ['rascunho', 'rejeitada'])) {
             Notification::make()
                 ->title('Edição Não Permitida')
-                ->body('Apenas notas fiscais em rascunho podem ser editadas.')
+                ->body('Apenas notas fiscais em rascunho ou rejeitadas podem ser editadas.')
                 ->warning()
                 ->send();
 

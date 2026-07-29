@@ -132,7 +132,10 @@ class DatabaseAdapter implements FilesystemAdapter
             throw new UnableToReadFile("Não foi possível localizar o arquivo {$path}");
         }
 
-        return base64_decode(stream_get_contents($file->first()->content));
+        $conteudoBruto = $file->first()->content;
+        $conteudoTexto = is_resource($conteudoBruto) ? stream_get_contents($conteudoBruto) : (string) $conteudoBruto;
+
+        return base64_decode($conteudoTexto);
     }
 
     /**

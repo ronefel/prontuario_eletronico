@@ -44,7 +44,6 @@ class GeradorXmlRpsService
 
         // Bloco Rps (Identificacao)
         $rpsElement = $dom->createElement('Rps');
-        $rpsElement->setAttribute('Id', $idRps);
         $infDeclaracao->appendChild($rpsElement);
 
         $identificacaoRps = $dom->createElement('IdentificacaoRps');
@@ -83,9 +82,10 @@ class GeradorXmlRpsService
         $valores->appendChild($dom->createElement('ValorCsll', number_format((float) $notaFiscal->valor_csll, 2, '.', '')));
         $valores->appendChild($dom->createElement('ValorIss', number_format((float) $notaFiscal->valor_iss, 2, '.', '')));
 
-        // Alíquota em percentual decimal (ex: 2% = 0.02 ou 2.00 dependendo da validação, ABRASF v2.02 usa ex: 0.0200)
-        $aliquotaDecimal = ((float) $notaFiscal->aliquota_iss) / 100;
-        $valores->appendChild($dom->createElement('Aliquota', number_format($aliquotaDecimal, 4, '.', '')));
+        // Alíquota em valor percentual direto (ex: 2 para 2%, 5 para 5%, 2.5 para 2.5%) conforme manual ABRASF
+        $aliquotaValor = (float) ($notaFiscal->aliquota_iss ?: $configuracao->aliquota_iss ?: 2.00);
+        $aliquotaFormatada = rtrim(rtrim(number_format($aliquotaValor, 2, '.', ''), '0'), '.');
+        $valores->appendChild($dom->createElement('Aliquota', $aliquotaFormatada));
 
         $valores->appendChild($dom->createElement('DescontoIncondicionado', number_format((float) $notaFiscal->desconto_incondicionado, 2, '.', '')));
         $valores->appendChild($dom->createElement('DescontoCondicionado', number_format((float) $notaFiscal->desconto_condicionado, 2, '.', '')));
@@ -141,7 +141,13 @@ class GeradorXmlRpsService
         $tomador->appendChild($dom->createElement('RazaoSocial', htmlspecialchars($paciente->nome, ENT_QUOTES | ENT_XML1)));
 
         // Endereço do Tomador
-        if ($paciente->logradouro || $paciente->cep) {
+        if ($paciente->logradouro || $paciente->cep || $paciente->cidade_id) {
+            $codigoCidadeTomador = $paciente->cidade?->codigo_ibge;
+            if (! $codigoCidadeTomador) {
+                $nomeCidade = $paciente->cidade?->nome ?? 'não cadastrada';
+                throw new Exception("O código IBGE da cidade do tomador ({$paciente->nome} - Cidade: {$nomeCidade}) é obrigatório para emissão da nota fiscal.");
+            }
+
             $endereco = $dom->createElement('Endereco');
             if ($paciente->logradouro) {
                 $endereco->appendChild($dom->createElement('Endereco', htmlspecialchars($paciente->logradouro, ENT_QUOTES | ENT_XML1)));
@@ -153,7 +159,6 @@ class GeradorXmlRpsService
                 $endereco->appendChild($dom->createElement('Bairro', htmlspecialchars($paciente->bairro, ENT_QUOTES | ENT_XML1)));
             }
 
-            $codigoCidadeTomador = $paciente->cidade ? $paciente->cidade->codigo_ibge ?? $codigoIbge : $codigoIbge;
             $endereco->appendChild($dom->createElement('CodigoMunicipio', $codigoCidadeTomador));
 
             $ufTomador = $paciente->cidade ? $paciente->cidade->uf ?? 'RO' : 'RO';
@@ -178,6 +183,15 @@ class GeradorXmlRpsService
         }
 
         $infDeclaracao->appendChild($tomador);
+
+        $regime = (int) $configuracao->regime_especial_tributacao;
+        if ($regime === 0 && $configuracao->optante_simples_nacional) {
+            $regime = 6; // Padrão 6 (ME/EPP) exigido pelo WebISS para optantes do Simples Nacional
+        }
+
+        if ($regime > 0 && $regime <= 6) {
+            $infDeclaracao->appendChild($dom->createElement('RegimeEspecialTributacao', (string) $regime));
+        }
 
         // Optante Simples Nacional (1-Sim, 2-Não)
         $infDeclaracao->appendChild($dom->createElement('OptanteSimplesNacional', $configuracao->optante_simples_nacional ? '1' : '2'));

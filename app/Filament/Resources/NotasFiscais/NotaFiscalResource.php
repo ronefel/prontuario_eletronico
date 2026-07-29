@@ -38,13 +38,13 @@ class NotaFiscalResource extends Resource
     public static function canEdit(Model $record): bool
     {
         /** @var NotaFiscal $record */
-        return $record->status === 'rascunho';
+        return in_array($record->status, ['rascunho', 'rejeitada']);
     }
 
     public static function canDelete(Model $record): bool
     {
         /** @var NotaFiscal $record */
-        return $record->status === 'rascunho';
+        return in_array($record->status, ['rascunho', 'rejeitada']);
     }
 
     public static function form(Schema $schema): Schema
