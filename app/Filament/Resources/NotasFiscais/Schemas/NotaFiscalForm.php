@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class NotaFiscalForm
@@ -20,22 +21,28 @@ class NotaFiscalForm
 
         $atividadesOptions = [];
         if (! empty($configuracao?->atividades)) {
-            foreach ($configuracao->atividades as $index => $act) {
-                $key = $act['item_lista_servico'] ?? "04.0{$index}";
-                $label = ($act['item_lista_servico'] ?? '').' - '.($act['descricao'] ?? 'Atividade');
-                $atividadesOptions[$key] = $label;
+            foreach ($configuracao->atividades as $codigo => $descricao) {
+                if (is_array($descricao)) {
+                    $chave = $descricao['item_lista_servico'] ?? $descricao['codigo_tributacao_municipio'] ?? (string) $codigo;
+                    $rotulo = $descricao['descricao'] ?? '';
+                    $atividadesOptions[$chave] = "{$chave} - {$rotulo}";
+                } else {
+                    $atividadesOptions[$codigo] = "{$codigo} - {$descricao}";
+                }
             }
-        } else {
-            $atividadesOptions['04.01'] = '04.01 - Medicina e Biomedicina';
         }
 
         $cnaesOptions = [];
         if (! empty($configuracao?->cnaes)) {
-            foreach ($configuracao->cnaes as $cnaeItem) {
-                $cnaesOptions[$cnaeItem['codigo']] = "{$cnaeItem['codigo']} - {$cnaeItem['descricao']}";
+            foreach ($configuracao->cnaes as $codigo => $descricao) {
+                if (is_array($descricao)) {
+                    $chave = $descricao['codigo'] ?? (string) $codigo;
+                    $rotulo = $descricao['descricao'] ?? '';
+                    $cnaesOptions[$chave] = "{$chave} - {$rotulo}";
+                } else {
+                    $cnaesOptions[$codigo] = "{$codigo} - {$descricao}";
+                }
             }
-        } else {
-            $cnaesOptions['8630503'] = '8630503 - Atividade médica ambulatorial';
         }
 
         $atividadePadrao = $configuracao?->atividade_principal['item_lista_servico'] ?? array_key_first($atividadesOptions);
@@ -47,35 +54,43 @@ class NotaFiscalForm
                     ->columnSpanFull()
                     ->schema([
                         Grid::make([
-                            'lg' => 2,
+                            'lg' => 3,
                         ])
                             ->schema([
                                 Select::make('paciente_id')
                                     ->label('Paciente / Tomador')
                                     ->options(Paciente::all()->pluck('nome', 'id'))
                                     ->default(fn () => request()->query('paciente_id'))
+                                    ->live()
                                     ->searchable()
                                     ->required(),
                                 Grid::make([
                                     'sm' => 3,
-                                ])
-                                    ->schema([
-                                        TextEntry::make('paciente.cpf')
-                                            ->label('CPF'),
+                                ])->columnSpan(2)
+                                    ->schema(function (Get $get): array {
+                                        $idPaciente = $get('paciente_id');
+                                        $paciente = $idPaciente ? Paciente::with('cidade')->find($idPaciente) : null;
 
-                                        TextEntry::make('paciente.email')
-                                            ->label('E-mail')
-                                            ->placeholder('Não informado'),
+                                        // Exibe informações do paciente selecionado
+                                        return [
+                                            TextEntry::make('paciente.cpf')
+                                                ->label('CPF')
+                                                ->state($paciente?->cpf),
 
-                                        TextEntry::make('paciente.celular')
-                                            ->label('Celular')
-                                            ->placeholder('Não informado'),
+                                            TextEntry::make('paciente.email')
+                                                ->label('E-mail')
+                                                ->state($paciente?->email),
 
-                                        TextEntry::make('paciente.logradouro')
-                                            ->label('Endereço')
-                                            ->formatStateUsing(fn ($state, $record) => trim("{$record->paciente?->logradouro}, {$record->paciente?->numero} - {$record->paciente?->bairro} | {$record->paciente?->cidade->nome} - {$record->paciente?->cidade->uf}"))
-                                            ->columnSpanFull(),
-                                    ]),
+                                            TextEntry::make('paciente.celular')
+                                                ->label('Celular')
+                                                ->state($paciente?->celularFormatado() ?: $paciente?->celular),
+
+                                            TextEntry::make('paciente.logradouro')
+                                                ->label('Endereço')
+                                                ->state($paciente ? trim("{$paciente?->logradouro}, {$paciente?->numero} - {$paciente?->bairro} | {$paciente?->cidade?->nome} - {$paciente?->cidade?->uf}") : null)
+                                                ->columnSpanFull(),
+                                        ];
+                                    }),
                             ]),
 
                     ]),

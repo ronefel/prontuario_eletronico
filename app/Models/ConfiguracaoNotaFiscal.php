@@ -59,13 +59,24 @@ class ConfiguracaoNotaFiscal extends BaseModel
             return null;
         }
 
-        foreach ($atividades as $atividade) {
-            if (! empty($atividade['is_principal'])) {
-                return $atividade;
+        $primeiroCodigo = array_key_first($atividades);
+        $item = $atividades[$primeiroCodigo];
+
+        if (is_array($item)) {
+            foreach ($atividades as $act) {
+                if (! empty($act['is_principal'])) {
+                    return $act;
+                }
             }
+
+            return $atividades[0] ?? null;
         }
 
-        return $atividades[0] ?? null;
+        return [
+            'item_lista_servico' => (string) $primeiroCodigo,
+            'codigo_tributacao_municipio' => (string) $primeiroCodigo,
+            'descricao' => (string) $item,
+        ];
     }
 
     public function getCnaePrincipalAttribute(): ?array
@@ -76,13 +87,23 @@ class ConfiguracaoNotaFiscal extends BaseModel
             return null;
         }
 
-        foreach ($cnaes as $cnae) {
-            if (! empty($cnae['is_principal'])) {
-                return $cnae;
+        $primeiroCodigo = array_key_first($cnaes);
+        $item = $cnaes[$primeiroCodigo];
+
+        if (is_array($item)) {
+            foreach ($cnaes as $cnae) {
+                if (! empty($cnae['is_principal'])) {
+                    return $cnae;
+                }
             }
+
+            return $cnaes[0] ?? null;
         }
 
-        return $cnaes[0] ?? null;
+        return [
+            'codigo' => (string) $primeiroCodigo,
+            'descricao' => (string) $item,
+        ];
     }
 
     public function setSenhaCertificadoAttribute(?string $valor): void

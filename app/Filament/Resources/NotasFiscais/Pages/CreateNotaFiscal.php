@@ -39,16 +39,17 @@ class CreateNotaFiscal extends CreateRecord
         $data['data_emissao_rps'] = now();
 
         if (! empty($data['item_lista_servico']) && ! empty($configuracao?->atividades)) {
-            foreach ($configuracao->atividades as $act) {
-                if (($act['item_lista_servico'] ?? null) === $data['item_lista_servico']) {
-                    $data['codigo_tributacao_municipio'] = $act['codigo_tributacao_municipio'] ?? null;
+            foreach ($configuracao->atividades as $chave => $act) {
+                $codigoServico = is_array($act) ? ($act['item_lista_servico'] ?? (string) $chave) : (string) $chave;
+                if ($codigoServico === $data['item_lista_servico']) {
+                    $data['codigo_tributacao_municipio'] = is_array($act) ? ($act['codigo_tributacao_municipio'] ?? $codigoServico) : $codigoServico;
                     break;
                 }
             }
         }
 
         if (empty($data['codigo_tributacao_municipio'])) {
-            $data['codigo_tributacao_municipio'] = $configuracao?->codigo_tributacao_municipio;
+            $data['codigo_tributacao_municipio'] = $data['item_lista_servico'] ?? $configuracao?->codigo_tributacao_municipio;
         }
 
         if ($configuracao) {

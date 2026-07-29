@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Forms\Components\KeyValueCustom;
 use App\Models\ConfiguracaoNotaFiscal;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -40,6 +41,34 @@ class ConfiguracaoNotaFiscalPage extends Page
         $record = $this->getRecord();
         $this->dados = $record->attributesToArray();
 
+        if (!empty($this->dados['atividades']) && is_array($this->dados['atividades'])) {
+            $atividadesConvertidas = [];
+            foreach ($this->dados['atividades'] as $chave => $item) {
+                if (is_array($item)) {
+                    $codigo = $item['codigo_tributacao_municipio'] ?? $item['item_lista_servico'] ?? (string) $chave;
+                    $descricao = $item['descricao'] ?? '';
+                    $atividadesConvertidas[$codigo] = $descricao;
+                } else {
+                    $atividadesConvertidas[$chave] = $item;
+                }
+            }
+            $this->dados['atividades'] = $atividadesConvertidas;
+        }
+
+        if (!empty($this->dados['cnaes']) && is_array($this->dados['cnaes'])) {
+            $cnaesConvertidos = [];
+            foreach ($this->dados['cnaes'] as $chave => $item) {
+                if (is_array($item)) {
+                    $codigo = $item['codigo'] ?? (string) $chave;
+                    $descricao = $item['descricao'] ?? '';
+                    $cnaesConvertidos[$codigo] = $descricao;
+                } else {
+                    $cnaesConvertidos[$chave] = $item;
+                }
+            }
+            $this->dados['cnaes'] = $cnaesConvertidos;
+        }
+
         // Preencher a senha descriptografada para exibição/edição se existir
         if ($record->senha_certificado_descriptografada) {
             $this->dados['senha_certificado'] = $record->senha_certificado_descriptografada;
@@ -77,8 +106,6 @@ class ConfiguracaoNotaFiscalPage extends Page
 
                                 TextInput::make('codigo_municipio_ibge')
                                     ->label('Código IBGE do Município')
-                                    ->default('1100049')
-                                    ->helperText('Código IBGE de Cacoal / RO = 1100049. Direciona o envio ao município correto.')
                                     ->required()
                                     ->columnSpan(1),
 
@@ -120,79 +147,31 @@ class ConfiguracaoNotaFiscalPage extends Page
                                 Toggle::make('optante_simples_nacional')
                                     ->label('Optante do Simples Nacional')
                                     ->default(true)
-                                    ->helperText('Se ativado, gera a tag <OptanteSimplesNacional>1</OptanteSimplesNacional> no XML do RPS.')
                                     ->columnSpan(1),
 
                                 Toggle::make('incentivador_cultural')
                                     ->label('Incentivador Cultural')
                                     ->default(false)
-                                    ->helperText('Se ativado, gera a tag <IncentivoFiscal>1</IncentivoFiscal> no XML do RPS.')
                                     ->columnSpan(1),
                             ])
                             ->columnSpan(2),
 
-                        Fieldset::make('Tipos de Atividades no Município')
-                            ->schema([
-                                Repeater::make('atividades')
-                                    ->label('Atividades de Prestação de Serviço Cadastradas')
-                                    ->schema([
-                                        TextInput::make('descricao')
-                                            ->label('Descrição da Atividade')
-                                            ->placeholder('Ex: Medicina e Biomedicina / Consultas Médicas')
-                                            ->required()
-                                            ->columnSpan(2),
-
-                                        TextInput::make('item_lista_servico')
-                                            ->label('Item LC 116/2003')
-                                            ->placeholder('04.01')
-                                            ->default('04.01')
-                                            ->required()
-                                            ->columnSpan(1),
-
-                                        TextInput::make('codigo_tributacao_municipio')
-                                            ->label('Código Tributação Municipal')
-                                            ->placeholder('4010')
-                                            ->columnSpan(1),
-
-                                        Toggle::make('is_principal')
-                                            ->label('Atividade Principal')
-                                            ->default(false)
-                                            ->columnSpan(2),
-                                    ])
-                                    ->columns(2)
-                                    ->defaultItems(1)
-                                    ->addActionLabel('Adicionar Nova Atividade Municipal')
-                                    ->columnSpanFull(),
-                            ])
+                        KeyValueCustom::make('atividades')
+                            ->keyLabel('Código')
+                            ->valueLabel('Descrição da Atividade')
+                            ->keyColumnWidth('10%')
+                            ->valueColumnWidth('90%')
+                            ->reorderable()
+                            ->required()
                             ->columnSpan(2),
 
-                        Fieldset::make('Códigos CNAE da Clínica')
-                            ->schema([
-                                Repeater::make('cnaes')
-                                    ->label('CNAEs da Empresa')
-                                    ->schema([
-                                        TextInput::make('codigo')
-                                            ->label('Código CNAE')
-                                            ->placeholder('8630503')
-                                            ->required()
-                                            ->columnSpan(1),
-
-                                        TextInput::make('descricao')
-                                            ->label('Descrição do CNAE')
-                                            ->placeholder('Ex: Atividade médica ambulatorial restrita a consultas')
-                                            ->required()
-                                            ->columnSpan(1),
-
-                                        Toggle::make('is_principal')
-                                            ->label('CNAE Principal')
-                                            ->default(false)
-                                            ->columnSpan(2),
-                                    ])
-                                    ->columns(2)
-                                    ->defaultItems(1)
-                                    ->addActionLabel('Adicionar Novo CNAE')
-                                    ->columnSpanFull(),
-                            ])
+                        KeyValueCustom::make('cnaes')
+                            ->keyLabel('Código')
+                            ->valueLabel('Descrição do CNAE')
+                            ->keyColumnWidth('10%')
+                            ->valueColumnWidth('90%')
+                            ->reorderable()
+                            ->required()
                             ->columnSpan(2),
 
                         Fieldset::make('Certificado Digital A1')
@@ -273,6 +252,11 @@ class ConfiguracaoNotaFiscalPage extends Page
         $configuracao = $this->getRecord();
 
         $configuracao->fill($dadosForm);
+
+        $primeiroCodigo = !empty($configuracao->atividades) ? array_key_first($configuracao->atividades) : '04.01';
+        $configuracao->item_lista_servico = $primeiroCodigo;
+        $configuracao->codigo_tributacao_municipio = $primeiroCodigo;
+
         $configuracao->save();
 
         Notification::make()
@@ -286,7 +270,7 @@ class ConfiguracaoNotaFiscalPage extends Page
     {
         $config = ConfiguracaoNotaFiscal::first();
 
-        if (! $config) {
+        if (!$config) {
             $config = ConfiguracaoNotaFiscal::create([
                 'cnpj' => '00000000000191',
                 'razao_social' => 'Clínica Médica Exemplo',
@@ -296,7 +280,10 @@ class ConfiguracaoNotaFiscalPage extends Page
                 'regime_especial_tributacao' => 0,
                 'optante_simples_nacional' => true,
                 'incentivador_cultural' => false,
-                'item_lista_servico' => '04.01',
+                'item_lista_servico' => null,
+                'codigo_tributacao_municipio' => null,
+                'atividades' => [],
+                'cnaes' => [],
                 'aliquota_iss' => 2.00,
                 'serie_rps' => '1',
                 'ultimo_numero_rps' => 0,
