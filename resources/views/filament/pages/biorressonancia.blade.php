@@ -53,4 +53,38 @@
         @endif
     </div>
     <x-filament-actions::modals />
+
+    <script>
+        window.configurarLimpezaBuscaSelect = function(componente) {
+            var tentarConfigurar = function(restantes) {
+                if (!componente || !componente.select) {
+                    if (restantes > 0) {
+                        setTimeout(function() { tentarConfigurar(restantes - 1); }, 50);
+                    }
+                    return;
+                }
+
+                if (componente.select._limpezaConfigurada) return;
+                componente.select._limpezaConfigurada = true;
+
+                var selecaoOriginal = componente.select.selectOption.bind(componente.select);
+                componente.select.selectOption = function(valor) {
+                    selecaoOriginal(valor);
+
+                    if (this.searchInput) {
+                        this.searchInput.value = '';
+                        this.searchQuery = '';
+
+                        if (!this.hasDynamicOptions && this.originalOptions) {
+                            this.options = JSON.parse(JSON.stringify(this.originalOptions));
+                        }
+
+                        this.renderOptions();
+                    }
+                };
+            };
+
+            tentarConfigurar(10);
+        };
+    </script>
 </x-filament-panels::page>
