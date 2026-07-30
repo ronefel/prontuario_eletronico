@@ -8,7 +8,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
@@ -17,7 +16,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component as Livewire;
@@ -36,7 +34,7 @@ class Cep extends TextInput
             return ['opcoes' => [], 'descricoes' => []];
         }
 
-        $chaveCache = 'viacep_busca_' . md5("{$uf}_{$cidade}_{$logradouro}");
+        $chaveCache = 'viacep_busca_'.md5("{$uf}_{$cidade}_{$logradouro}");
 
         if (isset(static::$cacheMemoriaLocal[$chaveCache])) {
             return static::$cacheMemoriaLocal[$chaveCache];
@@ -52,19 +50,19 @@ class Cep extends TextInput
                 );
                 $resposta = Http::timeout(4)->get($url)->json();
 
-                if (!is_array($resposta) || empty($resposta) || isset($resposta['erro'])) {
+                if (! is_array($resposta) || empty($resposta) || isset($resposta['erro'])) {
                     return ['opcoes' => [], 'descricoes' => []];
                 }
 
                 $opcoes = [];
                 $descricoes = [];
                 foreach ($resposta as $item) {
-                    if (!empty($item['cep'])) {
+                    if (! empty($item['cep'])) {
                         $cep = $item['cep'];
                         $logradouroItem = $item['logradouro'] ?? '';
                         $bairroItem = $item['bairro'] ?? '';
                         $localidadeItem = $item['localidade'] ?? '';
-                        $complementoItem = !empty($item['complemento']) ? " ({$item['complemento']})" : '';
+                        $complementoItem = ! empty($item['complemento']) ? " ({$item['complemento']})" : '';
 
                         $opcoes[$cep] = "{$cep} — {$logradouroItem}";
                         $descricoes[$cep] = "Bairro {$bairroItem}, {$localidadeItem}{$complementoItem}";
@@ -136,9 +134,9 @@ class Cep extends TextInput
             }
 
             try {
-                $requisicao = Http::timeout(5)->get('https://viacep.com.br/ws/' . $cepLimpo . '/json/');
+                $requisicao = Http::timeout(5)->get('https://viacep.com.br/ws/'.$cepLimpo.'/json/');
 
-                if (!$requisicao->successful()) {
+                if (! $requisicao->successful()) {
                     Notification::make()
                         ->title('Serviço ViaCEP Indisponível')
                         ->body('O serviço do ViaCEP está indisponível no momento. Por favor, preencha o endereço manualmente.')
@@ -159,13 +157,13 @@ class Cep extends TextInput
                 return;
             }
 
-            if (!$resposta || !empty($resposta['erro'])) {
+            if (! $resposta || ! empty($resposta['erro'])) {
                 $exibirErro($errorMessage);
             }
 
             foreach ($setFields as $chave => $valor) {
                 if ($chave === 'localidade') {
-                    if (!empty($resposta['localidade']) && !empty($resposta['uf'])) {
+                    if (! empty($resposta['localidade']) && ! empty($resposta['uf'])) {
                         $cidade = Cidade::where('uf', $resposta['uf'])
                             ->where('nome', $resposta['localidade'])
                             ->first();
@@ -198,8 +196,8 @@ class Cep extends TextInput
         $this->live(onBlur: true);
 
         $this->rules([
-            fn(): Closure => function (string $atributo, $valor, Closure $falha) use ($errorMessage) {
-                if (!$valor) {
+            fn (): Closure => function (string $atributo, $valor, Closure $falha) use ($errorMessage) {
+                if (! $valor) {
                     return;
                 }
 
@@ -212,8 +210,8 @@ class Cep extends TextInput
                 }
 
                 try {
-                    $resposta = Http::get('https://viacep.com.br/ws/' . $cepLimpo . '/json/')->json();
-                    if (!$resposta || !empty($resposta['erro'])) {
+                    $resposta = Http::get('https://viacep.com.br/ws/'.$cepLimpo.'/json/')->json();
+                    if (! $resposta || ! empty($resposta['erro'])) {
                         $falha($errorMessage);
                     }
                 } catch (\Throwable $e) {
@@ -374,6 +372,7 @@ class Cep extends TextInput
                                 }
 
                                 $resultados = Cep::obterResultadosBuscaEndereco($uf, $cidade, $logradouro);
+
                                 return $resultados['opcoes'];
                             })
                             ->descriptions(function (Get $get) {
@@ -386,6 +385,7 @@ class Cep extends TextInput
                                 }
 
                                 $resultados = Cep::obterResultadosBuscaEndereco($uf, $cidade, $logradouro);
+
                                 return $resultados['descricoes'];
                             })
                             ->required()
@@ -413,7 +413,7 @@ class Cep extends TextInput
                 ->action(function (array $data, Livewire $livewire, Set $set, Component $component) use ($errorMessage, $setFields, $requisicaoViaCep) {
                     $cepEncontrado = $data['cep_selecionado'] ?? null;
 
-                    if (!$cepEncontrado) {
+                    if (! $cepEncontrado) {
                         Notification::make()
                             ->title('Nenhum CEP selecionado')
                             ->body('Por favor, selecione um CEP nos resultados da pesquisa.')
