@@ -255,6 +255,8 @@ class Biorressonancia extends Page
             ->extraModalWindowAttributes(AgentHelper::isMobile() ? ['style' => 'overflow: auto'] : ['style' => 'padding: 0px 37.5px'])
             ->modalAutofocus(false)
             ->closeModalByClickingAway(false)
+            ->closeModalByEscaping(false)
+            ->modalCloseButton(false)
             ->modalSubmitActionLabel('Salvar');
     }
 

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Crypt;
  * @property string $item_lista_servico
  * @property string|null $codigo_tributacao_municipio
  * @property float $aliquota_iss
+ * @property string|null $discriminacao_servico
  * @property string|null $caminho_certificado
  * @property string|null $senha_certificado
  * @property string $serie_rps
@@ -40,6 +41,8 @@ class ConfiguracaoNotaFiscal extends BaseModel
     use HasFactory;
 
     protected $table = 'configuracoes_nota_fiscal';
+
+    protected $guarded = [];
 
     protected $casts = [
         'optante_simples_nacional' => 'boolean',

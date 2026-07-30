@@ -186,4 +186,18 @@ class NotaFiscalTest extends TestCase
         $this->assertTrue(NotaFiscalResource::canDelete($notaRejeitada));
         $this->assertFalse(NotaFiscalResource::canDelete($notaAutorizada));
     }
+
+    public function test_discriminacao_servico_padrao_configuracao_nota_fiscal()
+    {
+        $config = ConfiguracaoNotaFiscal::create([
+            'cnpj' => '00000000000191',
+            'razao_social' => 'Clínica Exemplo',
+            'codigo_municipio_ibge' => '1100049',
+            'uf' => 'RO',
+            'discriminacao_servico' => 'Consulta Médica Especializada e Exames Clínicos',
+        ]);
+
+        $this->assertEquals('Consulta Médica Especializada e Exames Clínicos', $config->discriminacao_servico);
+        $this->assertEquals('Consulta Médica Especializada e Exames Clínicos', ConfiguracaoNotaFiscal::obterConfiguracaoAtiva()->discriminacao_servico);
+    }
 }

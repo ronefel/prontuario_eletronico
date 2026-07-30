@@ -191,6 +191,7 @@ class NotaFiscalForm
                                 ->rows(4)
                                 ->minLength(11)
                                 ->required()
+                                ->default($configuracao?->discriminacao_servico)
                                 ->placeholder('Descreva os serviços médicos/consultas prestados...')
                                 ->columnSpanFull(),
                         ]),

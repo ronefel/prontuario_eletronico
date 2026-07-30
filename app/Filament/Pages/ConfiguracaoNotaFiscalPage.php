@@ -10,6 +10,7 @@ use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -168,6 +169,13 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->label('Incentivador Cultural')
                                     ->default(false)
                                     ->columnSpan(1),
+
+                                Textarea::make('discriminacao_servico')
+                                    ->label('Discriminação dos Serviços Prestados (Padrão)')
+                                    ->rows(3)
+                                    ->helperText('Texto padrão de discriminação dos serviços que será preenchido automaticamente ao criar uma nova nota fiscal.')
+                                    ->placeholder('Ex: Prestação de serviços de assistência médica e consultas clínicas.')
+                                    ->columnSpan(2),
                             ])
                             ->columnSpan(2),
 
