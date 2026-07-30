@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Forms\Components\KeyValueCustom;
+use App\Models\Cidade;
 use App\Models\ConfiguracaoNotaFiscal;
 use App\Services\NotaFiscal\LeitorCertificadoService;
 use Exception;
@@ -17,6 +18,7 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -83,8 +85,9 @@ class ConfiguracaoNotaFiscalPage extends Page
         return $schema
             ->components([
                 Form::make([
-                    Grid::make(2)->schema([
+                    Grid::make()->schema([
                         Fieldset::make('Dados do Emitente (Clínica / Prestador)')
+                            ->columns(4)
                             ->schema([
                                 TextInput::make('cnpj')
                                     ->label('CNPJ')
@@ -96,26 +99,37 @@ class ConfiguracaoNotaFiscalPage extends Page
                                     ->label('Inscrição Municipal (IM)')
                                     ->columnSpan(1),
 
+                                Select::make('codigo_municipio_ibge')
+                                    ->label('Município')
+                                    ->required()
+                                    ->options(function (Get $get) {
+                                        $opcoes = Cidade::query()
+                                            ->whereNotNull('codigo_ibge')
+                                            ->where('codigo_ibge', '!=', '')
+                                            ->orderBy('nome')
+                                            ->get()
+                                            ->mapWithKeys(fn (Cidade $cidade) => [$cidade->codigo_ibge => "{$cidade->nome} - {$cidade->uf}"])
+                                            ->toArray();
+
+                                        $atual = $get('codigo_municipio_ibge');
+                                        if ($atual && ! isset($opcoes[$atual])) {
+                                            $opcoes[$atual] = "Código IBGE: {$atual} (vincule este IBGE a uma cidade)";
+                                        }
+
+                                        return $opcoes;
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpan(2),
+
                                 TextInput::make('razao_social')
                                     ->label('Razão Social')
                                     ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
 
                                 TextInput::make('nome_fantasia')
                                     ->label('Nome Fantasia')
-                                    ->columnSpan(1),
-
-                                TextInput::make('codigo_municipio_ibge')
-                                    ->label('Código IBGE do Município')
-                                    ->required()
-                                    ->columnSpan(1),
-
-                                TextInput::make('uf')
-                                    ->label('UF (Estado)')
-                                    ->default('RO')
-                                    ->maxLength(2)
-                                    ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
                             ])
                             ->columnSpan(2),
 
@@ -259,6 +273,13 @@ class ConfiguracaoNotaFiscalPage extends Page
         $configuracao = $this->getRecord();
 
         $configuracao->fill($dadosForm);
+
+        if (! empty($configuracao->codigo_municipio_ibge)) {
+            $cidade = Cidade::where('codigo_ibge', $configuracao->codigo_municipio_ibge)->first();
+            if ($cidade && $cidade->uf) {
+                $configuracao->uf = $cidade->uf;
+            }
+        }
 
         $primeiroCodigo = ! empty($configuracao->atividades) ? array_key_first($configuracao->atividades) : '04.01';
         $configuracao->item_lista_servico = $primeiroCodigo;

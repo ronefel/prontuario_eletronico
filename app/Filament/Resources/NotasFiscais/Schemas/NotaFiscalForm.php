@@ -189,6 +189,7 @@ class NotaFiscalForm
                             Textarea::make('discriminacao_servico')
                                 ->label('Discriminação dos Serviços Prestados')
                                 ->rows(4)
+                                ->minLength(11)
                                 ->required()
                                 ->placeholder('Descreva os serviços médicos/consultas prestados...')
                                 ->columnSpanFull(),

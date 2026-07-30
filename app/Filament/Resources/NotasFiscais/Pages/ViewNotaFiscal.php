@@ -23,9 +23,6 @@ class ViewNotaFiscal extends ViewRecord
                 ->label('Transmitir / Emitir NFS-e')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
-                ->requiresConfirmation()
-                ->modalHeading('Transmitir Nota Fiscal para o WebISS?')
-                ->modalDescription('A nota fiscal será assinada com o certificado A1 e enviada para processamento junto ao WebService da Prefeitura.')
                 ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada']))
                 ->action(function (EmissorNfseService $emissor): void {
                     /** @var NotaFiscal $notaFiscal */

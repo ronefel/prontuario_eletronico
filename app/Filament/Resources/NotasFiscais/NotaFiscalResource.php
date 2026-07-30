@@ -104,8 +104,8 @@ class NotaFiscalResource extends Resource
                                 ->placeholder('Pendente'),
 
                             TextEntry::make('data_emissao_nfse')
-                                ->label('Data de Emissão da NFS-e')
-                                ->dateTime('d/m/Y H:i:s', timezone: auth()->user()?->timezone)
+                                ->label('Emissão (Horário de Brasília)')
+                                ->dateTime('d/m/Y H:i:s')
                                 ->placeholder('Pendente'),
                         ]),
                     ]),

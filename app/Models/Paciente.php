@@ -117,4 +117,45 @@ class Paciente extends BaseModel
         // Caso não tenha o tamanho esperado, retorna o número sem formatação
         return $celular;
     }
+
+    public static function validarCpf(?string $cpf): bool
+    {
+        if (! $cpf) {
+            return false;
+        }
+
+        $cpfLimpo = preg_replace('/\D/', '', $cpf);
+
+        if (strlen($cpfLimpo) !== 11) {
+            return false;
+        }
+
+        if (preg_match('/^(\d)\1{10}$/', $cpfLimpo)) {
+            return false;
+        }
+
+        for ($indice = 0, $soma = 0; $indice < 9; $indice++) {
+            $soma += (int) $cpfLimpo[$indice] * (10 - $indice);
+        }
+
+        $resto = $soma % 11;
+        $digitoUm = ($resto < 2) ? 0 : 11 - $resto;
+
+        if ((int) $cpfLimpo[9] !== $digitoUm) {
+            return false;
+        }
+
+        for ($indice = 0, $soma = 0; $indice < 10; $indice++) {
+            $soma += (int) $cpfLimpo[$indice] * (11 - $indice);
+        }
+
+        $resto = $soma % 11;
+        $digitoDois = ($resto < 2) ? 0 : 11 - $resto;
+
+        if ((int) $cpfLimpo[10] !== $digitoDois) {
+            return false;
+        }
+
+        return true;
+    }
 }

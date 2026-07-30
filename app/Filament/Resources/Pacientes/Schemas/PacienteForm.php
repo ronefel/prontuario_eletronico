@@ -6,6 +6,7 @@ use App\Filament\Resources\Cidades\CidadeResource;
 use App\Forms\Components\Cep;
 use App\Models\Cidade;
 use App\Models\Paciente;
+use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
@@ -77,7 +78,18 @@ class PacienteForm
                             ->unique(ignoreRecord: true)
                             ->mask('999.999.999-99')
                             ->placeholder('000.000.000-00')
-                            ->minLength(14),
+                            ->minLength(14)
+                            ->rules([
+                                fn (): Closure => function (string $atributo, $valor, Closure $falha) {
+                                    if (! $valor) {
+                                        return;
+                                    }
+
+                                    if (! Paciente::validarCpf($valor)) {
+                                        $falha('CPF inválido.');
+                                    }
+                                },
+                            ]),
                     ]),
 
                 Fieldset::make('Contato')
@@ -109,6 +121,7 @@ class PacienteForm
                     ->schema([
                         Cep::make('cep')
                             ->autocomplete(false)
+                            ->required()
                             ->viaCep(
                                 setFields: [
                                     'logradouro' => 'logradouro',
