@@ -32,7 +32,7 @@ class PacienteForm
                         TextInput::make('nome')
                             ->required()
                             ->autocomplete(false)
-                            ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
+                            ->dehydrateStateUsing(fn(string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                         Grid::make()
                             ->columns(['md' => 2])
                             ->columnSpan(1)
@@ -40,8 +40,8 @@ class PacienteForm
                                 DatePicker::make('nascimento')
                                     ->required()
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
-                                    ->afterStateHydrated(fn (Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
+                                    ->afterStateUpdated(fn(Set $set, ?string $state): string => $set('idade', Paciente::calcularIdade($state)))
+                                    ->afterStateHydrated(fn(Set $set, ?string $state): bool => $set('idade', Paciente::calcularIdade($state))),
                                 TextInput::make('idade')
                                     ->disabled(),
                             ]),
@@ -80,12 +80,12 @@ class PacienteForm
                             ->placeholder('000.000.000-00')
                             ->minLength(14)
                             ->rules([
-                                fn (): Closure => function (string $atributo, $valor, Closure $falha) {
-                                    if (! $valor) {
+                                fn(): Closure => function (string $atributo, $valor, Closure $falha) {
+                                    if (!$valor) {
                                         return;
                                     }
 
-                                    if (! Paciente::validarCpf($valor)) {
+                                    if (!Paciente::validarCpf($valor)) {
                                         $falha('CPF inválido.');
                                     }
                                 },
@@ -99,8 +99,9 @@ class PacienteForm
                         TextInput::make('email')
                             ->label('E-mail')
                             ->email()
+                            ->required()
+                            ->rules(['email:rfc,dns'])
                             ->unique(ignoreRecord: true)
-                            ->nullable()
                             ->autocomplete(false)
                             ->dehydrateStateUsing(function ($state) {
                                 return ! empty($state) ? strtolower($state) : null;
@@ -142,9 +143,9 @@ class PacienteForm
                         Select::make('cidade_id')
                             ->relationship(
                                 name: 'cidade',
-                                modifyQueryUsing: fn (Builder $query) => $query->orderBy('nome')->orderBy('uf')
+                                modifyQueryUsing: fn(Builder $query) => $query->orderBy('nome')->orderBy('uf')
                             )
-                            ->getOptionLabelFromRecordUsing(fn (?Cidade $cidade) => $cidade?->nome.' - '.$cidade?->uf)
+                            ->getOptionLabelFromRecordUsing(fn(?Cidade $cidade) => $cidade?->nome . ' - ' . $cidade?->uf)
                             ->searchable()
                             ->preload()
                             ->createOptionForm(CidadeResource::formFields())->createOptionModalHeading('Criar Cidade')
