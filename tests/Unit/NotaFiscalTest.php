@@ -200,4 +200,110 @@ class NotaFiscalTest extends TestCase
         $this->assertEquals('Consulta Médica Especializada e Exames Clínicos', $config->discriminacao_servico);
         $this->assertEquals('Consulta Médica Especializada e Exames Clínicos', ConfiguracaoNotaFiscal::obterConfiguracaoAtiva()->discriminacao_servico);
     }
+
+    public function test_geracao_xml_cancelamento_e_validacao_xsd()
+    {
+        $gerador = new GeradorXmlRpsService;
+
+        $notaFiscal = (new NotaFiscal)->forceFill([
+            'numero_nfse' => '202600000000123',
+            'codigo_municipio_ibge' => '1100049',
+        ]);
+
+        $configuracao = (new ConfiguracaoNotaFiscal)->forceFill([
+            'cnpj' => '00000000000191',
+            'inscricao_municipal' => '12345',
+            'codigo_municipio_ibge' => '1100049',
+        ]);
+
+        $xml = $gerador->gerarXmlCancelamento($notaFiscal, $configuracao, '1');
+
+        $this->assertStringContainsString('<CancelarNfseEnvio', $xml);
+        $this->assertStringContainsString('<Numero>202600000000123</Numero>', $xml);
+        $this->assertStringContainsString('<CodigoCancelamento>1</CodigoCancelamento>', $xml);
+        $this->assertStringContainsString('<Cnpj>00000000000191</Cnpj>', $xml);
+
+        $validador = new ValidadorXmlService;
+        $validacao = $validador->validar($xml);
+
+        $this->assertTrue(
+            $validacao['valido'],
+            'O XML de cancelamento gerado falhou na validação XSD: '.implode(' | ', $validacao['erros'] ?? [])
+        );
+    }
+
+    public function test_geracao_xml_substituicao_e_validacao_xsd()
+    {
+        $gerador = new GeradorXmlRpsService;
+
+        $cidade = (new Cidade)->forceFill([
+            'nome' => 'Cacoal',
+            'uf' => 'RO',
+            'codigo_ibge' => '1100049',
+        ]);
+
+        $paciente = (new Paciente)->forceFill([
+            'nome' => 'João da Silva',
+            'cpf' => '12345678901',
+            'logradouro' => 'Av. Porto Velho',
+            'numero' => '1234',
+            'bairro' => 'Centro',
+            'cep' => '76960000',
+        ]);
+        $paciente->setRelation('cidade', $cidade);
+
+        $notaAntiga = (new NotaFiscal)->forceFill([
+            'numero_nfse' => '202600000000123',
+            'codigo_municipio_ibge' => '1100049',
+        ]);
+
+        $novaNota = (new NotaFiscal)->forceFill([
+            'numero_rps' => 105,
+            'serie_rps' => '1',
+            'tipo_rps' => 1,
+            'data_emissao_rps' => new \DateTime('2026-07-30 10:00:00'),
+            'valor_servicos' => 300.00,
+            'valor_deducoes' => 0.00,
+            'valor_pis' => 0.00,
+            'valor_cofins' => 0.00,
+            'valor_inss' => 0.00,
+            'valor_ir' => 0.00,
+            'valor_csll' => 0.00,
+            'valor_iss' => 6.00,
+            'aliquota_iss' => 2.00,
+            'desconto_incondicionado' => 0.00,
+            'desconto_condicionado' => 0.00,
+            'item_lista_servico' => '04.01',
+            'discriminacao_servico' => 'Consulta Reavaliada',
+            'codigo_municipio_ibge' => '1100049',
+        ]);
+        $novaNota->setRelation('paciente', $paciente);
+
+        $configuracao = (new ConfiguracaoNotaFiscal)->forceFill([
+            'cnpj' => '00000000000191',
+            'inscricao_municipal' => '12345',
+            'razao_social' => 'Clínica Médica Cacoal LTDA',
+            'codigo_municipio_ibge' => '1100049',
+            'uf' => 'RO',
+            'optante_simples_nacional' => true,
+            'incentivador_cultural' => false,
+            'item_lista_servico' => '04.01',
+            'aliquota_iss' => 2.00,
+        ]);
+
+        $xml = $gerador->gerarXmlSubstituicao($notaAntiga, $novaNota, $configuracao, '1');
+
+        $this->assertStringContainsString('<SubstituirNfseEnvio', $xml);
+        $this->assertStringContainsString('<SubstituicaoNfse', $xml);
+        $this->assertStringContainsString('<Numero>202600000000123</Numero>', $xml);
+        $this->assertStringContainsString('<Numero>105</Numero>', $xml);
+
+        $validador = new ValidadorXmlService;
+        $validacao = $validador->validar($xml);
+
+        $this->assertTrue(
+            $validacao['valido'],
+            'O XML de substituição gerado falhou na validação XSD: '.implode(' | ', $validacao['erros'] ?? [])
+        );
+    }
 }

@@ -355,7 +355,6 @@ class ConfiguracaoNotaFiscalPage extends Page
                 'regime_especial_tributacao' => 0,
                 'optante_simples_nacional' => true,
                 'incentivador_cultural' => false,
-                'item_lista_servico' => null,
                 'codigo_tributacao_municipio' => null,
                 'atividades' => [],
                 'cnaes' => [],

@@ -41,7 +41,7 @@ class Biorressonancia extends Page
     {
         return new PageRegistration(
             page: static::class,
-            route: fn(Panel $panel): Route => RouteFacade::get($path, static::class)
+            route: fn (Panel $panel): Route => RouteFacade::get($path, static::class)
                 ->middleware(static::getRouteMiddleware($panel))
                 ->withoutMiddleware(static::getWithoutRouteMiddleware($panel)),
         );
@@ -78,7 +78,7 @@ class Biorressonancia extends Page
         $categorias = CategoriaTestador::with([
             'testadores' => function ($query) {
                 $query->orderBy('numero', 'asc');
-            }
+            },
         ])->orderBy('ordem')->get();
 
         return Action::make('createExame')
@@ -102,11 +102,11 @@ class Biorressonancia extends Page
                         ->schema(
                             // Mapear as categorias para criar selects múltiplos para cada categoria
                             $categorias->map(function ($categoria) {
-                                return Select::make('testadores_' . $categoria->id)
+                                return Select::make('testadores_'.$categoria->id)
                                     ->label($categoria->nome) // Nome da categoria como label
                                     ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
                                         // Concatena número e nome
-                                        return [$id => $categoria->testadores->find($id)->numero . ' - ' . $nome];
+                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
                                     }))
                                     ->multiple()
                                     ->extraAlpineAttributes([
@@ -143,8 +143,8 @@ class Biorressonancia extends Page
         // Itera sobre as categorias e associa os testadores
         $categorias = CategoriaTestador::all();
         foreach ($categorias as $categoria) {
-            if (isset($data['testadores_' . $categoria->id])) {
-                $testadores = $data['testadores_' . $categoria->id];
+            if (isset($data['testadores_'.$categoria->id])) {
+                $testadores = $data['testadores_'.$categoria->id];
                 $exame->testadores()->attach($testadores);
             }
         }
@@ -158,7 +158,7 @@ class Biorressonancia extends Page
         $categorias = CategoriaTestador::with([
             'testadores' => function ($query) {
                 $query->orderBy('numero', 'asc');
-            }
+            },
         ])->orderBy('ordem')->get();
 
         return Action::make('editExame')
@@ -181,10 +181,10 @@ class Biorressonancia extends Page
                         ->schema(
                             // Adicione a lógica para carregar testadores aqui
                             $categorias->map(function ($categoria) {
-                                return Select::make('testadores_' . $categoria->id)
+                                return Select::make('testadores_'.$categoria->id)
                                     ->label($categoria->nome)
                                     ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
-                                        return [$id => $categoria->testadores->find($id)->numero . ' - ' . $nome];
+                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
                                     }))
                                     ->multiple()
                                     ->extraAlpineAttributes([
@@ -198,11 +198,11 @@ class Biorressonancia extends Page
                 // Encontre o exame pelo ID passado nos argumentos, carregando os testadores
                 $this->exame = Exame::with([
                     'testadores' => function ($query) {
-                    $query->orderBy('numero');
-                }
+                        $query->orderBy('numero');
+                    },
                 ])->find($arguments['id'] ?? null);
 
-                if (!$this->exame) {
+                if (! $this->exame) {
                     return [];
                 }
 
@@ -214,14 +214,14 @@ class Biorressonancia extends Page
                 // Carregar as categorias novamente, caso precise
                 $categorias = CategoriaTestador::with([
                     'testadores' => function ($query) {
-                    $query->orderBy('numero', 'asc');
-                }
+                        $query->orderBy('numero', 'asc');
+                    },
                 ])->orderBy('ordem')->get();
 
                 // Iterar sobre as categorias para preencher os testadores
                 foreach ($categorias as $categoria) {
                     // Preencher o array para cada categoria com os testadores relacionados ao exame
-                    $formData['testadores_' . $categoria->id] = $this->exame->testadores
+                    $formData['testadores_'.$categoria->id] = $this->exame->testadores
                         ->where('categoria_testador_id', $categoria->id)
                         ->pluck('id')
                         ->toArray();
@@ -296,9 +296,9 @@ class Biorressonancia extends Page
         // Iterar sobre as categorias para atualizar os testadores
         foreach ($categorias as $categoria) {
             // Verifique se há testadores para essa categoria na entrada de dados
-            if (isset($data['testadores_' . $categoria->id])) {
+            if (isset($data['testadores_'.$categoria->id])) {
                 // Adicionar os testadores selecionados ao exame
-                $exame->testadores()->attach($data['testadores_' . $categoria->id]);
+                $exame->testadores()->attach($data['testadores_'.$categoria->id]);
             }
         }
 
@@ -314,7 +314,7 @@ class Biorressonancia extends Page
         $exames = Exame::with([
             'testadores' => function ($query) {
                 $query->orderBy('numero');
-            }
+            },
         ])->where('paciente_id', $this->paciente->id)->orderBy('data')->get();
 
         if ($exames->count() == 0) {
@@ -332,7 +332,7 @@ class Biorressonancia extends Page
         $categorias = CategoriaTestador::with([
             'testadores' => function ($query) {
                 $query->orderBy('numero', 'asc');
-            }
+            },
         ])->orderBy('ordem')->get();
 
         foreach ($categorias as $categoria) {
@@ -356,7 +356,7 @@ class Biorressonancia extends Page
 
                 // Preencher a coluna de cada data com X se o testador participou do exame
                 foreach ($exames as $exame) {
-                    $row['id_' . $exame->id] =
+                    $row['id_'.$exame->id] =
                         $exame->testadores->contains($testador) ? 'X' : '';
                 }
 

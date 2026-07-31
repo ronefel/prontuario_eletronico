@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('notas_fiscais', function (Blueprint $table) {
@@ -58,6 +57,13 @@ return new class extends Migration
             $table->longText('xml_retorno')->nullable();
             $table->string('codigo_erro', 50)->nullable();
             $table->text('mensagem_erro')->nullable();
+
+            // Cancelamento e Substituição
+            $table->string('codigo_cancelamento', 5)->nullable();
+            $table->text('motivo_cancelamento')->nullable();
+            $table->dateTime('data_cancelamento')->nullable();
+            $table->foreignId('nota_fiscal_substituida_id')->nullable()->constrained('notas_fiscais')->nullOnDelete();
+            $table->foreignId('nota_fiscal_substituta_id')->nullable()->constrained('notas_fiscais')->nullOnDelete();
 
             $table->timestamps();
         });

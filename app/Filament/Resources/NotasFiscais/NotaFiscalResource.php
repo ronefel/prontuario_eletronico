@@ -195,6 +195,42 @@ class NotaFiscalResource extends Resource
                         ]),
                     ]),
 
+                Section::make('Informações de Cancelamento e Substituição')
+                    ->columnSpanFull()
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextEntry::make('codigo_cancelamento')
+                                ->label('Código de Cancelamento')
+                                ->formatStateUsing(fn ($state) => match ($state) {
+                                    '1' => '1 - Erro na Emissão',
+                                    '2' => '2 - Serviço Não Prestado',
+                                    '3' => '3 - Erro de Assinatura',
+                                    '4' => '4 - Duplicidade da Nota',
+                                    '5' => '5 - Outros',
+                                    default => $state,
+                                }),
+
+                            TextEntry::make('data_cancelamento')
+                                ->label('Data do Cancelamento')
+                                ->dateTime('d/m/Y H:i:s'),
+
+                            TextEntry::make('notaSubstituta.numero_nfse')
+                                ->label('Substituída Pela NFS-e')
+                                ->placeholder('-')
+                                ->formatStateUsing(fn ($state, $record) => $record->notaSubstituta ? "NFS-e nº {$record->notaSubstituta->numero_nfse}" : '-'),
+
+                            TextEntry::make('notaSubstituida.numero_nfse')
+                                ->label('Substituiu a NFS-e')
+                                ->placeholder('-')
+                                ->formatStateUsing(fn ($state, $record) => $record->notaSubstituida ? "NFS-e nº {$record->notaSubstituida->numero_nfse}" : '-'),
+
+                            TextEntry::make('motivo_cancelamento')
+                                ->label('Motivo / Justificativa')
+                                ->columnSpanFull(),
+                        ]),
+                    ])
+                    ->visible(fn ($record) => $record->ehCancelada() || ! empty($record->nota_fiscal_substituida_id)),
+
                 Section::make('Retorno / Erros da Prefeitura')
                     ->columnSpanFull()
                     ->schema([

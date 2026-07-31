@@ -201,4 +201,112 @@ class GeradorXmlRpsService
 
         return $dom->saveXML();
     }
+
+    /**
+     * Gera o XML CancelarNfseEnvio no padrão ABRASF v2.02.
+     *
+     * @throws Exception Se a nota não possuir número de NFS-e.
+     */
+    public function gerarXmlCancelamento(NotaFiscal $notaFiscal, ConfiguracaoNotaFiscal $configuracao, string $codigoCancelamento = '1'): string
+    {
+        if (! $notaFiscal->numero_nfse) {
+            throw new Exception('A nota fiscal não possui número de NFS-e gerado para ser cancelada.');
+        }
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+
+        $cancelarNfseEnvio = $dom->createElementNS('http://www.abrasf.org.br/nfse.xsd', 'CancelarNfseEnvio');
+        $dom->appendChild($cancelarNfseEnvio);
+
+        $pedido = $dom->createElement('Pedido');
+        $cancelarNfseEnvio->appendChild($pedido);
+
+        $infPedido = $dom->createElement('InfPedidoCancelamento');
+        $infPedido->setAttribute('Id', 'CANCELAMENTO_NFSE_'.$notaFiscal->numero_nfse);
+        $pedido->appendChild($infPedido);
+
+        $identificacaoNfse = $dom->createElement('IdentificacaoNfse');
+        $identificacaoNfse->appendChild($dom->createElement('Numero', (string) $notaFiscal->numero_nfse));
+
+        $cpfCnpj = $dom->createElement('CpfCnpj');
+        $cnpjLimpo = preg_replace('/\D/', '', $configuracao->cnpj);
+        $cpfCnpj->appendChild($dom->createElement('Cnpj', $cnpjLimpo));
+        $identificacaoNfse->appendChild($cpfCnpj);
+
+        if ($configuracao->inscricao_municipal) {
+            $identificacaoNfse->appendChild($dom->createElement('InscricaoMunicipal', preg_replace('/\D/', '', $configuracao->inscricao_municipal)));
+        }
+
+        $codigoIbge = $notaFiscal->codigo_municipio_ibge ?: $configuracao->codigo_municipio_ibge ?: '1100049';
+        $identificacaoNfse->appendChild($dom->createElement('CodigoMunicipio', $codigoIbge));
+
+        $infPedido->appendChild($identificacaoNfse);
+        $infPedido->appendChild($dom->createElement('CodigoCancelamento', $codigoCancelamento));
+
+        return $dom->saveXML();
+    }
+
+    /**
+     * Gera o XML SubstituirNfseEnvio no padrão ABRASF v2.02.
+     *
+     * @throws Exception Se a nota antiga não possuir número de NFS-e.
+     */
+    public function gerarXmlSubstituicao(NotaFiscal $notaFiscalAntiga, NotaFiscal $novaNota, ConfiguracaoNotaFiscal $configuracao, string $codigoCancelamento = '1'): string
+    {
+        if (! $notaFiscalAntiga->numero_nfse) {
+            throw new Exception('A nota fiscal de origem não possui número de NFS-e gerado para ser substituída.');
+        }
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+
+        $substituirNfseEnvio = $dom->createElementNS('http://www.abrasf.org.br/nfse.xsd', 'SubstituirNfseEnvio');
+        $dom->appendChild($substituirNfseEnvio);
+
+        $substituicaoNfse = $dom->createElement('SubstituicaoNfse');
+        $substituicaoNfse->setAttribute('Id', 'SUBSTITUICAO_NFSE_'.$notaFiscalAntiga->numero_nfse);
+        $substituirNfseEnvio->appendChild($substituicaoNfse);
+
+        // 1. Pedido de Cancelamento da Nota Antiga
+        $pedido = $dom->createElement('Pedido');
+        $substituicaoNfse->appendChild($pedido);
+
+        $infPedido = $dom->createElement('InfPedidoCancelamento');
+        $infPedido->setAttribute('Id', 'CANCELAMENTO_NFSE_'.$notaFiscalAntiga->numero_nfse);
+        $pedido->appendChild($infPedido);
+
+        $identificacaoNfse = $dom->createElement('IdentificacaoNfse');
+        $identificacaoNfse->appendChild($dom->createElement('Numero', (string) $notaFiscalAntiga->numero_nfse));
+
+        $cpfCnpj = $dom->createElement('CpfCnpj');
+        $cnpjLimpo = preg_replace('/\D/', '', $configuracao->cnpj);
+        $cpfCnpj->appendChild($dom->createElement('Cnpj', $cnpjLimpo));
+        $identificacaoNfse->appendChild($cpfCnpj);
+
+        if ($configuracao->inscricao_municipal) {
+            $identificacaoNfse->appendChild($dom->createElement('InscricaoMunicipal', preg_replace('/\D/', '', $configuracao->inscricao_municipal)));
+        }
+
+        $codigoIbge = $notaFiscalAntiga->codigo_municipio_ibge ?: $configuracao->codigo_municipio_ibge ?: '1100049';
+        $identificacaoNfse->appendChild($dom->createElement('CodigoMunicipio', $codigoIbge));
+
+        $infPedido->appendChild($identificacaoNfse);
+        $infPedido->appendChild($dom->createElement('CodigoCancelamento', $codigoCancelamento));
+
+        // 2. RPS da Nova Nota Fiscal Substituta
+        $xmlNovoRps = $this->gerarXml($novaNota, $configuracao);
+        $domNovoRps = new DOMDocument('1.0', 'UTF-8');
+        $domNovoRps->loadXML($xmlNovoRps);
+
+        $nosRps = $domNovoRps->getElementsByTagName('Rps');
+        if ($nosRps->length > 0) {
+            $noRpsImportado = $dom->importNode($nosRps->item(0), true);
+            $substituicaoNfse->appendChild($noRpsImportado);
+        }
+
+        return $dom->saveXML();
+    }
 }

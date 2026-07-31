@@ -8,6 +8,9 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -25,7 +28,7 @@ class NotasFiscaisTable
 
                 TextColumn::make('numero_rps')
                     ->label('RPS / Série')
-                    ->formatStateUsing(fn ($record) => $record->numero_rps ? "{$record->numero_rps}/{$record->serie_rps}" : '-')
+                    ->formatStateUsing(fn($record) => $record->numero_rps ? "{$record->numero_rps}/{$record->serie_rps}" : '-')
                     ->sortable(),
 
                 TextColumn::make('numero_nfse')
@@ -47,14 +50,14 @@ class NotasFiscaisTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'autorizada' => 'success',
                         'processando' => 'warning',
                         'rejeitada' => 'danger',
                         'cancelada' => 'gray',
                         default => 'info',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'autorizada' => 'Autorizada',
                         'processando' => 'Processando',
                         'rejeitada' => 'Rejeitada',
@@ -68,6 +71,7 @@ class NotasFiscaisTable
                     ->placeholder('-')
                     ->sortable(),
             ])
+            ->defaultSort('numero_nfse', direction: 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->options([
@@ -79,59 +83,17 @@ class NotasFiscaisTable
                     ]),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->hiddenLabel()
+                    ->tooltip('Visualizar Nota Fiscal'),
                 EditAction::make()
-                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
+                    ->hiddenLabel()
+                    ->tooltip('Editar Nota Fiscal')
+                    ->visible(fn(NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
                 DeleteAction::make()
-                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
-                Action::make('emitir')
-                    ->label('Emitir NFS-e')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada']))
-                    ->action(function (NotaFiscal $record) {
-                        try {
-                            $emissor = app(EmissorNfseService::class);
-                            $emissor->emitir($record);
-
-                            if ($record->status === 'autorizada') {
-                                Notification::make()
-                                    ->success()
-                                    ->title('NFS-e Emitida com Sucesso!')
-                                    ->body("Nota Fiscal de Serviço nº {$record->numero_nfse} autorizada.")
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->danger()
-                                    ->title('NFS-e Rejeitada pela Prefeitura')
-                                    ->body($record->mensagem_erro ?? 'Erro no processamento da NFS-e.')
-                                    ->persistent()
-                                    ->send();
-                            }
-                        } catch (\Throwable $e) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Falha na Emissão da NFS-e')
-                                ->body($e->getMessage())
-                                ->persistent()
-                                ->send();
-                        }
-                    }),
-
-                Action::make('baixarXml')
-                    ->label('Download XML')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('info')
-                    ->visible(fn (NotaFiscal $record): bool => ! empty($record->xml_envio) || ! empty($record->xml_retorno))
-                    ->action(function (NotaFiscal $record) {
-                        $conteudoXml = $record->xml_retorno ?: $record->xml_envio;
-                        $nomeArquivo = "NFSE_{$record->numero_nfse}_RPS_{$record->numero_rps}.xml";
-
-                        return response()->streamDownload(function () use ($conteudoXml) {
-                            echo $conteudoXml;
-                        }, $nomeArquivo, ['Content-Type' => 'text/xml']);
-                    }),
+                    ->hiddenLabel()
+                    ->tooltip('Excluir Nota Fiscal')
+                    ->visible(fn(NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
             ]);
     }
 }

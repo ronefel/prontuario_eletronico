@@ -80,22 +80,22 @@
                             </td>
 
                             @if ($isDeletable && (!$isDisabled))
-                                                    <td class="fi-has-action">
-                                                        <div x-on:click="deleteRow(index)">
+                                <td class="fi-has-action">
+                                    <div x-on:click="deleteRow(index)">
                                                             {{ $getAction('delete') }}
-                                </div>
-                                    </td>
+                                    </div>
+                                </td>
                             @endif
-        </tr>
-        </template>
-        </tbody>
-        </table>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
 
-        @if ($isAddable && (!$isDisabled))
-            <div x-on:click="addRow" class="fi-fo-key-value-add-action-ctn">
-                {{ $getAction('add') }}
+            @if ($isAddable && (!$isDisabled))
+                <div x-on:click="addRow" class="fi-fo-key-value-add-action-ctn">
+                    {{ $getAction('add') }}
                 </div>
-        @endif
+            @endif
         </div>
     </x-filament::input.wrapper>
 </x-dynamic-component>

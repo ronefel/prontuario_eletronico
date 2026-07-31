@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('item_lista_servico', 10)->default('04.01'); // Serviços de saúde / medicina
             $table->string('codigo_tributacao_municipio', 20)->nullable();
             $table->decimal('aliquota_iss', 5, 2)->default(2.00); // Ex: 2.00%
+            $table->text('discriminacao_servico')->nullable();
             $table->json('atividades')->nullable(); // Lista de atividades municipais cadastradas
             $table->json('cnaes')->nullable(); // Lista de CNAEs cadastrados
 

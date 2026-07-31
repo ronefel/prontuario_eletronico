@@ -92,11 +92,11 @@ class Paciente extends BaseModel
             $intervalo = $hoje->diff($nascimento);
 
             if ($intervalo->y >= 1) {
-                return $intervalo->y.' Anos';
+                return $intervalo->y . ' Anos';
             } elseif ($intervalo->m >= 1) {
-                return $intervalo->m.' Meses'.$intervalo->d - 1 .'Dias';
+                return $intervalo->m . ' Meses' . $intervalo->d - 1 . 'Dias';
             } else {
-                return $intervalo->d - 1 .' Dias';
+                return $intervalo->d - 1 . ' Dias';
             }
         }
 
@@ -111,7 +111,7 @@ class Paciente extends BaseModel
         // Verifica se tem o tamanho correto de um número de celular (com DDD)
         if (strlen($celular) == 11) {
             // Formata para (XX) XXXXX-XXXX
-            return '('.substr($celular, 0, 2).') '.substr($celular, 2, 5).'-'.substr($celular, 7);
+            return '(' . substr($celular, 0, 2) . ') ' . substr($celular, 2, 5) . '-' . substr($celular, 7);
         }
 
         // Caso não tenha o tamanho esperado, retorna o número sem formatação
@@ -120,7 +120,7 @@ class Paciente extends BaseModel
 
     public static function validarCpf(?string $cpf): bool
     {
-        if (! $cpf) {
+        if (!$cpf) {
             return false;
         }
 
@@ -158,4 +158,49 @@ class Paciente extends BaseModel
 
         return true;
     }
+
+    public function validarParaNotaFiscal(): array
+    {
+        $erros = [];
+
+        if (blank($this->nome)) {
+            $erros[] = 'Nome do paciente não informado.';
+        }
+
+        if (blank($this->cpf)) {
+            $erros[] = 'CPF não informado.';
+        } elseif (!static::validarCpf($this->cpf)) {
+            $erros[] = 'CPF inválido.';
+        }
+
+        if (blank($this->email)) {
+            $erros[] = 'Email não informado.';
+        }
+
+        if (blank($this->cep)) {
+            $erros[] = 'CEP do endereço não informado.';
+        }
+
+        if (blank($this->logradouro)) {
+            $erros[] = 'Logradouro (endereço) não informado.';
+        }
+
+        if (blank($this->numero)) {
+            $erros[] = 'Número do endereço não informado.';
+        }
+
+        if (blank($this->bairro)) {
+            $erros[] = 'Bairro do endereço não informado.';
+        }
+
+        if (!$this->cidade_id || !$this->cidade) {
+            $erros[] = 'Cidade do endereço não selecionada.';
+        } elseif (blank($this->cidade->codigo_ibge)) {
+            $nomeCidade = $this->cidade->nome ?? 'Cidade';
+            $erros[] = "A cidade '{$nomeCidade}' não possui Código IBGE cadastrado.";
+        }
+
+        return $erros;
+    }
 }
+

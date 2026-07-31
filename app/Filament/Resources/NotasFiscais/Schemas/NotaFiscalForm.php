@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NotasFiscais\Schemas;
 
+use App\Filament\Resources\Pacientes\Schemas\PacienteForm;
 use App\Models\ConfiguracaoNotaFiscal;
 use App\Models\Paciente;
 use Filament\Forms\Components\Select;
@@ -20,7 +21,7 @@ class NotaFiscalForm
         $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
 
         $atividadesOptions = [];
-        if (! empty($configuracao?->atividades)) {
+        if (!empty($configuracao?->atividades)) {
             foreach ($configuracao->atividades as $codigo => $descricao) {
                 if (is_array($descricao)) {
                     $chave = $descricao['item_lista_servico'] ?? $descricao['codigo_tributacao_municipio'] ?? (string) $codigo;
@@ -33,7 +34,7 @@ class NotaFiscalForm
         }
 
         $cnaesOptions = [];
-        if (! empty($configuracao?->cnaes)) {
+        if (!empty($configuracao?->cnaes)) {
             foreach ($configuracao->cnaes as $codigo => $descricao) {
                 if (is_array($descricao)) {
                     $chave = $descricao['codigo'] ?? (string) $codigo;
@@ -59,11 +60,15 @@ class NotaFiscalForm
                             ->schema([
                                 Select::make('paciente_id')
                                     ->label('Paciente / Tomador')
-                                    ->options(Paciente::all()->pluck('nome', 'id'))
-                                    ->default(fn () => request()->query('paciente_id'))
+                                    ->relationship('paciente', 'nome')
+                                    ->default(fn() => request()->query('paciente_id'))
                                     ->live()
                                     ->searchable()
-                                    ->required(),
+                                    ->preload()
+                                    ->required()
+                                    ->editOptionForm(fn(Schema $schema) => PacienteForm::configure($schema))
+                                    ->editOptionModalHeading('Editar Cadastro do Paciente'),
+
                                 Grid::make([
                                     'sm' => 3,
                                 ])->columnSpan(2)
@@ -71,23 +76,52 @@ class NotaFiscalForm
                                         $idPaciente = $get('paciente_id');
                                         $paciente = $idPaciente ? Paciente::with('cidade')->find($idPaciente) : null;
 
-                                        // Exibe informações do paciente selecionado
+                                        if (!$paciente) {
+                                            return [];
+                                        }
+
+                                        $errosValidacao = $paciente->validarParaNotaFiscal();
+
+                                        $itensHtml = array_map(fn($erro) => '<li style="margin-bottom: 0.25rem;">❌ ' . e($erro) . '</li>', $errosValidacao);
+                                        $listaErros = implode('', $itensHtml);
+
+                                        $statusValidacao = !empty($errosValidacao)
+                                            ? '<div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #dc2626; border-radius: 0.5rem; padding: 0.75rem 1rem;">
+                                                    <strong style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+                                                        ⚠️ Dados faltantes ou incorretos para emissão da Nota Fiscal:
+                                                    </strong>
+                                                    <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; padding-left: 1.25rem; font-size: 0.875rem; list-style-type: none;">
+                                                        ' . $listaErros . '
+                                                    </ul>
+                                                    <small style="color: #b91c1c;">Clique no ícone de lápis ao lado do campo do Paciente para atualizar estes dados.</small>
+                                               </div>'
+                                            : '<div style="background-color: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); color: #15803d; border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.875rem;">
+                                                    <strong>✓ Cadastro do paciente completo e válido para emissão da NFS-e.</strong>
+                                               </div>';
+
+                                        // Exibe informações do paciente selecionado e o resultado da validação
                                         return [
                                             TextEntry::make('paciente.cpf')
                                                 ->label('CPF')
-                                                ->state($paciente?->cpf),
+                                                ->state($paciente->cpf ?: 'Não informado'),
 
                                             TextEntry::make('paciente.email')
                                                 ->label('E-mail')
-                                                ->state($paciente?->email),
+                                                ->state($paciente->email ?: 'Não informado'),
 
                                             TextEntry::make('paciente.celular')
                                                 ->label('Celular')
-                                                ->state($paciente?->celularFormatado() ?: $paciente?->celular),
+                                                ->state($paciente->celularFormatado() ?: $paciente->celular ?: 'Não informado'),
 
                                             TextEntry::make('paciente.logradouro')
                                                 ->label('Endereço')
-                                                ->state($paciente ? trim("{$paciente?->logradouro}, {$paciente?->numero} - {$paciente?->bairro} | {$paciente?->cidade?->nome} - {$paciente?->cidade?->uf}") : null)
+                                                ->state(trim("{$paciente->logradouro}, {$paciente->numero} - {$paciente->bairro} | {$paciente->cidade?->nome} - {$paciente->cidade?->uf}"))
+                                                ->columnSpanFull(),
+
+                                            TextEntry::make('status_validacao_paciente')
+                                                ->label('Validação para NFS-e')
+                                                ->html()
+                                                ->state($statusValidacao)
                                                 ->columnSpanFull(),
                                         ];
                                     }),

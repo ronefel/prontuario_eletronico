@@ -31,6 +31,7 @@ class PacienteForm
                     ->schema([
                         TextInput::make('nome')
                             ->required()
+                            ->maxLength(115)
                             ->autocomplete(false)
                             ->dehydrateStateUsing(fn (string $state): string => ucwords(strtolower($state))), // Capitaliza a primeira letra de cada palavra
                         Grid::make()
@@ -100,6 +101,7 @@ class PacienteForm
                             ->label('E-mail')
                             ->email()
                             ->required()
+                            ->maxLength(80)
                             ->rules(['email:rfc,dns'])
                             ->unique(ignoreRecord: true)
                             ->autocomplete(false)
@@ -131,13 +133,17 @@ class PacienteForm
                                 ],
                             ),
                         TextInput::make('logradouro')
+                            ->maxLength(125)
                             ->autocomplete(false),
                         TextInput::make('numero')
                             ->label('Número')
+                            ->maxLength(10)
                             ->autocomplete(false),
                         TextInput::make('complemento')
+                            ->maxLength(60)
                             ->autocomplete(false),
                         TextInput::make('bairro')
+                            ->maxLength(60)
                             ->autocomplete(false),
 
                         Select::make('cidade_id')

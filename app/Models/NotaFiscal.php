@@ -42,11 +42,18 @@ use Illuminate\Support\Carbon;
  * @property string|null $xml_retorno
  * @property string|null $codigo_erro
  * @property string|null $mensagem_erro
+ * @property string|null $codigo_cancelamento
+ * @property string|null $motivo_cancelamento
+ * @property Carbon|null $data_cancelamento
+ * @property int|null $nota_fiscal_substituida_id
+ * @property int|null $nota_fiscal_substituta_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Paciente $paciente
  * @property Tratamento|null $tratamento
  * @property User|null $usuario
+ * @property NotaFiscal|null $notaSubstituida
+ * @property NotaFiscal|null $notaSubstituta
  */
 class NotaFiscal extends BaseModel
 {
@@ -57,6 +64,7 @@ class NotaFiscal extends BaseModel
     protected $casts = [
         'data_emissao_rps' => DatetimeWithTimezone::class,
         'data_emissao_nfse' => DatetimeWithTimezone::class,
+        'data_cancelamento' => DatetimeWithTimezone::class,
         'valor_servicos' => 'decimal:2',
         'valor_deducoes' => 'decimal:2',
         'valor_pis' => 'decimal:2',
@@ -86,6 +94,16 @@ class NotaFiscal extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function notaSubstituida()
+    {
+        return $this->belongsTo(NotaFiscal::class, 'nota_fiscal_substituida_id');
+    }
+
+    public function notaSubstituta()
+    {
+        return $this->belongsTo(NotaFiscal::class, 'nota_fiscal_substituta_id');
+    }
+
     public function ehAutorizada(): bool
     {
         return $this->status === 'autorizada';
@@ -94,5 +112,10 @@ class NotaFiscal extends BaseModel
     public function ehCancelada(): bool
     {
         return $this->status === 'cancelada';
+    }
+
+    public function ehSubstituida(): bool
+    {
+        return $this->status === 'cancelada' && ! empty($this->nota_fiscal_substituta_id);
     }
 }
