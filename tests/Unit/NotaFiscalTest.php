@@ -306,4 +306,24 @@ class NotaFiscalTest extends TestCase
             'O XML de substituição gerado falhou na validação XSD: '.implode(' | ', $validacao['erros'] ?? [])
         );
     }
+
+    public function test_desempacotamento_xml_retorno_soap()
+    {
+        $respostaSoap = '<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><soap:Body><SubstituirNfseResponse xmlns="http://nfse.abrasf.org.br"><outputXML xmlns="">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;SubstituirNfseResposta xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.abrasf.org.br/nfse.xsd"&gt;&lt;RetSubstituicao&gt;&lt;NfseSubstituida&gt;&lt;CompNfse&gt;&lt;Nfse versao="2.02"&gt;&lt;InfNfse Id="NFSe2026000000006_64897206000149"&gt;&lt;Numero&gt;2026000000006&lt;/Numero&gt;&lt;/InfNfse&gt;&lt;/Nfse&gt;&lt;/CompNfse&gt;&lt;/NfseSubstituida&gt;&lt;NfseSubstituidora&gt;&lt;CompNfse&gt;&lt;Nfse versao="2.02"&gt;&lt;InfNfse Id="NFSe2026000000007_64897206000149"&gt;&lt;Numero&gt;2026000000007&lt;/Numero&gt;&lt;/InfNfse&gt;&lt;/Nfse&gt;&lt;/CompNfse&gt;&lt;/NfseSubstituidora&gt;&lt;/RetSubstituicao&gt;&lt;/SubstituirNfseResposta&gt;</outputXML></SubstituirNfseResponse></soap:Body></soap:Envelope>';
+
+        $xmlLimpo = NotaFiscal::extrairXmlLimpo($respostaSoap, '2026000000007');
+
+        $this->assertStringNotContainsString('soap:Envelope', $xmlLimpo);
+        $this->assertStringNotContainsString('outputXML', $xmlLimpo);
+        $this->assertStringNotContainsString('&lt;', $xmlLimpo);
+        $this->assertStringContainsString('<CompNfse', $xmlLimpo);
+        $this->assertStringContainsString('<Numero>2026000000007</Numero>', $xmlLimpo);
+        $this->assertStringNotContainsString('<Numero>2026000000006</Numero>', $xmlLimpo);
+
+        $notaFiscal = new NotaFiscal([
+            'numero_nfse' => '2026000000007',
+            'xml_retorno' => $respostaSoap,
+        ]);
+        $this->assertEquals($xmlLimpo, $notaFiscal->obterXmlDownload());
+    }
 }

@@ -81,7 +81,7 @@ class EmissorNfseService
             // 5. Transmitir ao WebService
             try {
                 $respostaXml = $this->clienteSoap->enviar('GerarNfse', $xmlEnvio);
-                $notaFiscal->xml_retorno = $respostaXml;
+                $notaFiscal->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml) ?: $respostaXml;
 
                 // 6. Processar resposta XML
                 $this->processarResposta($notaFiscal, $respostaXml);
@@ -222,6 +222,7 @@ class EmissorNfseService
             $notaFiscal->status = 'autorizada';
             $notaFiscal->mensagem_erro = null;
             $notaFiscal->codigo_erro = null;
+            $notaFiscal->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml, $notaFiscal->numero_nfse) ?: $respostaXml;
         } else {
             $notaFiscal->status = 'rejeitada';
             $notaFiscal->mensagem_erro = 'Não foi possível localizar o número e código de verificação da NFS-e no retorno da prefeitura.';
@@ -263,7 +264,7 @@ class EmissorNfseService
             }
 
             $respostaXml = $this->clienteSoap->enviar('CancelarNfse', $xmlEnvio);
-            $notaFiscal->xml_retorno = $respostaXml;
+            $notaFiscal->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml) ?: $respostaXml;
 
             $this->processarRespostaCancelamento($notaFiscal, $respostaXml, $codigoCancelamento, $motivo);
 
@@ -319,7 +320,7 @@ class EmissorNfseService
             }
 
             $respostaXml = $this->clienteSoap->enviar('SubstituirNfse', $xmlEnvio);
-            $novaNota->xml_retorno = $respostaXml;
+            $novaNota->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml) ?: $respostaXml;
 
             $this->processarRespostaSubstituicao($notaFiscalAntiga, $novaNota, $respostaXml, $codigoCancelamento);
 
@@ -372,6 +373,7 @@ class EmissorNfseService
         $notaFiscal->codigo_cancelamento = $codigoCancelamento;
         $notaFiscal->motivo_cancelamento = $motivo;
         $notaFiscal->data_cancelamento = now();
+        $notaFiscal->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml, $notaFiscal->numero_nfse) ?: $respostaXml;
         $notaFiscal->save();
     }
 
@@ -440,6 +442,7 @@ class EmissorNfseService
             $novaNota->data_emissao_nfse = now();
             $novaNota->status = 'autorizada';
             $novaNota->nota_fiscal_substituida_id = $notaFiscalAntiga->id;
+            $novaNota->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml, $novaNota->numero_nfse) ?: $respostaXml;
             $novaNota->save();
 
             $notaFiscalAntiga->status = 'cancelada';
@@ -447,6 +450,7 @@ class EmissorNfseService
             $notaFiscalAntiga->motivo_cancelamento = "Substituída pela NFS-e nº {$novaNota->numero_nfse}";
             $notaFiscalAntiga->data_cancelamento = now();
             $notaFiscalAntiga->nota_fiscal_substituta_id = $novaNota->id;
+            $notaFiscalAntiga->xml_retorno = NotaFiscal::extrairXmlLimpo($respostaXml, $notaFiscalAntiga->numero_nfse) ?: $notaFiscalAntiga->xml_retorno;
             $notaFiscalAntiga->save();
         } else {
             $novaNota->status = 'rejeitada';

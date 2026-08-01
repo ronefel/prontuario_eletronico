@@ -192,7 +192,7 @@ class ViewNotaFiscal extends ViewRecord
                     /** @var NotaFiscal $notaFiscal */
                     $notaFiscal = $this->record;
 
-                    $conteudoXml = $notaFiscal->xml_retorno ?: $notaFiscal->xml_envio ?: $notaFiscal->xml_rps ?: '';
+                    $conteudoXml = $notaFiscal->obterXmlDownload() ?? '';
                     $nomeArquivo = "NFSE_{$notaFiscal->numero_nfse}_RPS_{$notaFiscal->numero_rps}.xml";
 
                     return response()->streamDownload(

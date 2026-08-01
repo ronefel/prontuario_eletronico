@@ -128,4 +128,105 @@ class NotaFiscal extends BaseModel
     {
         return $this->status === 'cancelada' && ! empty($this->nota_fiscal_substituta_id);
     }
+
+    /**
+     * Extrai e formata o conteúdo XML limpo de uma resposta que possa estar envelopada em SOAP/HTML entities.
+     * Se houver um nó <CompNfse> (da NFS-e), extrai isoladamente o XML da nota específica.
+     */
+    public static function extrairXmlLimpo(?string $xml, ?string $numeroNfse = null): ?string
+    {
+        if (empty($xml)) {
+            return null;
+        }
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        if (! @$dom->loadXML($xml)) {
+            return $xml;
+        }
+
+        $tagsEnvelopeRetorno = [
+            'outputXML',
+            'outputXml',
+            'GerarNfseResult',
+            'SubstituirNfseResult',
+            'CancelarNfseResult',
+            'ConsultarNfseResposta',
+            'return',
+            'output',
+        ];
+
+        $domAlvo = $dom;
+
+        foreach ($tagsEnvelopeRetorno as $tag) {
+            $nos = $dom->getElementsByTagName($tag);
+            if ($nos->length > 0) {
+                $conteudoInterno = $nos->item(0)->nodeValue;
+                if (! empty($conteudoInterno) && (str_contains($conteudoInterno, '<') || str_contains($conteudoInterno, '&lt;'))) {
+                    $desempacotado = htmlspecialchars_decode(html_entity_decode($conteudoInterno, ENT_QUOTES | ENT_XML1, 'UTF-8'));
+                    $domInterno = new \DOMDocument();
+                    if (@$domInterno->loadXML($desempacotado)) {
+                        $domAlvo = $domInterno;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Tentar isolar o elemento <CompNfse> da nota fiscal específica
+        $nosCompNfse = $domAlvo->getElementsByTagName('CompNfse');
+        if ($nosCompNfse->length > 0) {
+            $noCompEscolhido = null;
+
+            if ($nosCompNfse->length === 1) {
+                $noCompEscolhido = $nosCompNfse->item(0);
+            } else {
+                foreach ($nosCompNfse as $noComp) {
+                    if ($noComp instanceof \DOMElement) {
+                        $nosNumero = $noComp->getElementsByTagName('Numero');
+                        if ($nosNumero->length > 0) {
+                            $num = $nosNumero->item(0)->nodeValue;
+                            if (! empty($numeroNfse) && $num === (string) $numeroNfse) {
+                                $noCompEscolhido = $noComp;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (! $noCompEscolhido) {
+                    $noCompEscolhido = $nosCompNfse->item($nosCompNfse->length - 1);
+                }
+            }
+
+            if ($noCompEscolhido) {
+                $domComp = new \DOMDocument('1.0', 'utf-8');
+                $domComp->preserveWhiteSpace = false;
+                $domComp->formatOutput = true;
+                $noImportado = $domComp->importNode($noCompEscolhido, true);
+                $domComp->appendChild($noImportado);
+
+                return $domComp->saveXML();
+            }
+        }
+
+        $domFinal = new \DOMDocument('1.0', 'utf-8');
+        $domFinal->preserveWhiteSpace = false;
+        $domFinal->formatOutput = true;
+        if (@$domFinal->loadXML($domAlvo->saveXML())) {
+            return $domFinal->saveXML();
+        }
+
+        return $domAlvo->saveXML();
+    }
+
+    /**
+     * Retorna o XML limpo pronto para download ou exibição.
+     */
+    public function obterXmlDownload(): ?string
+    {
+        $conteudoXml = $this->xml_retorno ?: $this->xml_envio ?: $this->xml_rps;
+
+        return static::extrairXmlLimpo($conteudoXml, $this->numero_nfse);
+    }
 }
