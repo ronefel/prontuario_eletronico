@@ -117,6 +117,7 @@ class CidadeResource extends Resource
                     'SE' => 'Sergipe',
                     'SP' => 'São Paulo',
                     'TO' => 'Tocantins',
+                    'HM' => 'UF da Homologação',
                 ])->searchable(),
             TextInput::make('codigo_ibge')
                 ->label('Código IBGE')
