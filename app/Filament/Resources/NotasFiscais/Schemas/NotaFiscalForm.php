@@ -203,7 +203,7 @@ class NotaFiscalForm
                 Section::make('Informações da Prestação')
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(3)->schema([
+                        Grid::make(2)->schema([
                             Select::make('item_lista_servico')
                                 ->label('Atividade Municipal')
                                 ->options($atividadesOptions)
@@ -214,11 +214,6 @@ class NotaFiscalForm
                                 ->label('Código CNAE')
                                 ->options($cnaesOptions)
                                 ->default($cnaePadrao),
-
-                            TextInput::make('codigo_municipio_ibge')
-                                ->label('Município da Prestação (IBGE)')
-                                ->default($configuracao?->codigo_municipio_ibge ?? '1100049')
-                                ->required(),
 
                             Textarea::make('discriminacao_servico')
                                 ->label('Discriminação dos Serviços Prestados')

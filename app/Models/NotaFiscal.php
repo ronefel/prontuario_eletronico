@@ -61,6 +61,16 @@ class NotaFiscal extends BaseModel
 
     protected $table = 'notas_fiscais';
 
+    protected static function booted(): void
+    {
+        static::creating(function (NotaFiscal $notaFiscal) {
+            if (empty($notaFiscal->codigo_municipio_ibge)) {
+                $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
+                $notaFiscal->codigo_municipio_ibge = $configuracao?->codigo_municipio_ibge ?? '1100049';
+            }
+        });
+    }
+
     protected $casts = [
         'data_emissao_rps' => DatetimeWithTimezone::class,
         'data_emissao_nfse' => DatetimeWithTimezone::class,

@@ -37,6 +37,7 @@ class CreateNotaFiscal extends CreateRecord
         $data['tipo_rps'] = 1;
         $data['status'] = 'rascunho';
         $data['data_emissao_rps'] = now();
+        $data['codigo_municipio_ibge'] = $configuracao?->codigo_municipio_ibge ?? '1100049';
 
         if (! empty($data['item_lista_servico']) && ! empty($configuracao?->atividades)) {
             foreach ($configuracao->atividades as $chave => $act) {
