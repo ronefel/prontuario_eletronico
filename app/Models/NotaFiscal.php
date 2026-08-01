@@ -63,10 +63,13 @@ class NotaFiscal extends BaseModel
 
     protected static function booted(): void
     {
-        static::creating(function (NotaFiscal $notaFiscal) {
-            if (empty($notaFiscal->codigo_municipio_ibge)) {
-                $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
-                $notaFiscal->codigo_municipio_ibge = $configuracao?->codigo_municipio_ibge ?? '1100049';
+        static::saving(function (NotaFiscal $notaFiscal) {
+            $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
+
+            if ($configuracao?->codigo_municipio_ibge) {
+                $notaFiscal->codigo_municipio_ibge = $configuracao->codigo_municipio_ibge;
+            } elseif (empty($notaFiscal->codigo_municipio_ibge)) {
+                $notaFiscal->codigo_municipio_ibge = '1100049';
             }
         });
     }

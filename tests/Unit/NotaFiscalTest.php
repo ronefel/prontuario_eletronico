@@ -326,4 +326,48 @@ class NotaFiscalTest extends TestCase
         ]);
         $this->assertEquals($xmlLimpo, $notaFiscal->obterXmlDownload());
     }
+
+    public function test_aplicacao_codigo_ibge_configuracao_ao_criar_e_editar_nota_fiscal()
+    {
+        $configuracao = ConfiguracaoNotaFiscal::create([
+            'cnpj' => '00000000000191',
+            'razao_social' => 'Clínica Exemplo LTDA',
+            'codigo_municipio_ibge' => '3550308', // São Paulo
+            'uf' => 'SP',
+            'discriminacao_servico' => 'Consulta Médica',
+        ]);
+
+        $paciente = Paciente::forceCreate([
+            'nome' => 'Paciente Teste',
+            'cpf' => '12345678901',
+            'nascimento' => '1990-01-01',
+            'sexo' => 'M',
+        ]);
+
+        $notaFiscal = new NotaFiscal([
+            'paciente_id' => $paciente->id,
+            'numero_rps' => 1,
+            'serie_rps' => '1',
+            'tipo_rps' => 1,
+            'data_emissao_rps' => now(),
+            'valor_servicos' => 100.00,
+            'aliquota_iss' => 2.00,
+            'item_lista_servico' => '04.01',
+            'discriminacao_servico' => 'Consulta Médica',
+            'status' => 'rascunho',
+        ]);
+
+        $notaFiscal->save();
+
+        $this->assertEquals('3550308', $notaFiscal->codigo_municipio_ibge);
+
+        // Altera o IBGE na configuração ativa
+        $configuracao->update(['codigo_municipio_ibge' => '3304557']); // Rio de Janeiro
+
+        // Salva a nota fiscal (como em uma edição)
+        $notaFiscal->valor_servicos = 150.00;
+        $notaFiscal->save();
+
+        $this->assertEquals('3304557', $notaFiscal->fresh()->codigo_municipio_ibge);
+    }
 }

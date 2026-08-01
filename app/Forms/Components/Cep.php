@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component as Livewire;
@@ -48,7 +49,7 @@ class Cep extends TextInput
                     rawurlencode($cidade),
                     rawurlencode($logradouro)
                 );
-                $resposta = Http::timeout(4)->get($url)->json();
+                $resposta = Http::withoutVerifying()->timeout(5)->get($url)->json();
 
                 if (! is_array($resposta) || empty($resposta) || isset($resposta['erro'])) {
                     return ['opcoes' => [], 'descricoes' => []];
@@ -134,9 +135,11 @@ class Cep extends TextInput
             }
 
             try {
-                $requisicao = Http::timeout(5)->get('https://viacep.com.br/ws/'.$cepLimpo.'/json/');
+                $requisicao = Http::withoutVerifying()->timeout(5)->get('https://viacep.com.br/ws/'.$cepLimpo.'/json/');
 
                 if (! $requisicao->successful()) {
+                    Log::warning("ViaCEP respondeu com status HTTP {$requisicao->status()} para o CEP {$cepLimpo}.");
+
                     Notification::make()
                         ->title('Serviço ViaCEP Indisponível')
                         ->body('O serviço do ViaCEP está indisponível no momento. Por favor, preencha o endereço manualmente.')
@@ -148,6 +151,8 @@ class Cep extends TextInput
 
                 $resposta = $requisicao->json();
             } catch (\Throwable $e) {
+                Log::error('Erro ao conectar ao serviço ViaCEP: '.$e->getMessage(), ['exception' => $e]);
+
                 Notification::make()
                     ->title('Serviço ViaCEP Indisponível')
                     ->body('Não foi possível se conectar ao serviço do ViaCEP. Por favor, preencha o endereço manualmente.')
@@ -210,12 +215,12 @@ class Cep extends TextInput
                 }
 
                 try {
-                    $resposta = Http::get('https://viacep.com.br/ws/'.$cepLimpo.'/json/')->json();
+                    $resposta = Http::withoutVerifying()->timeout(5)->get('https://viacep.com.br/ws/'.$cepLimpo.'/json/')->json();
                     if (! $resposta || ! empty($resposta['erro'])) {
                         $falha($errorMessage);
                     }
                 } catch (\Throwable $e) {
-                    // Ignora falhas de conexão/timeout da API externa durante o submit
+                    Log::warning('Erro de validação ViaCEP durante submit: '.$e->getMessage());
                 }
             },
         ]);

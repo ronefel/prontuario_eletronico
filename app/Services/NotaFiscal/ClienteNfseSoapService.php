@@ -61,14 +61,16 @@ class ClienteNfseSoapService
             'Content-Length: '.strlen($envelopeSoap),
         ];
 
+        $sslVerify = env('NFSE_SSL_VERIFY', false);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $urlWebService);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $envelopeSoap);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $sslVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $sslVerify ? 2 : 0);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
         // Se houver certificado A1 configurado, extrair PEM temporário e aplicar mTLS no cURL

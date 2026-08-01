@@ -82,6 +82,68 @@ class LeitorCertificadoService
     }
 
     /**
+     * Encontra o executável do OpenSSL no sistema (suportando Windows, Linux e macOS).
+     */
+    public function obterCaminhoExecutavelOpenSsl(): ?string
+    {
+        $caminhoEnv = env('OPENSSL_PATH');
+        if ($caminhoEnv && file_exists($caminhoEnv)) {
+            return $caminhoEnv;
+        }
+
+        // Tentar executável no PATH do sistema
+        $comandoTeste = PHP_OS_FAMILY === 'Windows' ? 'where.exe openssl 2>NUL' : 'which openssl 2>/dev/null';
+        $saidaPath = trim((string) shell_exec($comandoTeste));
+        if (! empty($saidaPath)) {
+            $linhas = explode("\n", str_replace("\r", "", $saidaPath));
+            $primeiro = trim($linhas[0]);
+            if (file_exists($primeiro)) {
+                return $primeiro;
+            }
+        }
+
+        // Se estiver no Windows, testar locais comuns de instalação (ex: Git para Windows, Laragon, XAMPP)
+        if (PHP_OS_FAMILY === 'Windows') {
+            $locaisWindows = [
+                'C:\\Program Files\\Git\\mingw64\\bin\\openssl.exe',
+                'C:\\Program Files\\Git\\usr\\bin\\openssl.exe',
+                'C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe',
+                'C:\\Program Files\\OpenSSL-Win32\\bin\\openssl.exe',
+                'C:\\Program Files (x86)\\OpenSSL-Win32\\bin\\openssl.exe',
+                'C:\\xampp\\apache\\bin\\openssl.exe',
+                'C:\\php\\openssl.exe',
+            ];
+
+            foreach ($locaisWindows as $caminho) {
+                if (file_exists($caminho)) {
+                    return $caminho;
+                }
+            }
+
+            // Buscar em instalações do Laragon
+            $padraoLaragon = glob('C:\\laragon\\bin\\openssl\\*\\openssl.exe');
+            if (! empty($padraoLaragon) && file_exists($padraoLaragon[0])) {
+                return $padraoLaragon[0];
+            }
+        } else {
+            // Linux / macOS
+            $locaisUnix = [
+                '/usr/bin/openssl',
+                '/usr/local/bin/openssl',
+                '/opt/homebrew/bin/openssl',
+            ];
+
+            foreach ($locaisUnix as $caminho) {
+                if (file_exists($caminho)) {
+                    return $caminho;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Lê o certificado PKCS#12 (.pfx/.p12) via PHP nativo com fallback para OpenSSL CLI (-legacy).
      *
      * @return array{pkey: string, cert: string}
@@ -98,7 +160,7 @@ class LeitorCertificadoService
         $dadosCertificado = [];
 
         // 1. Tentar leitura nativa do PHP
-        if (openssl_pkcs12_read($conteudoCertificado, $dadosCertificado, $senha)) {
+        if (@openssl_pkcs12_read($conteudoCertificado, $dadosCertificado, $senha)) {
             if (! empty($dadosCertificado['pkey']) && ! empty($dadosCertificado['cert'])) {
                 return [
                     'pkey' => $dadosCertificado['pkey'],
@@ -112,47 +174,52 @@ class LeitorCertificadoService
             $errosOpenSsl[] = $mensagemErro;
         }
 
-        // 2. Fallback via CLI OpenSSL com suporte a algoritmos legados (-legacy)
-        $arquivoTempCertificado = tempnam(sys_get_temp_dir(), 'cert_a1_');
+        // 2. Fallback via CLI OpenSSL com suporte a algoritmos legados (-legacy / -provider legacy)
+        $caminhoOpenSsl = $this->obterCaminhoExecutavelOpenSsl();
 
-        if ($arquivoTempCertificado === false) {
-            throw new Exception('Não foi possível criar um arquivo temporário para processamento do certificado digital.');
-        }
+        if ($caminhoOpenSsl) {
+            $arquivoTempCertificado = tempnam(sys_get_temp_dir(), 'cert_a1_');
 
-        try {
-            file_put_contents($arquivoTempCertificado, $conteudoCertificado);
+            if ($arquivoTempCertificado !== false) {
+                try {
+                    file_put_contents($arquivoTempCertificado, $conteudoCertificado);
 
-            $senhaEscapada = escapeshellarg($senha);
-            $caminhoEscapado = escapeshellarg($arquivoTempCertificado);
-            $comando = "openssl pkcs12 -in {$caminhoEscapado} -passin pass:{$senhaEscapada} -nodes -legacy 2>&1";
+                    $senhaEscapada = escapeshellarg($senha);
+                    $caminhoEscapado = escapeshellarg($arquivoTempCertificado);
+                    $binEscapado = escapeshellarg($caminhoOpenSsl);
 
-            $saidaComando = shell_exec($comando);
-
-            if ($saidaComando && str_contains($saidaComando, 'BEGIN PRIVATE KEY') && str_contains($saidaComando, 'BEGIN CERTIFICATE')) {
-                $recursoChavePrivada = openssl_pkey_get_private($saidaComando);
-                $recursoCertificado = openssl_x509_read($saidaComando);
-
-                $chavePrivada = '';
-                $certificadoX509 = '';
-
-                if ($recursoChavePrivada) {
-                    openssl_pkey_export($recursoChavePrivada, $chavePrivada);
-                }
-
-                if ($recursoCertificado) {
-                    openssl_x509_export($recursoCertificado, $certificadoX509);
-                }
-
-                if (! empty($chavePrivada) && ! empty($certificadoX509)) {
-                    return [
-                        'pkey' => $chavePrivada,
-                        'cert' => $certificadoX509,
+                    // Tentar variações de comandos OpenSSL CLI com flags para criptografia legada
+                    $comandos = [
+                        "{$binEscapado} pkcs12 -in {$caminhoEscapado} -passin pass:{$senhaEscapada} -nodes -legacy 2>&1",
+                        "{$binEscapado} pkcs12 -in {$caminhoEscapado} -passin pass:{$senhaEscapada} -nodes -provider legacy -provider default 2>&1",
                     ];
+
+                    foreach ($comandos as $comando) {
+                        $saidaComando = shell_exec($comando);
+
+                        if ($saidaComando &&
+                            preg_match('/-----BEGIN (?:RSA )?PRIVATE KEY-----[\s\S]+?-----END (?:RSA )?PRIVATE KEY-----/', $saidaComando, $matchesChave) &&
+                            preg_match('/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/', $saidaComando, $matchesCert)
+                        ) {
+                            $chavePrivadaPem = trim($matchesChave[0]);
+                            $certificadoPem = trim($matchesCert[0]);
+
+                            $recursoChavePrivada = openssl_pkey_get_private($chavePrivadaPem);
+                            $recursoCertificado = openssl_x509_read($certificadoPem);
+
+                            if ($recursoChavePrivada !== false && $recursoCertificado !== false) {
+                                return [
+                                    'pkey' => $chavePrivadaPem,
+                                    'cert' => $certificadoPem,
+                                ];
+                            }
+                        }
+                    }
+                } finally {
+                    if (file_exists($arquivoTempCertificado)) {
+                        @unlink($arquivoTempCertificado);
+                    }
                 }
-            }
-        } finally {
-            if (file_exists($arquivoTempCertificado)) {
-                @unlink($arquivoTempCertificado);
             }
         }
 
