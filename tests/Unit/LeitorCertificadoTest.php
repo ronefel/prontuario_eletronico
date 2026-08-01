@@ -16,13 +16,17 @@ class LeitorCertificadoTest extends TestCase
 
     public function test_leitura_e_assinatura_com_certificado_valido()
     {
+        $leitor = new LeitorCertificadoService;
+        $binOpenSsl = $leitor->obterCaminhoExecutavelOpenSsl() ?? 'openssl';
+        $binEscapado = escapeshellarg($binOpenSsl);
+
         $senha = 'senha123';
         $caminhoChaveTemp = tempnam(sys_get_temp_dir(), 'testkey_');
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_');
-        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_').'.pfx';
+        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_');
 
-        exec("openssl req -x509 -newkey rsa:2048 -keyout {$caminhoChaveTemp} -out {$caminhoCertTemp} -days 365 -nodes -subj \"/CN=Clinica Teste/OU=Certificado A1\" 2>&1");
-        exec("openssl pkcs12 -export -out {$caminhoPfxTemp} -inkey {$caminhoChaveTemp} -in {$caminhoCertTemp} -passout pass:{$senha} 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=Clinica Teste/OU=Certificado A1\" 2>&1");
+        exec("{$binEscapado} pkcs12 -export -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senha} 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste.pfx', $conteudoPfx);
@@ -32,7 +36,6 @@ class LeitorCertificadoTest extends TestCase
             'senha_certificado' => $senha,
         ]);
 
-        $leitor = new LeitorCertificadoService;
         $dados = $leitor->obterDadosCertificado($configuracao);
 
         $this->assertNotEmpty($dados['pkey']);
@@ -75,13 +78,17 @@ class LeitorCertificadoTest extends TestCase
 
     public function test_leitura_certificado_com_ciphers_legados()
     {
+        $leitor = new LeitorCertificadoService;
+        $binOpenSsl = $leitor->obterCaminhoExecutavelOpenSsl() ?? 'openssl';
+        $binEscapado = escapeshellarg($binOpenSsl);
+
         $senha = 'senha123';
         $caminhoChaveTemp = tempnam(sys_get_temp_dir(), 'testkey_leg_');
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_leg_');
-        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_leg_').'.pfx';
+        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_leg_');
 
-        exec("openssl req -x509 -newkey rsa:2048 -keyout {$caminhoChaveTemp} -out {$caminhoCertTemp} -days 365 -nodes -subj \"/CN=Clinica Legada/OU=Certificado A1\" 2>&1");
-        exec("openssl pkcs12 -export -legacy -out {$caminhoPfxTemp} -inkey {$caminhoChaveTemp} -in {$caminhoCertTemp} -passout pass:{$senha} -keypbe pbeWithSHA1And3-KeyTripleDES-CBC -certpbe pbeWithSHA1And40BitRC2-CBC 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=Clinica Legada/OU=Certificado A1\" 2>&1");
+        exec("{$binEscapado} pkcs12 -export -legacy -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senha} -keypbe pbeWithSHA1And3-KeyTripleDES-CBC -certpbe pbeWithSHA1And40BitRC2-CBC 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste_legado.pfx', $conteudoPfx);
@@ -91,7 +98,6 @@ class LeitorCertificadoTest extends TestCase
             'senha_certificado' => $senha,
         ]);
 
-        $leitor = new LeitorCertificadoService;
         $dados = $leitor->obterDadosCertificado($configuracao);
 
         $this->assertNotEmpty($dados['pkey']);
@@ -108,15 +114,19 @@ class LeitorCertificadoTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Falha ao ler o certificado digital A1. Verifique a senha informada');
 
+        $leitor = new LeitorCertificadoService;
+        $binOpenSsl = $leitor->obterCaminhoExecutavelOpenSsl() ?? 'openssl';
+        $binEscapado = escapeshellarg($binOpenSsl);
+
         $senhaCorreta = 'senha123';
         $senhaIncorreta = 'errada';
 
         $caminhoChaveTemp = tempnam(sys_get_temp_dir(), 'testkey_err_');
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_err_');
-        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_err_').'.pfx';
+        $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_err_');
 
-        exec("openssl req -x509 -newkey rsa:2048 -keyout {$caminhoChaveTemp} -out {$caminhoCertTemp} -days 365 -nodes -subj \"/CN=TestErr\" 2>&1");
-        exec("openssl pkcs12 -export -out {$caminhoPfxTemp} -inkey {$caminhoChaveTemp} -in {$caminhoCertTemp} -passout pass:{$senhaCorreta} 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=TestErr\" 2>&1");
+        exec("{$binEscapado} pkcs12 -export -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senhaCorreta} 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste_errado.pfx', $conteudoPfx);
@@ -127,7 +137,6 @@ class LeitorCertificadoTest extends TestCase
         ]);
 
         try {
-            $leitor = new LeitorCertificadoService;
             $leitor->obterDadosCertificado($configuracao);
         } finally {
             @unlink($caminhoChaveTemp);
