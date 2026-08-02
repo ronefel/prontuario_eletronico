@@ -143,7 +143,7 @@ class NotaFiscal extends BaseModel
         }
 
         libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         if (! @$dom->loadXML($xml)) {
             return $xml;
         }
@@ -167,7 +167,7 @@ class NotaFiscal extends BaseModel
                 $conteudoInterno = $nos->item(0)->nodeValue;
                 if (! empty($conteudoInterno) && (str_contains($conteudoInterno, '<') || str_contains($conteudoInterno, '&lt;'))) {
                     $desempacotado = htmlspecialchars_decode(html_entity_decode($conteudoInterno, ENT_QUOTES | ENT_XML1, 'UTF-8'));
-                    $domInterno = new \DOMDocument();
+                    $domInterno = new \DOMDocument;
                     if (@$domInterno->loadXML($desempacotado)) {
                         $domAlvo = $domInterno;
                         break;

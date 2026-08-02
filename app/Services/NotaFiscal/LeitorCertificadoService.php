@@ -95,7 +95,7 @@ class LeitorCertificadoService
         $comandoTeste = PHP_OS_FAMILY === 'Windows' ? 'where.exe openssl 2>NUL' : 'which openssl 2>/dev/null';
         $saidaPath = trim((string) shell_exec($comandoTeste));
         if (! empty($saidaPath)) {
-            $linhas = explode("\n", str_replace("\r", "", $saidaPath));
+            $linhas = explode("\n", str_replace("\r", '', $saidaPath));
             $primeiro = trim($linhas[0]);
             if (file_exists($primeiro)) {
                 return $primeiro;

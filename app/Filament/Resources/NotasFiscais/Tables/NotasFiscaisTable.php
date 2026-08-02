@@ -3,15 +3,10 @@
 namespace App\Filament\Resources\NotasFiscais\Tables;
 
 use App\Models\NotaFiscal;
-use App\Services\NotaFiscal\EmissorNfseService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -28,7 +23,7 @@ class NotasFiscaisTable
 
                 TextColumn::make('numero_rps')
                     ->label('RPS / Série')
-                    ->formatStateUsing(fn($record) => $record->numero_rps ? "{$record->numero_rps}/{$record->serie_rps}" : '-')
+                    ->formatStateUsing(fn ($record) => $record->numero_rps ? "{$record->numero_rps}/{$record->serie_rps}" : '-')
                     ->sortable(),
 
                 TextColumn::make('numero_nfse')
@@ -50,14 +45,14 @@ class NotasFiscaisTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'autorizada' => 'success',
                         'processando' => 'warning',
                         'rejeitada' => 'danger',
                         'cancelada' => 'gray',
                         default => 'info',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'autorizada' => 'Autorizada',
                         'processando' => 'Processando',
                         'rejeitada' => 'Rejeitada',
@@ -96,11 +91,11 @@ class NotasFiscaisTable
                 EditAction::make()
                     ->hiddenLabel()
                     ->tooltip('Editar Nota Fiscal')
-                    ->visible(fn(NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
+                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
                 DeleteAction::make()
                     ->hiddenLabel()
                     ->tooltip('Excluir Nota Fiscal')
-                    ->visible(fn(NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
+                    ->visible(fn (NotaFiscal $record): bool => in_array($record->status, ['rascunho', 'rejeitada'])),
             ]);
     }
 }

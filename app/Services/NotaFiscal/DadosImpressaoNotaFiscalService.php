@@ -5,6 +5,8 @@ namespace App\Services\NotaFiscal;
 use App\Models\Cidade;
 use App\Models\ConfiguracaoNotaFiscal;
 use App\Models\NotaFiscal;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use DOMDocument;
 use DOMElement;
 use Illuminate\Support\Carbon;
@@ -26,7 +28,7 @@ class DadosImpressaoNotaFiscalService
         }
 
         // 1. Informações de Cabeçalho e Emissão
-        $ehRascunho = in_array($notaFiscal->status, ['rascunho', 'rejeitada']) || empty($dadosXml['numero_nfse']);
+        $ehRascunho = in_array($notaFiscal->status, ['rascunho', 'rejeitada']) || (empty($dadosXml['numero_nfse']) && empty($notaFiscal->numero_nfse));
         $numeroNfse = $dadosXml['numero_nfse'] ?? $notaFiscal->numero_nfse;
         $codigoVerificacao = $dadosXml['codigo_verificacao'] ?? $notaFiscal->codigo_verificacao ?? 'Pendente';
 
@@ -194,22 +196,46 @@ class DadosImpressaoNotaFiscalService
 
         if (! empty($urlQrcode)) {
             try {
-                $opcoesQr = new \chillerlan\QRCode\QROptions([
-                    'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
-                    'eccLevel' => \chillerlan\QRCode\QRCode::ECC_L,
+                $opcoesQr = new QROptions([
+                    'outputType' => QRCode::OUTPUT_MARKUP_SVG,
+                    'eccLevel' => QRCode::ECC_L,
                     'scale' => 5,
                     'imageBase64' => true,
                 ]);
-                $qrcodeBase64 = (new \chillerlan\QRCode\QRCode($opcoesQr))->render($urlQrcode);
+                $qrcodeBase64 = (new QRCode($opcoesQr))->render($urlQrcode);
             } catch (\Throwable $e) {
                 $qrcodeBase64 = null;
             }
         }
 
+        $ehCancelada = $notaFiscal->ehCancelada() || ! empty($dadosXml['data_cancelamento']);
+        $dataCancelamentoBr = null;
+        if ($notaFiscal->data_cancelamento) {
+            $dataCancelamentoBr = $this->formatarDataHora($notaFiscal->data_cancelamento);
+        } elseif (! empty($dadosXml['data_cancelamento'])) {
+            $dataCancelamentoBr = $this->formatarDataHora($dadosXml['data_cancelamento']);
+        }
+
+        $codigoCancelamento = $notaFiscal->codigo_cancelamento ?? $dadosXml['codigo_cancelamento'] ?? null;
+        $motivoDescricao = $codigoCancelamento ? match ((string) $codigoCancelamento) {
+            '1' => 'Erro de emissão',
+            '2' => 'Serviço não prestado',
+            '3' => 'Erro de assinatura',
+            '4' => 'Duplicidade da nota',
+            '5' => 'Outros',
+            default => $codigoCancelamento,
+        } : 'Erro de emissão';
+
+        $justificativaCancelamento = $notaFiscal->motivo_cancelamento ?? $dadosXml['motivo_cancelamento'] ?? '';
+
         $visualizadoEm = Carbon::now()->format('d/m/Y H:i:s');
 
         return [
             'eh_rascunho' => $ehRascunho,
+            'eh_cancelada' => $ehCancelada,
+            'data_cancelamento' => $dataCancelamentoBr,
+            'motivo_cancelamento' => $motivoDescricao,
+            'justificativa_cancelamento' => $justificativaCancelamento,
             'status' => $notaFiscal->status,
             'numero_nfse' => $numeroNfse ?: 'RASCUNHO',
             'codigo_verificacao' => $codigoVerificacao,

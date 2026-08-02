@@ -25,8 +25,8 @@ class LeitorCertificadoTest extends TestCase
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_');
         $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_');
 
-        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=Clinica Teste/OU=Certificado A1\" 2>&1");
-        exec("{$binEscapado} pkcs12 -export -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senha} 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout ".escapeshellarg($caminhoChaveTemp).' -out '.escapeshellarg($caminhoCertTemp).' -days 365 -nodes -subj "/CN=Clinica Teste/OU=Certificado A1" 2>&1');
+        exec("{$binEscapado} pkcs12 -export -out ".escapeshellarg($caminhoPfxTemp).' -inkey '.escapeshellarg($caminhoChaveTemp).' -in '.escapeshellarg($caminhoCertTemp)." -passout pass:{$senha} 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste.pfx', $conteudoPfx);
@@ -87,8 +87,8 @@ class LeitorCertificadoTest extends TestCase
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_leg_');
         $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_leg_');
 
-        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=Clinica Legada/OU=Certificado A1\" 2>&1");
-        exec("{$binEscapado} pkcs12 -export -legacy -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senha} -keypbe pbeWithSHA1And3-KeyTripleDES-CBC -certpbe pbeWithSHA1And40BitRC2-CBC 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout ".escapeshellarg($caminhoChaveTemp).' -out '.escapeshellarg($caminhoCertTemp).' -days 365 -nodes -subj "/CN=Clinica Legada/OU=Certificado A1" 2>&1');
+        exec("{$binEscapado} pkcs12 -export -legacy -out ".escapeshellarg($caminhoPfxTemp).' -inkey '.escapeshellarg($caminhoChaveTemp).' -in '.escapeshellarg($caminhoCertTemp)." -passout pass:{$senha} -keypbe pbeWithSHA1And3-KeyTripleDES-CBC -certpbe pbeWithSHA1And40BitRC2-CBC 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste_legado.pfx', $conteudoPfx);
@@ -125,8 +125,8 @@ class LeitorCertificadoTest extends TestCase
         $caminhoCertTemp = tempnam(sys_get_temp_dir(), 'testcert_err_');
         $caminhoPfxTemp = tempnam(sys_get_temp_dir(), 'testpfx_err_');
 
-        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout " . escapeshellarg($caminhoChaveTemp) . " -out " . escapeshellarg($caminhoCertTemp) . " -days 365 -nodes -subj \"/CN=TestErr\" 2>&1");
-        exec("{$binEscapado} pkcs12 -export -out " . escapeshellarg($caminhoPfxTemp) . " -inkey " . escapeshellarg($caminhoChaveTemp) . " -in " . escapeshellarg($caminhoCertTemp) . " -passout pass:{$senhaCorreta} 2>&1");
+        exec("{$binEscapado} req -x509 -newkey rsa:2048 -keyout ".escapeshellarg($caminhoChaveTemp).' -out '.escapeshellarg($caminhoCertTemp).' -days 365 -nodes -subj "/CN=TestErr" 2>&1');
+        exec("{$binEscapado} pkcs12 -export -out ".escapeshellarg($caminhoPfxTemp).' -inkey '.escapeshellarg($caminhoChaveTemp).' -in '.escapeshellarg($caminhoCertTemp)." -passout pass:{$senhaCorreta} 2>&1");
 
         $conteudoPfx = file_get_contents($caminhoPfxTemp);
         Storage::disk('database')->put('teste_errado.pfx', $conteudoPfx);

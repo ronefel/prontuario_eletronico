@@ -21,7 +21,7 @@ class NotaFiscalForm
         $configuracao = ConfiguracaoNotaFiscal::obterConfiguracaoAtiva();
 
         $atividadesOptions = [];
-        if (!empty($configuracao?->atividades)) {
+        if (! empty($configuracao?->atividades)) {
             foreach ($configuracao->atividades as $codigo => $descricao) {
                 if (is_array($descricao)) {
                     $chave = $descricao['item_lista_servico'] ?? $descricao['codigo_tributacao_municipio'] ?? (string) $codigo;
@@ -34,7 +34,7 @@ class NotaFiscalForm
         }
 
         $cnaesOptions = [];
-        if (!empty($configuracao?->cnaes)) {
+        if (! empty($configuracao?->cnaes)) {
             foreach ($configuracao->cnaes as $codigo => $descricao) {
                 if (is_array($descricao)) {
                     $chave = $descricao['codigo'] ?? (string) $codigo;
@@ -61,12 +61,12 @@ class NotaFiscalForm
                                 Select::make('paciente_id')
                                     ->label('Paciente / Tomador')
                                     ->relationship('paciente', 'nome')
-                                    ->default(fn() => request()->query('paciente_id'))
+                                    ->default(fn () => request()->query('paciente_id'))
                                     ->live()
                                     ->searchable()
                                     ->preload()
                                     ->required()
-                                    ->editOptionForm(fn(Schema $schema) => PacienteForm::configure($schema))
+                                    ->editOptionForm(fn (Schema $schema) => PacienteForm::configure($schema))
                                     ->editOptionModalHeading('Editar Cadastro do Paciente'),
 
                                 Grid::make([
@@ -76,22 +76,22 @@ class NotaFiscalForm
                                         $idPaciente = $get('paciente_id');
                                         $paciente = $idPaciente ? Paciente::with('cidade')->find($idPaciente) : null;
 
-                                        if (!$paciente) {
+                                        if (! $paciente) {
                                             return [];
                                         }
 
                                         $errosValidacao = $paciente->validarParaNotaFiscal();
 
-                                        $itensHtml = array_map(fn($erro) => '<li style="margin-bottom: 0.25rem;">❌ ' . e($erro) . '</li>', $errosValidacao);
+                                        $itensHtml = array_map(fn ($erro) => '<li style="margin-bottom: 0.25rem;">❌ '.e($erro).'</li>', $errosValidacao);
                                         $listaErros = implode('', $itensHtml);
 
-                                        $statusValidacao = !empty($errosValidacao)
+                                        $statusValidacao = ! empty($errosValidacao)
                                             ? '<div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #dc2626; border-radius: 0.5rem; padding: 0.75rem 1rem;">
                                                     <strong style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
                                                         ⚠️ Dados faltantes ou incorretos para emissão da Nota Fiscal:
                                                     </strong>
                                                     <ul style="margin-top: 0.5rem; margin-bottom: 0.5rem; padding-left: 1.25rem; font-size: 0.875rem; list-style-type: none;">
-                                                        ' . $listaErros . '
+                                                        '.$listaErros.'
                                                     </ul>
                                                     <small style="color: #b91c1c;">Clique no ícone de lápis ao lado do campo do Paciente para atualizar estes dados.</small>
                                                </div>'

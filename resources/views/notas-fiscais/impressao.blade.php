@@ -100,15 +100,16 @@
 					<div class="widget-body">
 						<div class="tab-content" id="nota-eletronica-visualizar">
 							<div id="nota-eletronica-html" style="position:relative;">
-								@if($dados['eh_rascunho'])
-									<div class="marca-dagua"><span>RASCUNHO</span></div>
-								@elseif($dados['status'] === 'cancelada')
-									<div class="marca-dagua"><span>CANCELADA</span></div>
-								@endif
-
 								<div>
 									<div class="impressao">
 										<div class="conteudo">
+
+											@if($dados['eh_rascunho'])
+												<div class="marca-dagua"><span>RASCUNHO</span></div>
+											@elseif($dados['status'] === 'cancelada' || !empty($dados['eh_cancelada']))
+												<div class="marca-dagua"><span>CANCELADA</span></div>
+											@endif
+
 											<table class="info-nota-eletronica">
 												<tbody>
 													<tr class="left">
@@ -127,40 +128,42 @@
 														</td>
 														<td rowspan="4" id="tdQrcode"
 															style="text-align: center; vertical-align: top;">
-															<div class="fundo-selo">
-																<div style="text-align: center;">
-																	<div style="font-weight: bold;">
-																		Nota:
-																		{{ \Str::limit($dados['numero_nfse'], 6, '') }}
-																	</div>
-																	<div
-																		style="font-weight: bold; font-size: 14pt; margin-top: 4px; margin-bottom: 4px;">
-																		{{ substr($dados['numero_nfse'], 6) }}
-																	</div>
-																	<div style="font-weight: bold; font-size: 8pt;">
-																		Código Verificação
-																	</div>
-																	<div
-																		style="font-size: 11pt; margin-top: 4px; margin-bottom: 4px;">
-																		{{ $dados['codigo_verificacao'] }}
-																	</div>
-																</div>
-																<div class="qrcode">
-																	@if(!empty($dados['qrcode_base64']) || !empty($dados['url_qrcode']))
-																		<div>
-																			<img src="{{ $dados['qrcode_base64'] }}">
+															@if(!$dados['eh_rascunho'])
+																<div class="fundo-selo">
+																	<div style="text-align: center;">
+																		<div style="font-weight: bold;">
+																			Nota:
+																			{{ \Str::limit($dados['numero_nfse'], 6, '') }}
 																		</div>
-																		<span class="descricao-qrcode"
-																			style="display: block; font-size: 7px; line-height: 1.15; margin-top: 4px; text-align: center; font-family: Verdana, sans-serif;">
-																			A autenticidade desta NFS-e pode ser verificada
-																			pela
-																			leitura deste código QR ou pela consulta da
-																			chave de
-																			acesso no portal nacional da NFS-e.
-																		</span>
-																	@endif
+																		<div
+																			style="font-weight: bold; font-size: 14pt; margin-top: 4px; margin-bottom: 4px;">
+																			{{ substr($dados['numero_nfse'], 6) }}
+																		</div>
+																		<div style="font-weight: bold; font-size: 8pt;">
+																			Código Verificação
+																		</div>
+																		<div
+																			style="font-size: 11pt; margin-top: 4px; margin-bottom: 4px;">
+																			{{ $dados['codigo_verificacao'] }}
+																		</div>
+																	</div>
+																	<div class="qrcode">
+																		@if(!empty($dados['qrcode_base64']) || !empty($dados['url_qrcode']))
+																			<div>
+																				<img src="{{ $dados['qrcode_base64'] }}">
+																			</div>
+																			<span class="descricao-qrcode"
+																				style="display: block; font-size: 7px; line-height: 1.15; margin-top: 4px; text-align: center; font-family: Verdana, sans-serif;">
+																				A autenticidade desta NFS-e pode ser verificada
+																				pela
+																				leitura deste código QR ou pela consulta da
+																				chave de
+																				acesso no portal nacional da NFS-e.
+																			</span>
+																		@endif
+																	</div>
 																</div>
-															</div>
+															@endif
 														</td>
 													</tr>
 													<tr>
@@ -178,21 +181,21 @@
 																		<td>
 																			<small>Emissão (Horário de Brasília)</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['data_emissao'] }}</span>
+																			<span
+																				class="negrito">{{$dados['data_emissao'] }}</span>
 																		</td>
 																		<td>
 																			<small>Período de Competência</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['competencia'] }}</span>
+																			<span
+																				class="negrito">{{$dados['competencia'] }}</span>
 																		</td>
 																		<td>
 																			<small>Município de Prestação do
 																				Serviço</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['municipio_prestacao'] }}</span>
+																			<span
+																				class="negrito">{{$dados['municipio_prestacao'] }}</span>
 																		</td>
 																	</tr>
 																	<tr class="left">
@@ -200,8 +203,7 @@
 																			<small>Reg. Especial Tributação</small>
 																			<br>
 																			<span class="negrito">
-																				{{ $dados['regime_especial_tributacao']
-																				}}
+																				{{ $dados['regime_especial_tributacao']	}}
 																			</span>
 																		</td>
 																		<td>
@@ -209,7 +211,7 @@
 																			<br>
 																			<span class="negrito">
 																				{{ $dados['exigibilidade_iss'] }}
-																			</span>
+																				</span>
 																		</td>
 																	</tr>
 																</tbody>
@@ -237,9 +239,8 @@
 																		<td colspan="6">
 																			<small>Razão Social</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['prestador_razao_social']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_razao_social']}}</span>
 																		</td>
 																	</tr>
 																	<tr class="left cabecalho">
@@ -252,13 +253,13 @@
 																	</tr>
 																	<tr class="left">
 																		<td colspan="4">
-																			<span class="negrito">{{
-	$dados['prestador_nome_fantasia']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_nome_fantasia']}}</span>
 																		</td>
 																		<td colspan="2">
-																			<span class="negrito">{{
-	$dados['prestador_email'] }}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_email']
+																				}}</span>
 																		</td>
 																	</tr>
 																	<tr class="left cabecalho">
@@ -284,32 +285,29 @@
 																	<tr class="left">
 																		<td>
 																			<span id="documento-prestador"
-																				class="negrito">{{
-	$dados['prestador_cnpj'] }}</span>
-																		</td>
-																		<td>
-																			<span class="negrito">{{
-	$dados['prestador_inscricao_municipal']
+																				class="negrito">{{$dados['prestador_cnpj']
 																				}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{
-	$dados['prestador_inscricao_estadual']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_inscricao_municipal']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{
-	$dados['prestador_simples_nacional']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_inscricao_estadual']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{
-	$dados['prestador_incentivador_cultural']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_simples_nacional']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{
-	$dados['prestador_telefone'] }}</span>
+																			<span
+																				class="negrito">{{$dados['prestador_incentivador_cultural']}}</span>
+																		</td>
+																		<td>
+																			<span
+																				class="negrito">{{$dados['prestador_telefone']
+																				}}</span>
 																		</td>
 																	</tr>
 
@@ -319,7 +317,7 @@
 																			<br>
 																			<address class="italico negrito">
 																				{{ $dados['prestador_endereco'] }}
-																			</address>
+																				</address>
 																		</td>
 																	</tr>
 																</tbody>
@@ -346,8 +344,8 @@
 																	<tr class="left">
 																		<td colspan="7">
 																			<div class="break-text">
-																				<span
-																					class=" negrito">{{ $dados['tomador_nome'] }}</span>
+																				<span class=" negrito">{{
+																					$dados['tomador_nome'] }}</span>
 																			</div>
 																		</td>
 																	</tr>
@@ -356,34 +354,35 @@
 																		<td>
 																			<small>CPF/CNPJ</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['tomador_cpf_cnpj'] }}</span>
+																			<span
+																				class="negrito">{{$dados['tomador_cpf_cnpj']
+																				}}</span>
 																		</td>
 																		<td>
 																			<small>Inscrição Municipal</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['tomador_inscricao_municipal']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['tomador_inscricao_municipal']}}</span>
 																		</td>
 																		<td>
 																			<small>Inscrição Estadual</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['tomador_inscricao_estadual']
-																				}}</span>
+																			<span
+																				class="negrito">{{$dados['tomador_inscricao_estadual']}}</span>
 																		</td>
 																		<td>
 																			<small>Fone/Fax</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['tomador_telefone'] }}</span>
+																			<span
+																				class="negrito">{{$dados['tomador_telefone']
+																				}}</span>
 																		</td>
 																		<td>
 																			<small>E-mail</small>
 																			<br>
-																			<span class="negrito">{{
-	$dados['tomador_email'] }}</span>
+																			<span
+																				class="negrito">{{$dados['tomador_email']
+																				}}</span>
 																		</td>
 																	</tr>
 
@@ -393,7 +392,7 @@
 																			<br>
 																			<address class="italico negrito">
 																				{{ $dados['tomador_endereco'] }}
-																			</address>
+																				</address>
 																		</td>
 																	</tr>
 																</tbody>
@@ -408,7 +407,7 @@
 															<h2>Serviço Prestado</h2>
 															<p class="letras-pequenas negrito" id="serico-prestado">
 																{{ $dados['servico_prestado_texto'] }}
-															</p>
+																</p>
 														</td>
 													</tr>
 
@@ -424,8 +423,24 @@
 															<div style="position:relative;">
 																<p id="descricao-nota-eletronica">
 																	{!! $dados['discriminacao_servicos'] !!}
-																</p>
-															</div>
+																	</p>
+																@if($dados['eh_cancelada'] ||
+																	!empty($dados['data_cancelamento']))
+																				<p class="dados-cancelamento">
+																			<span class="negrito">Data do
+																				Cancelamento:</span>
+																			{{ $dados['data_cancelamento'] }}
+																			<br>
+																			<span class="negrito">MOTIVO:</span>
+																			{{ $dados['motivo_cancelamento'] }}
+																			<br>
+																			@if(!empty($dados['justificativa_cancelamento']))
+																					<span class="negrito">Justificativa: </span>
+																				{{ $dados['justificativa_cancelamento'] }}
+																				<br>
+																			@endif
+																			</p>
+																@endif </div>
 														</td>
 													</tr>
 
@@ -444,38 +459,38 @@
 																		<td>
 																			<small>INSS (R$)</small>
 																			<br>
-																			<span
-																				class="negrito">{{ $dados['valor_inss'] }}</span>
+																			<span class="negrito">{{$dados['valor_inss']
+																				}}</span>
 																		</td>
 																		<td>
 																			<small>IR (R$)</small>
 																			<br>
-																			<span
-																				class="negrito">{{ $dados['valor_ir'] }}</span>
+																			<span class="negrito">{{
+																				$dados['valor_ir']}}</span>
 																		</td>
 																		<td>
 																			<small>PIS (R$)</small>
 																			<br>
-																			<span
-																				class="negrito">{{ $dados['valor_pis'] }}</span>
+																			<span class="negrito">{{
+																				$dados['valor_pis']}}</span>
 																		</td>
 																		<td>
 																			<small>COFINS (R$)</small>
 																			<br>
-																			<span class="negrito">{{ $dados['valor_cofins']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['valor_cofins']}}</span>
 																		</td>
 																		<td>
 																			<small>CSLL (R$)</small>
 																			<br>
-																			<span
-																				class="negrito">{{ $dados['valor_csll'] }}</span>
+																			<span class="negrito">{{$dados['valor_csll']
+																				}}</span>
 																		</td>
 																		<td>
 																			<small>Outras Retenções (R$)</small>
 																			<br>
-																			<span class="negrito">{{ $dados['outras_retencoes']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['outras_retencoes']}}</span>
 																		</td>
 																	</tr>
 																</tbody>
@@ -513,24 +528,25 @@
 																	</tr>
 																	<tr>
 																		<td>
-																			<span class="negrito">{{ $dados['valor_deducoes']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['valor_deducoes']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{ $dados['desconto_condicionado']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['desconto_condicionado']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{
-	$dados['desconto_incondicionado'] }}</span>
+																			<span
+																				class="negrito">{{$dados['desconto_incondicionado']
+																				}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{ $dados['base_calculo_iss']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['base_calculo_iss']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{ $dados['aliquota_iss']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['aliquota_iss']}}</span>
 																		</td>
 																	</tr>
 
@@ -548,30 +564,31 @@
 																			<small>Valor Líquido (R$)</small>
 																		</td>
 																		<td>
-																			<small class="negrito valor-total">Valor
-																				Total da Nota (R$)</small>
+																			<small class="negrito valor-total">
+																				Valor Total da Nota (R$)
+																			</small>
 																		</td>
 																	</tr>
 																	<tr>
 																		<td>
-																			<span class="negrito">{{ $dados['valor_servicos']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['valor_servicos']}}</span>
 																		</td>
 																		<td>
 																			<span
-																				class="negrito">{{ $dados['valor_iss'] }}</span>
+																				class="negrito">{{ $dados['valor_iss']}}</span>
 																		</td>
 																		<td>
 																			<span
-																				class="negrito">{{ $dados['iss_retido'] }}</span>
+																				class="negrito">{{$dados['iss_retido'] }}</span>
 																		</td>
 																		<td>
-																			<span class="negrito">{{ $dados['valor_liquido']
-																	}}</span>
+																			<span
+																				class="negrito">{{$dados['valor_liquido']}}</span>
 																		</td>
 																		<td>
-																			<span class="negrito valor-total"><mark>{{
-	$dados['valor_total'] }}</mark></span>
+																			<span
+																				class="negrito valor-total"><mark>{{$dados['valor_total'] }}</mark></span>
 																		</td>
 																	</tr>
 																</tbody>

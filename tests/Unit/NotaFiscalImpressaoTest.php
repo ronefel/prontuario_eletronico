@@ -64,7 +64,7 @@ class NotaFiscalImpressaoTest extends TestCase
         ]);
         $notaFiscal->save();
 
-        $servico = new DadosImpressaoNotaFiscalService();
+        $servico = new DadosImpressaoNotaFiscalService;
         $dados = $servico->obterDadosImpressao($notaFiscal);
 
         $this->assertTrue($dados['eh_rascunho']);
@@ -138,7 +138,7 @@ class NotaFiscalImpressaoTest extends TestCase
         ]);
         $notaFiscal->save();
 
-        $servico = new DadosImpressaoNotaFiscalService();
+        $servico = new DadosImpressaoNotaFiscalService;
         $dados = $servico->obterDadosImpressao($notaFiscal);
 
         $this->assertFalse($dados['eh_rascunho']);
@@ -183,7 +183,7 @@ class NotaFiscalImpressaoTest extends TestCase
 
     public function test_formatação_de_endereço_no_padrão_solicitado()
     {
-        $servico = new DadosImpressaoNotaFiscalService();
+        $servico = new DadosImpressaoNotaFiscalService;
         $reflector = new \ReflectionClass($servico);
         $metodo = $reflector->getMethod('montarEnderecoTexto');
         $metodo->setAccessible(true);
@@ -205,7 +205,7 @@ class NotaFiscalImpressaoTest extends TestCase
 
     public function test_substituição_de_quebra_de_linha_literal_e_real_por_br()
     {
-        $servico = new DadosImpressaoNotaFiscalService();
+        $servico = new DadosImpressaoNotaFiscalService;
         $reflector = new \ReflectionClass($servico);
         $metodo = $reflector->getMethod('formatarQuebrasDeLinha');
         $metodo->setAccessible(true);
@@ -217,5 +217,42 @@ class NotaFiscalImpressaoTest extends TestCase
             'Chave de Acesso<br/>Optante do Simples<br/>Substitui nota 2026',
             $resultado
         );
+    }
+
+    public function test_dados_cancelamento_quando_nota_fiscal_está_cancelada()
+    {
+        $usuario = User::factory()->create();
+        $paciente = Paciente::forceCreate([
+            'nome' => 'Paciente Cancelado',
+            'cpf' => '99988877766',
+            'nascimento' => '1990-01-01',
+            'sexo' => 'M',
+        ]);
+
+        $notaFiscal = NotaFiscal::forceCreate([
+            'paciente_id' => $paciente->id,
+            'numero_rps' => 101,
+            'serie_rps' => '1',
+            'tipo_rps' => 1,
+            'data_emissao_rps' => now(),
+            'numero_nfse' => '2026000000007',
+            'codigo_verificacao' => 'CANCEL123',
+            'status' => 'cancelada',
+            'data_cancelamento' => '2026-07-31 03:40:17',
+            'codigo_cancelamento' => '1',
+            'motivo_cancelamento' => 'Erro de emissão',
+            'valor_servicos' => 100.00,
+            'aliquota_iss' => 2.00,
+            'item_lista_servico' => '04.01',
+            'discriminacao_servico' => 'Consulta',
+        ]);
+
+        $resposta = $this->actingAs($usuario)->get(route('notas-fiscais.impressao', ['id' => $notaFiscal->id]));
+
+        $resposta->assertStatus(200);
+        $resposta->assertSee('CANCELADA');
+        $resposta->assertSee('Data do Cancelamento:');
+        $resposta->assertSee('31/07/2026 03:40:17');
+        $resposta->assertSee('Erro de emissão');
     }
 }

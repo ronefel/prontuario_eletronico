@@ -39,4 +39,3 @@ Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRela
 Route::get('/notas-fiscais/impressao/{id}', [NotaFiscalImpressaoController::class, 'imprimir'])
     ->middleware('auth')
     ->name('notas-fiscais.impressao');
-

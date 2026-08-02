@@ -3,19 +3,17 @@
 namespace App\Filament\Resources\NotasFiscais\Pages;
 
 use App\Filament\Resources\NotasFiscais\NotaFiscalResource;
-use App\Models\ConfiguracaoNotaFiscal;
 use App\Models\NotaFiscal;
 use App\Services\NotaFiscal\EmissorNfseService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ViewRecord;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ViewNotaFiscal extends ViewRecord
 {
@@ -28,7 +26,7 @@ class ViewNotaFiscal extends ViewRecord
                 ->label('Transmitir / Emitir NFS-e')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
-                ->visible(fn(): bool => in_array($this->record->status, ['rascunho', 'rejeitada']))
+                ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada']))
                 ->action(function (EmissorNfseService $emissor): void {
                     /** @var NotaFiscal $notaFiscal */
                     $notaFiscal = $this->record;
@@ -66,7 +64,7 @@ class ViewNotaFiscal extends ViewRecord
                 ->label('Cancelar NFS-e')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn(): bool => $this->record->ehAutorizada())
+                ->visible(fn (): bool => $this->record->ehAutorizada())
                 ->modalHeading('Cancelar Nota Fiscal de Serviço')
                 ->modalDescription('Atenção: O cancelamento da NFS-e será enviado diretamente ao WebService da prefeitura.')
                 ->schema([
@@ -112,9 +110,9 @@ class ViewNotaFiscal extends ViewRecord
                 ->label('Substituir NFS-e')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
-                ->visible(fn(): bool => $this->record->ehAutorizada())
+                ->visible(fn (): bool => $this->record->ehAutorizada())
                 ->modalHeading('Substituir Nota Fiscal de Serviço')
-                ->modalDescription(fn(): string => "Será gerada uma nova NFS-e em substituição à NFS-e nº {$this->record->numero_nfse}.")
+                ->modalDescription(fn (): string => "Será gerada uma nova NFS-e em substituição à NFS-e nº {$this->record->numero_nfse}.")
                 ->schema([
                     Select::make('codigo_cancelamento')
                         ->label('Motivo da Substituição (Cancelamento da Nota Antiga)')
@@ -129,11 +127,11 @@ class ViewNotaFiscal extends ViewRecord
                         ->label('Novo Valor do Serviço (R$)')
                         ->numeric()
                         ->prefix('R$')
-                        ->default(fn(): float => (float) $this->record->valor_servicos)
+                        ->default(fn (): float => (float) $this->record->valor_servicos)
                         ->required(),
                     Textarea::make('discriminacao_servico')
                         ->label('Nova Discriminação dos Serviços')
-                        ->default(fn(): string => (string) $this->record->discriminacao_servico)
+                        ->default(fn (): string => (string) $this->record->discriminacao_servico)
                         ->required()
                         ->rows(3),
                 ])
@@ -187,7 +185,7 @@ class ViewNotaFiscal extends ViewRecord
                 ->label('Baixar XML')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('info')
-                ->visible(fn(): bool => !empty($this->record->xml_retorno) || !empty($this->record->xml_envio) || !empty($this->record->xml_rps))
+                ->visible(fn (): bool => ! empty($this->record->xml_retorno) || ! empty($this->record->xml_envio) || ! empty($this->record->xml_rps))
                 ->action(function (): StreamedResponse {
                     /** @var NotaFiscal $notaFiscal */
                     $notaFiscal = $this->record;
@@ -196,7 +194,7 @@ class ViewNotaFiscal extends ViewRecord
                     $nomeArquivo = "NFSE_{$notaFiscal->numero_nfse}_RPS_{$notaFiscal->numero_rps}.xml";
 
                     return response()->streamDownload(
-                        fn() => print ($conteudoXml),
+                        fn () => print ($conteudoXml),
                         $nomeArquivo,
                         ['Content-Type' => 'application/xml']
                     );
@@ -210,9 +208,9 @@ class ViewNotaFiscal extends ViewRecord
                 ->openUrlInNewTab(),
 
             EditAction::make()
-                ->visible(fn(): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
+                ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
             DeleteAction::make()
-                ->visible(fn(): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
+                ->visible(fn (): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
         ];
     }
 }
