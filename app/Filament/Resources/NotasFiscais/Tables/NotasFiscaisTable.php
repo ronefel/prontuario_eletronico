@@ -86,6 +86,13 @@ class NotasFiscaisTable
                 ViewAction::make()
                     ->hiddenLabel()
                     ->tooltip('Visualizar Nota Fiscal'),
+                Action::make('imprimir')
+                    ->hiddenLabel()
+                    ->icon('heroicon-o-printer')
+                    ->color('secondary')
+                    ->tooltip('Imprimir Nota Fiscal')
+                    ->url(fn (NotaFiscal $record): string => route('notas-fiscais.impressao', ['id' => $record->id]))
+                    ->openUrlInNewTab(),
                 EditAction::make()
                     ->hiddenLabel()
                     ->tooltip('Editar Nota Fiscal')

@@ -1,0 +1,603 @@
+.break-text {
+	word-wrap: break-word;
+}
+
+#nota-eletronica-html {
+	position: relative;
+	font-size: 13px;
+}
+
+#descricao-nota-eletronica {
+	font-family: 'Courier New' !important;
+	height: fit-content;
+	min-height: 260px;
+	max-height: 290px;
+	overflow: hidden;
+	word-wrap: break-word;
+	line-height: normal;
+	font-size: 10px;
+	font-weight: bold;
+	width: 960px;
+}
+
+#nota-eletronica-html table * {
+	font-family: Verdana;
+}
+
+#nota-eletronica-html small,
+#nota-eletronica-html .letras-pequenas {
+	font-size: 10px;
+	line-height: normal;
+	text-align: left !important;
+}
+
+#nota-eletronica-html .logo {
+	width: 90px;
+}
+
+#nota-eletronica-html .logo img {
+	max-width: 90px;
+}
+
+#nota-eletronica-htm address {
+	margin: 0;
+	font-size: 11px;
+}
+
+
+#nota-eletronica-html hr {
+	border: 1px solid #929292;
+	margin: 4px 0;
+}
+
+#nota-eletronica-html .negrito {
+	font-weight: bold;
+}
+
+#nota-eletronica-html .italico {
+	font-style: italic;
+}
+
+#nota-eletronica-html h1 {
+	font-size: 18px;
+	font-weight: bold;
+	margin: 5px 0 3px 0;
+	text-align: center;
+	line-height: normal;
+}
+
+#nota-eletronica-html span#rps {
+	display: block;
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+#nota-eletronica-html h2 {
+	margin: 0;
+	font-weight: normal;
+	text-transform: uppercase;
+	line-height: normal;
+	font-size: 14px;
+	margin-bottom: 2px;
+	text-align: left;
+}
+
+table tr.left th,
+table tr.left td {
+	text-align: left !important;
+}
+
+table tr.right th,
+table tr.right td {
+	text-align: right !important;
+}
+
+
+#nota-eletronica-html #nomeMunicipio {
+	font-weight: bold;
+	margin-left: 10px;
+	font-size: 16px;
+}
+
+#nota-eletronica-html #nomeSecretaria {
+	margin-left: 10px;
+	font-size: 14px;
+	margin-top: 10px;
+	margin-bottom: 5px;
+	font-weight: normal;
+}
+
+#nota-eletronica-html #enderecoPrefeitura {
+	margin-left: 10px;
+	font-size: 11px;
+}
+
+#nota-eletronica-html .qrcode img {
+	width: 2.52cm !important;
+	height: 2.52cm !important;
+	min-width: 2.52cm;
+	min-height: 2.52cm;
+	display: block;
+	margin: 0 auto;
+}
+
+
+#printSection {
+	visibility: hidden;
+}
+
+.tab-indication {
+	cursor: default;
+}
+
+.dados-cancelamento {
+	font-family: 'courier new';
+	position: absolute;
+	overflow: hidden;
+	word-wrap: break-word;
+	background-color: #e8e8e8;
+	padding: 5px;
+	right: 0;
+	bottom: 0;
+	max-height: 250px;
+	max-width: 850px;
+	min-width: 200px;
+	min-height: 120px;
+}
+
+
+.impressao {
+	margin: 0 auto;
+	width: 100%;
+	position: relative;
+}
+
+
+.conteudo {
+	z-index: 2;
+	height: fit-content;
+}
+
+.marca-dagua {
+	border: 4px dashed rgba(204, 204, 204, 0.5);
+	text-align: center;
+	padding: 15px 50px 5px 50px;
+	position: absolute;
+	z-index: 1;
+	left: -25%;
+	right: 0;
+	top: 30%;
+	background-color: rgba(250, 250, 250, 0.5) !important;
+	color: rgba(204, 204, 204, 0.8);
+	-webkit-transform: translate(100px) rotate(-45deg);
+	-webkit-transform-origin: 60% 100%;
+	-o-transform: translate(100px) rotate(-45deg);
+	-o-transform-origin: 60% 100%;
+	transform: translate(100px) rotate(-45deg);
+	transform-origin: 60% 100%;
+}
+
+.marca-dagua span {
+	font-size: 50px;
+	font-family: Verdana;
+	font-weight: bold;
+	color: rgba(204, 204, 204, 0.5);
+}
+
+#tdQrcode {
+	width: 190px !important;
+}
+
+/*----MS Edge Browser CSS Start----*/
+@supports (-ms-ime-align:auto) {
+	#tdQrcode {
+		/*width: 350px !important;*/
+		padding-left: 10px;
+	}
+}
+
+/*----MS Edge Browser CSS End----*/
+
+
+@media screen {
+
+
+	.impressao {
+		margin: 0 auto;
+		width: auto;
+	}
+
+
+
+	.conteudo {
+		position: relative;
+		border: 1px solid #E8E8E8;
+		-webkit-box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		-moz-box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		position: relative;
+		width: 960px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+}
+
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+
+	.impressao {
+		margin: 0 auto;
+		width: auto;
+	}
+
+	.conteudo {
+		position: relative;
+		border: 1px solid #E8E8E8;
+		-webkit-box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		-moz-box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		box-shadow: 6px -6px 10px 0px rgba(90, 90, 90, 0.60);
+		position: relative;
+		width: 960px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+}
+
+
+
+
+address {
+	margin: 0px;
+	padding: 0px;
+	line-height: normal;
+	font-size: 11px !important;
+}
+
+p {
+	margin: 0px;
+	padding: 0px;
+	line-height: normal;
+}
+
+td {
+	margin: 0px;
+	padding: 0px;
+	line-height: normal;
+}
+
+img.preview-image {
+	margin-right: 5px;
+}
+
+
+
+tr.cabecalho td {
+	padding: 5px 0px 1px 0px;
+}
+
+small.valor-total {
+	font-size: 10px;
+}
+
+span.valor-total {
+	font-size: 16px;
+}
+
+#serico-prestado {
+	height: 70px;
+	max-height: 70px;
+}
+
+#outras-informacoes {
+	height: 115px;
+	max-height: 115px;
+	text-align: left;
+	font-size: 12px;
+}
+
+@media print {
+
+	html,
+	body,
+	div,
+	span,
+	applet,
+	object,
+	iframe,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	p,
+	blockquote,
+	pre,
+	a,
+	abbr,
+	acronym,
+	address,
+	big,
+	cite,
+	code,
+	del,
+	dfn,
+	em,
+	img,
+	ins,
+	kbd,
+	q,
+	s,
+	samp,
+	small,
+	strike,
+	strong,
+	sub,
+	sup,
+	tt,
+	var,
+	b,
+	u,
+	i,
+	center,
+	dl,
+	dt,
+	dd,
+	ol,
+	ul,
+	li,
+	fieldset,
+	form,
+	label,
+	legend,
+	table,
+	caption,
+	tbody,
+	tfoot,
+	thead,
+	tr,
+	th,
+	td,
+	article,
+	aside,
+	canvas,
+	details,
+	embed,
+	figure,
+	figcaption,
+	footer,
+	header,
+	hgroup,
+	menu,
+	nav,
+	output,
+	ruby,
+	section,
+	summary,
+	time,
+	mark,
+	audio,
+	video {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		font-size: 100%;
+		font: inherit;
+		vertical-align: top;
+	}
+
+	article,
+	aside,
+	details,
+	figcaption,
+	figure,
+	footer,
+	header,
+	hgroup,
+	menu,
+	nav,
+	section {
+		display: block;
+	}
+
+	ol,
+	ul {
+		list-style: none;
+	}
+
+	blockquote,
+	q {
+		quotes: none;
+	}
+
+	blockquote:before,
+	blockquote:after,
+	q:before,
+	q:after {
+		content: '';
+		content: none;
+	}
+
+	table {
+		border-collapse: collapse;
+		border-spacing: 0;
+	}
+
+	body {
+		background: none;
+		color: #000;
+	}
+
+	@page {
+		size: A4;
+		margin: 2mm;
+	}
+
+	html {
+		background-color: #FFFFFF;
+		margin: 0px;
+	}
+
+	.impressao {
+		margin: 0;
+		padding: 0;
+		background-color: #FFFFFF;
+		width: 206mm;
+		max-width: 206mm;
+		page-break-inside: avoid;
+	}
+
+	#descricao-nota-eletronica {
+		height: fit-content;
+		min-height: 240px;
+		max-height: none;
+		word-wrap: break-word;
+		width: 100%;
+		max-width: 210mm;
+	}
+
+	#outras-informacoes {
+		height: 15mm;
+		max-height: 15mm;
+		font-size: 8px;
+		line-height: 1.1;
+		overflow: hidden;
+	}
+
+	#serico-prestado {
+		height: 13mm;
+		max-height: 13mm;
+	}
+
+	.no-image {
+		visibility: hidden;
+	}
+
+	#nota-eletronica-html {
+		font-size: 12px;
+		width: 206mm !important;
+		max-width: 206mm;
+	}
+
+	#nota-eletronica-html tr.break {
+		page-break-after: avoid;
+		font-size: 7px;
+		line-height: 1.15;
+	}
+
+	#nota-eletronica-html tr.break td {
+		padding-top: 1px !important;
+		padding-bottom: 1px !important;
+	}
+
+	#nota-eletronica-html tr.break hr {
+		margin: 1px 0 !important;
+	}
+
+	.info-nota-eletronica {
+		width: 100%;
+	}
+
+	#nota-eletronica-html h2 {
+		font-size: 10px;
+	}
+
+	#nota-eletronica-html h1 {
+		font-size: 14px;
+	}
+
+	#nota-eletronica-html hr {
+		border: 1pt solid #929292;
+		margin: 2px 0;
+	}
+
+	#nota-eletronica-html .qrcode img {
+		width: 2.52cm !important;
+		height: 2.52cm !important;
+		min-width: 2.52cm;
+		min-height: 2.52cm;
+		display: block;
+		margin: 0 auto;
+	}
+
+	#nota-eletronica-html small,
+	#nota-eletronica-html .letras-pequenas {
+		font-size: 8px;
+	}
+
+	.form-actions,
+	.navbar.main,
+	#menu,
+	.breadcrumb,
+	#footer,
+	#alertaMensagem {
+		display: none !important;
+		visibility: hidden;
+	}
+
+	.hidden-print {
+		display: none !important;
+		visibility: hidden;
+	}
+
+	html,
+	body {
+		min-height: 0 !important;
+		height: auto !important;
+	}
+
+	#content,
+	.widget-body,
+	#nota-eletronica-visualizar,
+	.tab-content {
+		margin: 0 !important;
+		padding: 0 !important;
+		border: none !important;
+	}
+
+	#content {
+		margin-left: 0 !important;
+	}
+
+	.conteudo {
+		padding: 2mm;
+		z-index: 1;
+		width: 206mm;
+		max-width: 206mm;
+		height: fit-content;
+	}
+
+	.marca-dagua {
+		background: none !important;
+		padding: 5px 50px 5px 50px;
+	}
+
+	.dados-cancelamento {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		border: 1px solid #929292;
+		font-family: 'courier new';
+		overflow: hidden;
+		word-wrap: break-word;
+		background-color: #E8E8E8;
+		padding: 5px;
+		max-height: 240px;
+		max-width: 700px;
+		min-width: 200px;
+		min-height: 120px;
+	}
+
+	.mosaic-line {
+		display: none;
+	}
+}
+
+
+@media screen and (pointer: coarse) {
+
+	#nota-eletronica-visualizar,
+	#nota-eletronica-html {
+		overflow: auto;
+	}
+}

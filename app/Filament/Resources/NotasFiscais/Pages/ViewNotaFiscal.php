@@ -202,6 +202,13 @@ class ViewNotaFiscal extends ViewRecord
                     );
                 }),
 
+            Action::make('imprimir')
+                ->label('Imprimir Nota Fiscal')
+                ->icon('heroicon-o-printer')
+                ->color('gray')
+                ->url(fn (): string => route('notas-fiscais.impressao', ['id' => $this->record->id]))
+                ->openUrlInNewTab(),
+
             EditAction::make()
                 ->visible(fn(): bool => in_array($this->record->status, ['rascunho', 'rejeitada'])),
             DeleteAction::make()
