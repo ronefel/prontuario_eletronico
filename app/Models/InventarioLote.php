@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $quantidade_registrada
  * @property int $discrepancia
  * @property string|null $motivo_discrepancia
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\Inventario $inventario
- * @property \App\Models\Lote $lote
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Inventario $inventario
+ * @property Lote $lote
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventarioLote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventarioLote newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventarioLote query()

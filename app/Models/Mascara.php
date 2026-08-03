@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
  * @property string $descricao
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mascara newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mascara newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Mascara query()

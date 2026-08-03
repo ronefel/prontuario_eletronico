@@ -49,6 +49,7 @@ class DatabaseAdapter implements FilesystemAdapter
     {
         if (str_contains($path, 'livewire-tmp/')) {
             Storage::disk('local')->put($path, $contents);
+
             return;
         }
 
@@ -131,7 +132,10 @@ class DatabaseAdapter implements FilesystemAdapter
             throw new UnableToReadFile("Não foi possível localizar o arquivo {$path}");
         }
 
-        return base64_decode(stream_get_contents($file->first()->content));
+        $conteudoBruto = $file->first()->content;
+        $conteudoTexto = is_resource($conteudoBruto) ? stream_get_contents($conteudoBruto) : (string) $conteudoBruto;
+
+        return base64_decode($conteudoTexto);
     }
 
     /**
@@ -170,11 +174,11 @@ class DatabaseAdapter implements FilesystemAdapter
         // Verifica se o caminho contém o diretório temporário do Livewire
         if (str_contains($path, 'livewire-tmp/')) {
             Storage::disk('local')->delete($path);
-            
-            if (!str_ends_with($path, '.json')) {
-                Storage::disk('local')->delete($path . '.json');
+
+            if (! str_ends_with($path, '.json')) {
+                Storage::disk('local')->delete($path.'.json');
             }
-            
+
             return;
         }
 
@@ -228,6 +232,7 @@ class DatabaseAdapter implements FilesystemAdapter
             if (! Storage::disk('local')->exists($path)) {
                 throw new UnableToReadFile("Não é possível encontrar o arquivo {$path}");
             }
+
             return new FileAttributes(
                 $path,
                 null,
@@ -378,24 +383,26 @@ class DatabaseAdapter implements FilesystemAdapter
                 throw UnableToMoveFile::fromLocationTo($source, $destination);
             }
             Storage::disk('local')->move($source, $destination);
+
             return;
         }
 
-        if ($sourceIsTemp && !$destIsTemp) {
+        if ($sourceIsTemp && ! $destIsTemp) {
             if (! Storage::disk('local')->exists($source)) {
                 throw UnableToMoveFile::fromLocationTo($source, $destination);
             }
 
             $contents = Storage::disk('local')->get($source);
-            
+
             $this->write($destination, $contents, $config);
-            
+
             return;
         }
 
-        if (!$sourceIsTemp && $destIsTemp) {
+        if (! $sourceIsTemp && $destIsTemp) {
             $contents = $this->read($source);
             Storage::disk('local')->put($destination, $contents);
+
             return;
         }
 
@@ -434,24 +441,26 @@ class DatabaseAdapter implements FilesystemAdapter
                 throw UnableToCopyFile::fromLocationTo($source, $destination);
             }
             Storage::disk('local')->copy($source, $destination);
+
             return;
         }
 
-        if ($sourceIsTemp && !$destIsTemp) {
+        if ($sourceIsTemp && ! $destIsTemp) {
             if (! Storage::disk('local')->exists($source)) {
                 throw UnableToCopyFile::fromLocationTo($source, $destination);
             }
 
             $contents = Storage::disk('local')->get($source);
-            
+
             $this->write($destination, $contents, $config);
-            
+
             return;
         }
 
-        if (!$sourceIsTemp && $destIsTemp) {
+        if (! $sourceIsTemp && $destIsTemp) {
             $contents = $this->read($source);
             Storage::disk('local')->put($destination, $contents);
+
             return;
         }
 

@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use DateTime;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
- * @property \Illuminate\Support\Carbon $nascimento
+ * @property Carbon $nascimento
  * @property string $sexo
  * @property string|null $tiposanguineo
  * @property string $cpf
@@ -21,11 +23,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $bairro
  * @property int|null $cidade_id
  * @property string|null $observacao
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\Cidade|null $cidade
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Exame> $exames
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Prontuario> $prontuarios
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Cidade|null $cidade
+ * @property Collection<int, Exame> $exames
+ * @property Collection<int, Prontuario> $prontuarios
  * @method static \Database\Factories\PacienteFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Paciente newQuery()
@@ -114,5 +116,90 @@ class Paciente extends BaseModel
 
         // Caso não tenha o tamanho esperado, retorna o número sem formatação
         return $celular;
+    }
+
+    public static function validarCpf(?string $cpf): bool
+    {
+        if (! $cpf) {
+            return false;
+        }
+
+        $cpfLimpo = preg_replace('/\D/', '', $cpf);
+
+        if (strlen($cpfLimpo) !== 11) {
+            return false;
+        }
+
+        if (preg_match('/^(\d)\1{10}$/', $cpfLimpo)) {
+            return false;
+        }
+
+        for ($indice = 0, $soma = 0; $indice < 9; $indice++) {
+            $soma += (int) $cpfLimpo[$indice] * (10 - $indice);
+        }
+
+        $resto = $soma % 11;
+        $digitoUm = ($resto < 2) ? 0 : 11 - $resto;
+
+        if ((int) $cpfLimpo[9] !== $digitoUm) {
+            return false;
+        }
+
+        for ($indice = 0, $soma = 0; $indice < 10; $indice++) {
+            $soma += (int) $cpfLimpo[$indice] * (11 - $indice);
+        }
+
+        $resto = $soma % 11;
+        $digitoDois = ($resto < 2) ? 0 : 11 - $resto;
+
+        if ((int) $cpfLimpo[10] !== $digitoDois) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function validarParaNotaFiscal(): array
+    {
+        $erros = [];
+
+        if (blank($this->nome)) {
+            $erros[] = 'Nome do paciente não informado.';
+        }
+
+        if (blank($this->cpf)) {
+            $erros[] = 'CPF não informado.';
+        } elseif (! static::validarCpf($this->cpf)) {
+            $erros[] = 'CPF inválido.';
+        }
+
+        if (blank($this->email)) {
+            $erros[] = 'Email não informado.';
+        }
+
+        if (blank($this->cep)) {
+            $erros[] = 'CEP do endereço não informado.';
+        }
+
+        if (blank($this->logradouro)) {
+            $erros[] = 'Logradouro (endereço) não informado.';
+        }
+
+        if (blank($this->numero)) {
+            $erros[] = 'Número do endereço não informado.';
+        }
+
+        if (blank($this->bairro)) {
+            $erros[] = 'Bairro do endereço não informado.';
+        }
+
+        if (! $this->cidade_id || ! $this->cidade) {
+            $erros[] = 'Cidade do endereço não selecionada.';
+        } elseif (blank($this->cidade->codigo_ibge)) {
+            $nomeCidade = $this->cidade->nome ?? 'Cidade';
+            $erros[] = "A cidade '{$nomeCidade}' não possui Código IBGE cadastrado.";
+        }
+
+        return $erros;
     }
 }

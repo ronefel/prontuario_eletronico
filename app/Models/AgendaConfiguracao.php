@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+
 /**
  * @property int $id
  * @property string $hora_inicio
@@ -11,8 +13,8 @@ namespace App\Models;
  * @property string|null $pausa_fim
  * @property string $modo_limite
  * @property int|null $limite_consultas_dia
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class AgendaConfiguracao extends BaseModel
 {

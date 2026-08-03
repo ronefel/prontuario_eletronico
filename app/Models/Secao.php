@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Campo> $campos
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Collection<int, Campo> $campos
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secao newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secao newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secao query()

@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $aplicacao_id
  * @property int $lote_id
  * @property int $quantidade
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\Aplicacao $aplicacao
- * @property \App\Models\Lote $lote
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Aplicacao $aplicacao
+ * @property Lote $lote
  * @property float $valor_total
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AplicacaoLote newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AplicacaoLote newQuery()

@@ -1,59 +1,153 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏥 Prontuário Eletrônico & Gestão de NFS-e
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema completo de **Prontuário Eletrônico Médico** com integração nativa para **Emissão de Nota Fiscal de Serviço Eletrônica (NFS-e)** no padrão ABRASF v2.02 e suporte avançado a **Certificados Digitais A1**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Principais Recursos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **📋 Prontuário Eletrônico Médico:**
+  - Gestão completa de pacientes, histórico clínico e validações para emissão fiscal.
+  - Exportação de relatórios e documentos em PDF (via mPDF) e planilhas Excel.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **🧾 Emissão e Gestão de NFS-e (ABRASF v2.02):**
+  - Geração automatizada de XML de Declaração de Prestação de Serviço (RPS).
+  - Assinatura digital XML-DSig conforme padrões ICP-Brasil.
+  - Suporte a cancelamento, substituição e consulta de notas fiscais.
 
-## Learning Laravel
+- **🔐 Suporte Inteligente a Certificado Digital A1:**
+  - Leitura nativa e fallback automático para certificados A1 com criptografia legada (`RC2-40-CBC`, `3DES`, `SHA1 PBE`).
+  - Suporte total a OpenSSL 3.0+ (PHP 8.3).
+  - Teste de certificado integrado diretamente no painel.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **⚡ Painel de Controle Moderno (FilamentPHP v5):**
+  - Interface rica, responsiva e performática construída sobre Filament v5.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🛠️ Tecnologias Utilizadas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Linguagem:** PHP 8.3+
+- **Framework:** Laravel 13
+- **Painel Administrativo:** FilamentPHP v5
+- **Banco de Dados:** PostgreSQL (pgsql)
+- **Frontend / Bundler:** Vite, TailwindCSS
+- **Geração de PDF:** mPDF
+- **Exportação de Dados:** Maatwebsite Excel
+- **Testes:** PHPUnit / PestPHP
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 💻 Requisitos de Ambiente
 
-## Contributing
+- **PHP** >= 8.3 com extensões: `openssl`, `pdo_pgsql`, `mbstring`, `gd`, `xml`, `zip`.
+- **PostgreSQL** >= 14
+- **Node.js** >= 18 e **npm**
+- **Composer** >= 2.6
+- **OpenSSL CLI** instalado no sistema (necessário para compatibilidade com certificados A1 legados).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## ⚙️ Instalação e Configuração Local
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1. Clonar o Repositório
+```bash
+git clone https://github.com/usuario/prontuario_eletronico.git
+cd prontuario_eletronico
+```
 
-## Security Vulnerabilities
+### 2. Instalar Dependências do PHP e Node.js
+```bash
+composer install
+npm install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Configurar o Arquivo `.env`
+Copie o arquivo de exemplo e ajuste as credenciais do banco de dados PostgreSQL:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## License
+Ajuste as configurações no `.env`:
+```ini
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=prontuario_eletronico
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 4. Executar Migrações e Seeders
+```bash
+php artisan migrate --seed
+```
+
+### 5. Iniciar o Ambiente de Desenvolvimento
+Execute o comando unificado que inicia o servidor Laravel, fila de jobs e o Vite simultaneamente:
+```bash
+composer dev
+```
+Acesse o sistema no navegador: `http://localhost:8000/admin`
+
+---
+
+## 🔑 Configuração do Certificado Digital A1
+
+Para configurar a emissão de notas fiscais:
+1. Acesse o painel em **Sistema > Config. Nota Fiscal**.
+2. Faça o upload do arquivo `.pfx` ou `.p12` do seu Certificado A1.
+3. Informe a senha e clique no botão **Testar Certificado Digital**.
+
+> 📖 **Documentação Detalhada do Certificado A1:**  
+> Para orientações sobre suporte a ciphers legados, auto-detecção do OpenSSL ou implantação em servidores **Dokploy (Railpack v0.15.4)**, consulte:  
+> 👉 [docs/CERTIFICADO_DIGITAL_A1.md](docs/CERTIFICADO_DIGITAL_A1.md)
+
+---
+
+## 🐳 Implantação em Produção (Dokploy / Railpack v0.15.4)
+
+No ambiente de produção via **Dokploy** utilizando **Railpack (v0.15.4)**, defina as variáveis de ambiente no painel do Dokploy:
+
+1. **Extensões PHP obrigatórias:**
+   ```ini
+   RAILPACK_PHP_EXTENSIONS="openssl, pdo_pgsql, pgsql, gd, zip, mbstring, xml, curl, bcmath"
+   ```
+
+2. **Pacotes de sistema Debian/Ubuntu (para o OpenSSL CLI):**
+   ```ini
+   RAILPACK_APT_PACKAGES="openssl"
+   ```
+
+Alternativamente via `nixpacks.toml`:
+```toml
+[providers]
+providers = ["php", "node"]
+
+[pkgs]
+apt = ["openssl"]
+```
+
+---
+
+## 🧪 Execução de Testes Automatizados
+
+Para rodar a suíte completa de testes da aplicação:
+
+```bash
+composer test
+# ou
+php artisan test
+```
+
+Para rodar especificamente os testes do leitor de certificado A1:
+```bash
+php artisan test --filter=LeitorCertificadoTest
+```
+
+---
+
+## 📄 Licença
+
+Este projeto é de propriedade privada. Todos os direitos reservados.

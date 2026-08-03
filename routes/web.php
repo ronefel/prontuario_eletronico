@@ -30,10 +30,12 @@ Route::get('/files/{name}', [FileController::class, 'serve'])
     ->middleware('auth')
     ->name('files.serve');
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\NotaFiscalImpressaoController;
 
 Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
     ->middleware('auth')
     ->name('inventario.print');
 
-
-
+Route::get('/notas-fiscais/impressao/{id}', [NotaFiscalImpressaoController::class, 'imprimir'])
+    ->middleware('auth')
+    ->name('notas-fiscais.impressao');

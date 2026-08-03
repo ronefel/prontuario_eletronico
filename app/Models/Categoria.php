@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string $nome
  * @property string|null $descricao
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Collection<int, Produto> $produtos
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Categoria newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Categoria newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Categoria onlyTrashed()

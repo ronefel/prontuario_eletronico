@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -11,12 +13,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $tipo
  * @property int $user_id
  * @property string $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
- * @property \App\Models\User $user
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Collection<int, Lote> $lotes
+ * @property Collection<int, Produto> $produtos
+ * @property User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventario onlyTrashed()

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,14 +16,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $estoque_atual
  * @property int $categoria_id
  * @property int|null $fornecedor_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \App\Models\Categoria $categoria
- * @property \App\Models\Fornecedor|null $fornecedor
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventario> $inventarios
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Lote> $lotes
- * @property \Illuminate\Database\Eloquent\Collection<int, \App\Models\Movimentacao> $movimentacoes
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Categoria $categoria
+ * @property Fornecedor|null $fornecedor
+ * @property Collection<int, Inventario> $inventarios
+ * @property Collection<int, Lote> $lotes
+ * @property Collection<int, Movimentacao> $movimentacoes
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Produto onlyTrashed()

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Pacientes\Tables;
 
+use App\Filament\Resources\NotasFiscais\NotaFiscalResource;
 use App\Models\Paciente;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -59,6 +61,11 @@ class PacientesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('gerarNfse')
+                    ->label('Gerar NFS-e')
+                    ->icon('heroicon-o-document-text')
+                    ->color('success')
+                    ->url(fn (Paciente $record): string => NotaFiscalResource::getUrl('create', ['paciente_id' => $record->id])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
