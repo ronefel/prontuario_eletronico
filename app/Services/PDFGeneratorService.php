@@ -140,7 +140,7 @@ class PDFGeneratorService
         ');
 
         // Adiciona o conteúdo HTML e o CSS
-        $stylesheet = file_get_contents(public_path('vendor/ckeditor/document-content.css'));
+        $stylesheet = file_get_contents(public_path('css/document-content.css'));
         $mpdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
 
         $htmlContent = $this->replaceVariables($htmlContent);

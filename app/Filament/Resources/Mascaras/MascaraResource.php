@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Mascaras;
 
 use App\Filament\Resources\Mascaras\Pages\ManageMascaras;
-use App\Forms\Components\CKEditor;
+use App\Forms\Helpers\EditorHelper;
 use App\Models\Mascara;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -39,7 +39,7 @@ class MascaraResource extends Resource
             ->components([
                 TextInput::make('nome')
                     ->required(),
-                CKEditor::make('descricao')
+                EditorHelper::criarRichEditor('descricao')
                     ->hiddenLabel()
                     ->required()
                     ->columnSpanFull(),

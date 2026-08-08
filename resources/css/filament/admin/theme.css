@@ -3,8 +3,8 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
-/* para usar com o plugin ckeditor */
-@import '../../../../public/vendor/ckeditor/document-content.css';
+/* Estilos de formatação para documentos do prontuário */
+@import '../../../../public/css/document-content.css';
 
 .table-bordered {
     border-collapse: collapse;

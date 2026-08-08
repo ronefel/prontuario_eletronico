@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Pacientes\Pages;
 
 use App\Filament\Resources\PacienteResource;
-use App\Forms\Components\CKEditor;
+use App\Forms\Helpers\EditorHelper;
 use App\Http\Helpers\AgentHelper;
 use App\Models\Paciente;
 use App\Models\Prontuario;
@@ -107,7 +107,7 @@ class ProntuarioPaciente extends Page
                     ->hiddenLabel()
                     ->required(),
             ])->columns(['sm' => 3, 'md' => 3, 'lg' => 3, 'xl' => 3, '2xl' => 3]),
-            CKEditor::make('descricao')
+            EditorHelper::criarRichEditor('descricao')
                 ->hiddenLabel()
                 ->required(),
             FileUpload::make('arquivos')

@@ -1,0 +1,118 @@
+/* Styles for document content rendering */
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 400;
+    src: url('../fonts/Roboto/Roboto-Italic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../fonts/Roboto/Roboto-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 700;
+    src: url('../fonts/Roboto/Roboto-BoldItalic.ttf') format('truetype');
+}
+
+.document-content {
+    line-height: 1;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+    margin: 0;
+    padding: 0;
+}
+
+@media screen {
+    .document-content {
+        box-sizing: content-box;
+    }
+}
+
+@media print {
+    .document-content {
+        line-height: 1.36;
+    }
+}
+
+.document-content-editor {
+    width: 100%;
+    max-width: 196mm;
+    margin: 0.5cm auto;
+    min-height: 210mm;
+    border: 1px #D3D3D3 solid;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.document-content-view {
+    max-width: 198mm;
+    margin: 0;
+    width: 100%;
+}
+
+.document-content blockquote {
+    font-style: italic;
+    padding: 2px 0;
+    border-style: solid;
+    border-color: #ccc;
+    border-width: 0;
+    padding-left: 20px;
+    padding-right: 8px;
+    border-left-width: 5px;
+}
+
+.document-content a {
+    color: #0782C1;
+}
+
+.document-content p {
+    margin: 0;
+}
+
+.document-content ul {
+    list-style-type: disc;
+    padding-inline-start: 40px;
+}
+
+.document-content ol {
+    list-style-type: decimal;
+    padding-inline-start: 40px;
+}
+
+.document-content h1,
+.document-content h2,
+.document-content h3,
+.document-content h4,
+.document-content h5,
+.document-content h6 {
+    font-weight: normal !important;
+    line-height: 1.2;
+}
+
+.document-content h1 { font-size: 2em !important; }
+.document-content h2 { font-size: 1.5em !important; }
+.document-content h3 { font-size: 1.17em !important; }
+
+.document-content hr {
+    border: 0px;
+    border-bottom: 1px solid #000;
+    margin: 0;
+}
+
+.document-content table {
+    border-collapse: collapse;
+}

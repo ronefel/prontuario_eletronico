@@ -42,10 +42,6 @@ class AppServiceProvider extends ServiceProvider
 
         Model::unguard();
 
-        FilamentAsset::register([
-            AlpineComponent::make('ckeditor-component', __DIR__.'/../../resources/js/dist/components/ckeditor-component.js'),
-        ]);
-
         // Configuração do DateTimePicker para usar o timezone do usuário
         DateTimePicker::configureUsing(function (DateTimePicker $dateTimePicker): void {
             $dateTimePicker->timezone(optional(Auth::user())->timezone ?? config('app.timezone'));

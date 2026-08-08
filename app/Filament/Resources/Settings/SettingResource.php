@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Settings;
 
 use App\Filament\Resources\Settings\Pages\ManageSettings;
-use App\Forms\Components\CKEditor;
+use App\Forms\Helpers\EditorHelper;
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Actions\EditAction;
@@ -72,7 +72,7 @@ class SettingResource extends Resource
                                     ->type('number'),
                             ],
                             'text-editor' => [
-                                CKEditor::make('value')
+                                EditorHelper::criarRichEditor('value')
                                     ->label($record->label),
                             ],
                             default => [
