@@ -61,7 +61,7 @@ class ClienteNfseSoapService
             'Content-Length: '.strlen($envelopeSoap),
         ];
 
-        $sslVerify = env('NFSE_SSL_VERIFY', false);
+        $sslVerify = (bool) config('services.nfse.ssl_verify', false);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $urlWebService);

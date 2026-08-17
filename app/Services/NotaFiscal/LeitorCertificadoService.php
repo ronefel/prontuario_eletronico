@@ -86,7 +86,7 @@ class LeitorCertificadoService
      */
     public function obterCaminhoExecutavelOpenSsl(): ?string
     {
-        $caminhoEnv = env('OPENSSL_PATH');
+        $caminhoEnv = (string) config('services.nfse.openssl_path');
         if ($caminhoEnv && file_exists($caminhoEnv)) {
             return $caminhoEnv;
         }
@@ -170,7 +170,8 @@ class LeitorCertificadoService
         }
 
         $errosOpenSsl = [];
-        while ($mensagemErro = openssl_error_string()) {
+        /** @phpstan-ignore-next-line */
+        while (($mensagemErro = openssl_error_string()) !== false) {
             $errosOpenSsl[] = $mensagemErro;
         }
 

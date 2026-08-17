@@ -427,8 +427,7 @@
 																@if($dados['eh_cancelada'] ||
 																	!empty($dados['data_cancelamento']))
 																				<p class="dados-cancelamento">
-																			<span class="negrito">Data do
-																				Cancelamento:</span>
+																			<span class="negrito">Data do Cancelamento:</span>
 																			{{ $dados['data_cancelamento'] }}
 																			<br>
 																			<span class="negrito">MOTIVO:</span>

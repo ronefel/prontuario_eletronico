@@ -31,4 +31,7 @@ parameters:
         - message: '#Cannot call method .+ on string.#'
         - message: '#Relation .+ is not found in App\\Models\\.+#'
         - message: '#Call to an undefined method Filament\\Notifications\\Notification::error\(\)#'
+        - identifier: method.nonObject
         - identifier: property.nonObject
+        - identifier: nullsafe.neverNull
+        - identifier: function.alreadyNarrowedType

@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'nfse' => [
+        'ssl_verify' => env('NFSE_SSL_VERIFY', false),
+        'openssl_path' => env('OPENSSL_PATH'),
+    ],
+
 ];
