@@ -4,6 +4,7 @@
             'prontuario' => 'Prontuário',
             'biorressonancia' => 'Biorressonancia',
             'tratamentos' => 'Tratamentos',
+            'exames' => 'Exames',
         ];
     @endphp
 
@@ -49,6 +50,8 @@
                     @livewire(App\Filament\Resources\Pacientes\Pages\Biorressonancia::class, ['record' => $paciente->id], key('biorressonancia-' . $paciente->id))
                 @elseif ($activeTab === 'tratamentos')
                     @livewire(App\Filament\Resources\Tratamentos\Pages\ListTratamentos::class, ['pacienteId' => $paciente->id], key('tratamentos-' . $paciente->id))
+                @elseif ($activeTab === 'exames')
+                    @livewire(App\Filament\Resources\Pacientes\Pages\ExamesPaciente::class, ['record' => $paciente->id], key('exames-' . $paciente->id))
                 @endif
             </div>
         </div>
