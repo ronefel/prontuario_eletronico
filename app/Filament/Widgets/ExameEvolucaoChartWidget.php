@@ -10,20 +10,22 @@ use Livewire\Attributes\Reactive;
 
 class ExameEvolucaoChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'Evolução Temporal dos Exames';
+    protected ?string $heading = '';
 
-    protected ?string $maxHeight = '350px';
+    protected ?string $maxHeight = '300px';
 
     #[Reactive]
     public int|string|null $pacienteId = null;
 
     public int|string|null $exameId = null;
 
+    #[Reactive]
     public int|string|null $parametroId = null;
 
-    public function mount(int|string|null $pacienteId = null): void
+    public function mount(int|string|null $pacienteId = null, int|string|null $parametroId = null): void
     {
         $this->pacienteId = $pacienteId;
+        $this->parametroId = $parametroId;
         $this->inicializarFiltros();
     }
 
@@ -39,8 +41,7 @@ class ExameEvolucaoChartWidget extends ChartWidget
             return;
         }
 
-        // Buscar o primeiro exame do paciente que possui resultados
-        if (! $this->exameId) {
+        if (! $this->parametroId) {
             $primeiroResultado = ExameResultadoItem::whereHas('registro', function ($q) {
                 $q->where('paciente_id', $this->pacienteId);
             })->first();
@@ -56,6 +57,9 @@ class ExameEvolucaoChartWidget extends ChartWidget
                     $this->parametroId = $firstParam?->id;
                 }
             }
+        } elseif (! $this->exameId && $this->parametroId) {
+            $param = ExameParametro::find($this->parametroId);
+            $this->exameId = $param?->exame_id;
         }
     }
 
@@ -116,7 +120,7 @@ class ExameEvolucaoChartWidget extends ChartWidget
         }
 
         $unidade = $parametro?->unidade_medida ? " ({$parametro->unidade_medida})" : '';
-        $nomeParametro = ($parametro?->nome_parametro ?? 'Resultado') . $unidade;
+        $nomeParametro = ($parametro?->nome_parametro ?? 'Resultado').$unidade;
 
         $datasets = [
             [
@@ -162,5 +166,16 @@ class ExameEvolucaoChartWidget extends ChartWidget
     protected function getType(): string
     {
         return 'line';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'display' => false,
+                ],
+            ],
+        ];
     }
 }

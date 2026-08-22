@@ -18,7 +18,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -30,6 +29,10 @@ class ExamesPaciente extends Page implements HasActions, HasForms
     protected string $view = 'filament.resources.pacientes.pages.exames-paciente';
 
     public Paciente|int|string|null $paciente = null;
+
+    public int|string|null $selectedParametroId = null;
+
+    public bool $modalHistoricoAberto = false;
 
     public function mount(int|string|null $record = null): void
     {
@@ -135,7 +138,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
                 if (isset($data['itens']) && is_array($data['itens'])) {
                     foreach ($data['itens'] as $item) {
-                        if (isset($item['exame_parametro_id']) && isset($item['valor_resultado'])) {
+                        if (isset($item['exame_parametro_id']) && isset($item['valor_resultado']) && $item['valor_resultado'] !== '') {
                             ExameResultadoItem::create([
                                 'exame_registro_id' => $registro->id,
                                 'exame_parametro_id' => $item['exame_parametro_id'],
@@ -152,28 +155,210 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             });
     }
 
-    public function excluirRegistro(int $registroId): void
+    public function editarItemAction(): Action
     {
-        $registro = ExameRegistro::where('paciente_id', $this->paciente->id)->find($registroId);
-        if ($registro) {
-            $registro->delete();
+        return Action::make('editarItem')
+            ->label('')
+            ->icon('heroicon-o-pencil-square')
+            ->color('primary')
+            ->iconButton()
+            ->tooltip('Editar medição')
+            ->modalHeading('Editar Medição Histórica')
+            ->modalSubmitActionLabel('Salvar Alterações')
+            ->fillForm(function (array $arguments) {
+                $item = ExameResultadoItem::with('registro')->find($arguments['itemId'] ?? null);
+                if (! $item) {
+                    return [];
+                }
+
+                return [
+                    'item_id' => $item->id,
+                    'valor_resultado' => $item->valor_resultado,
+                    'data_exame' => $item->registro->data_exame?->format('Y-m-d'),
+                    'observacoes' => $item->registro->observacoes,
+                ];
+            })
+            ->schema([
+                Hidden::make('item_id'),
+                TextInput::make('valor_resultado')
+                    ->label('Resultado Numérico')
+                    ->numeric()
+                    ->step('0.01')
+                    ->required(),
+                DatePicker::make('data_exame')
+                    ->label('Data da Coleta/Exame')
+                    ->maxDate(now())
+                    ->required(),
+                Textarea::make('observacoes')
+                    ->label('Observações')
+                    ->rows(2)
+                    ->columnSpanFull(),
+            ])
+            ->action(function (array $data) {
+                $item = ExameResultadoItem::with('registro')->find($data['item_id'] ?? null);
+                if (! $item) {
+                    return;
+                }
+
+                $item->update([
+                    'valor_resultado' => $data['valor_resultado'],
+                ]);
+
+                if ($item->registro) {
+                    $item->registro->update([
+                        'data_exame' => $data['data_exame'],
+                        'observacoes' => $data['observacoes'] ?? null,
+                    ]);
+                }
+
+                Notification::make()
+                    ->title('Medição atualizada com sucesso!')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function abrirHistoricoEvolucao(int $parametroId): void
+    {
+        $this->selectedParametroId = $parametroId;
+        $this->modalHistoricoAberto = true;
+        $this->dispatch('open-modal', id: 'modal-historico-evolucao');
+    }
+
+    public function fecharHistoricoEvolucao(): void
+    {
+        $this->dispatch('close-modal', id: 'modal-historico-evolucao');
+        $this->modalHistoricoAberto = false;
+        $this->selectedParametroId = null;
+    }
+
+    public function excluirItem(int $itemId): void
+    {
+        $item = ExameResultadoItem::with('registro')->find($itemId);
+        if ($item) {
+            $registro = $item->registro;
+            $item->delete();
+
+            if ($registro && $registro->itens()->count() === 0) {
+                $registro->delete();
+            }
+
             Notification::make()
-                ->title('Registro de exame excluído.')
+                ->title('Medição excluída com sucesso.')
                 ->success()
                 ->send();
         }
     }
 
-    public function getRegistrosProperty()
+    public function getResumoParametrosProperty()
     {
         if (! $this->paciente) {
             return collect();
         }
 
-        return ExameRegistro::with(['exame', 'itens.parametro'])
-            ->where('paciente_id', $this->paciente->id)
-            ->orderBy('data_exame', 'desc')
-            ->orderBy('created_at', 'desc')
+        $parametros = ExameParametro::with('exame')
+            ->whereHas('resultadoItens.registro', function ($q) {
+                $q->where('paciente_id', $this->paciente->id);
+            })
             ->get();
+
+        $resumo = collect();
+
+        foreach ($parametros as $param) {
+            $itens = ExameResultadoItem::with('registro')
+                ->whereHas('registro', function ($q) {
+                    $q->where('paciente_id', $this->paciente->id);
+                })
+                ->where('exame_parametro_id', $param->id)
+                ->join('exame_registros', 'exame_resultado_itens.exame_registro_id', '=', 'exame_registros.id')
+                ->orderBy('exame_registros.data_exame', 'desc')
+                ->orderBy('exame_resultado_itens.id', 'desc')
+                ->select('exame_resultado_itens.*')
+                ->get();
+
+            if ($itens->isEmpty()) {
+                continue;
+            }
+
+            $ultimo = $itens->first();
+            $penultimo = $itens->skip(1)->first();
+
+            $tendenciaTexto = '-';
+            if ($penultimo && (float) $penultimo->valor_resultado > 0) {
+                $vUltimo = (float) $ultimo->valor_resultado;
+                $vPenultimo = (float) $penultimo->valor_resultado;
+                $variacao = (($vUltimo - $vPenultimo) / $vPenultimo) * 100;
+
+                if (abs($variacao) >= 1.0) {
+                    $percentual = (int) round(abs($variacao));
+                    if ($variacao > 0) {
+                        $tendenciaTexto = "↑ {$percentual}%";
+                    } else {
+                        $tendenciaTexto = "↓ {$percentual}%";
+                    }
+                }
+            }
+
+            $qtdParametros = $param->exame?->parametros()->count() ?? 1;
+            $isExameSimples = ($qtdParametros === 1) || (strtolower(trim($param->nome_parametro)) === 'resultado');
+
+            $min = $param->valor_minimo_ideal;
+            $max = $param->valor_maximo_ideal;
+            $unidade = $param->unidade_medida ? ' ' . $param->unidade_medida : '';
+
+            $faixaIdeal = '-';
+            if ($min !== null && $max !== null) {
+                $faixaIdeal = "{$min} a {$max}{$unidade}";
+            } elseif ($min !== null) {
+                $faixaIdeal = ">= {$min}{$unidade}";
+            } elseif ($max !== null) {
+                $faixaIdeal = "<= {$max}{$unidade}";
+            }
+
+            $resumo->push((object) [
+                'parametro_id' => $param->id,
+                'exame_nome' => $param->exame->nome ?? 'Exame',
+                'parametro_nome' => $param->nome_parametro,
+                'unidade_medida' => $param->unidade_medida,
+                'is_exame_simples' => $isExameSimples,
+                'faixa_ideal' => $faixaIdeal,
+                'ultimo_valor' => $ultimo->valor_resultado,
+                'status_normalidade' => $ultimo->status_normalidade,
+                'data_ultima_coleta' => $ultimo->registro?->data_exame,
+                'tendencia_texto' => $tendenciaTexto,
+                'penultimo_valor' => $penultimo?->valor_resultado,
+                'total_medicoes' => $itens->count(),
+            ]);
+        }
+
+        return $resumo->sortBy(['exame_nome', 'parametro_nome']);
+    }
+
+    public function getHistoricoParametroSelecionadoProperty()
+    {
+        if (! $this->paciente || ! $this->selectedParametroId) {
+            return null;
+        }
+
+        $parametro = ExameParametro::with('exame')->find($this->selectedParametroId);
+        if (! $parametro) {
+            return null;
+        }
+
+        $itens = ExameResultadoItem::with('registro')
+            ->whereHas('registro', function ($q) {
+                $q->where('paciente_id', $this->paciente->id);
+            })
+            ->where('exame_parametro_id', $this->selectedParametroId)
+            ->join('exame_registros', 'exame_resultado_itens.exame_registro_id', '=', 'exame_registros.id')
+            ->orderBy('exame_registros.data_exame', 'desc')
+            ->orderBy('exame_resultado_itens.id', 'desc')
+            ->select('exame_resultado_itens.*')
+            ->get();
+
+        return (object) [
+            'parametro' => $parametro,
+            'itens' => $itens,
+        ];
     }
 }
