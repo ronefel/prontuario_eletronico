@@ -7,9 +7,6 @@
                 @svg('heroicon-o-beaker', 'w-6 h-6 text-primary-600 dark:text-primary-400')
                 Exames Laboratoriais do Paciente
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                Visão consolidada do último resultado por parâmetro, tendência e histórico evolutivo.
-            </p>
         </div>
 
         <div>
@@ -20,17 +17,7 @@
     <!-- Tabela Resumo Principal -->
     <div
         class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                @svg('heroicon-o-table-cells', 'w-5 h-5 text-gray-500')
-                Resumo dos Últimos Resultados por Parâmetro
-            </h3>
-            <span
-                class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
-                {{ count($this->resumoParametros) }}
-                {{ count($this->resumoParametros) === 1 ? 'parâmetro' : 'parâmetros' }}
-            </span>
-        </div>
+
 
         @if ($this->resumoParametros->isEmpty())
             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
@@ -46,11 +33,10 @@
                         class="bg-gray-50 dark:bg-gray-900/60 text-gray-600 dark:text-gray-300 font-semibold uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <th class="px-4 py-3">Exame / Parâmetro</th>
-                            <th class="px-4 py-3">Faixa Ideal</th>
-                            <th class="px-4 py-3">Último Resultado</th>
-                            <th class="px-4 py-3">Data da Última Coleta</th>
-                            <th class="px-4 py-3 text-center">Tendência</th>
-                            <th class="px-4 py-3 text-right">Ação</th>
+                            <th class="px-4 py-3">Resultado Atual</th>
+                            <th class="px-4 py-3">Resultado Anterior</th>
+                            <th class="px-4 py-3">Valor Ideal</th>
+                            <th class="px-4 py-3 text-right"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
@@ -65,8 +51,7 @@
                                         <span class="text-sm font-bold text-gray-900 dark:text-white">
                                             {{ $resumo->exame_nome }}
                                             @if ($resumo->unidade_medida)
-                                                <span
-                                                    class="text-xs font-normal text-gray-500">({{ $resumo->unidade_medida }})</span>
+                                                <span class="text-xs font-normal text-gray-500">({{ $resumo->unidade_medida }})</span>
                                             @endif
                                         </span>
                                     @else
@@ -86,74 +71,90 @@
                                     @endif
                                 </td>
 
-                                <!-- Faixa Ideal -->
-                                <td class="px-4 py-3.5 text-gray-600 dark:text-gray-300 font-medium">
-                                    {{ $resumo->faixa_ideal }}
-                                </td>
-
-                                <!-- Último Resultado -->
+                                <!-- Resultado Atual -->
                                 <td class="px-4 py-3.5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-extrabold text-gray-900 dark:text-white">
-                                            {{ number_format($resumo->ultimo_valor, 2, ',', '.') }}{{ $unidade }}
-                                        </span>
-
-                                        @if ($resumo->status_normalidade === 'normal')
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                                                <span class="w-1.5 h-1.5 me-1 bg-emerald-500 rounded-full"></span>
-                                                Normal
-                                            </span>
-                                        @elseif ($resumo->status_normalidade === 'baixo')
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                                                <span class="w-1.5 h-1.5 me-1 bg-amber-500 rounded-full"></span>
-                                                Baixo
-                                            </span>
-                                        @elseif ($resumo->status_normalidade === 'alto')
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
-                                                <span class="w-1.5 h-1.5 me-1 bg-rose-500 rounded-full"></span>
-                                                Alto
-                                            </span>
-                                        @else
-                                            <span
-                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
-                                                <span class="w-1.5 h-1.5 me-1 bg-blue-500 rounded-full"></span>
-                                                Informativo
-                                            </span>
+                                    <div class="flex flex-col gap-1">
+                                        @if ($resumo->data_ultima_coleta)
+                                            <div
+                                                class="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                                                <span>{{ $resumo->data_ultima_coleta->format('d/m/Y') }}</span>
+                                            </div>
                                         @endif
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm font-extrabold text-gray-900 dark:text-white">
+                                                {{ number_format($resumo->ultimo_valor, 2, ',', '.') }}{{ $unidade }}
+                                            </span>
+
+                                            @if ($resumo->status_normalidade === 'normal')
+                                                <x-filament::badge color="success" size="sm">
+                                                    Normal
+                                                </x-filament::badge>
+                                            @elseif ($resumo->status_normalidade === 'baixo')
+                                                <x-filament::badge color="danger" size="sm">
+                                                    Baixo
+                                                </x-filament::badge>
+                                            @elseif ($resumo->status_normalidade === 'alto')
+                                                <x-filament::badge color="danger" size="sm">
+                                                    Alto
+                                                </x-filament::badge>
+                                            @else
+                                                <x-filament::badge color="info" size="sm">
+                                                    Informativo
+                                                </x-filament::badge>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
 
-                                <!-- Data da Coleta -->
-                                <td class="px-4 py-3.5 text-gray-700 dark:text-gray-300 font-medium">
-                                    {{ $resumo->data_ultima_coleta ? $resumo->data_ultima_coleta->format('d/m/Y') : '-' }}
-                                </td>
+                                <!-- Resultado Anterior -->
+                                <td class="px-4 py-3.5">
+                                    @if ($resumo->penultimo_valor !== null)
+                                        <div class="flex flex-col gap-1">
+                                            @if ($resumo->data_penultima_coleta)
+                                                <div
+                                                    class="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                                                    <span>{{ $resumo->data_penultima_coleta->format('d/m/Y') }}</span>
+                                                </div>
+                                            @endif
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                    {{ number_format($resumo->penultimo_valor, 2, ',', '.') }}{{ $unidade }}
+                                                </span>
 
-                                <!-- Tendência -->
-                                <td class="px-4 py-3.5 text-center">
-                                    @if ($resumo->tendencia_texto !== '-')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
-                                            title="Variação percentual em relação à coleta anterior">
-                                            {{ $resumo->tendencia_texto }}
-                                        </span>
+                                                @if ($resumo->status_penultimo === 'normal')
+                                                    <x-filament::badge color="success" size="sm">
+                                                        Normal
+                                                    </x-filament::badge>
+                                                @elseif ($resumo->status_penultimo === 'baixo')
+                                                    <x-filament::badge color="danger" size="sm">
+                                                        Baixo
+                                                    </x-filament::badge>
+                                                @elseif ($resumo->status_penultimo === 'alto')
+                                                    <x-filament::badge color="danger" size="sm">
+                                                        Alto
+                                                    </x-filament::badge>
+                                                @elseif ($resumo->status_penultimo === 'informativo')
+                                                    <x-filament::badge color="info" size="sm">
+                                                        Informativo
+                                                    </x-filament::badge>
+                                                @endif
+                                            </div>
+                                        </div>
                                     @else
                                         <span class="text-gray-400 font-medium">-</span>
                                     @endif
                                 </td>
 
+                                <!-- Faixa Ideal -->
+                                <td class="px-4 py-3.5 text-gray-600 dark:text-gray-300 font-medium">
+                                    {{ $resumo->faixa_ideal }}
+                                </td>
+
                                 <!-- Ação: Ver Histórico & Evolução -->
                                 <td class="px-4 py-3.5 text-right">
-                                    <x-filament::button
-                                        type="button"
+                                    <x-filament::button type="button"
                                         wire:click="abrirHistoricoEvolucao({{ $resumo->parametro_id }})"
-                                        icon="heroicon-o-chart-bar"
-                                        color="primary"
-                                        size="xs"
-                                        outlined
-                                    >
+                                        icon="heroicon-o-chart-bar" color="primary" size="xs" outlined>
                                         Histórico & Evolução
                                     </x-filament::button>
                                 </td>
@@ -184,11 +185,7 @@
             }
         @endphp
 
-        <x-filament::modal
-            id="modal-historico-evolucao"
-            width="4xl"
-            display-classes="block"
-        >
+        <x-filament::modal id="modal-historico-evolucao" width="4xl" display-classes="block">
             <x-slot name="heading">
                 <div class="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                     @svg('heroicon-o-chart-bar', 'w-5 h-5 text-primary-600')
@@ -199,15 +196,15 @@
             <x-slot name="description">
                 <div class="text-xs text-gray-500 dark:text-gray-400">
                     <span class="text-primary-600 font-semibold uppercase">{{ $hParam->exame->nome ?? 'Exame' }}</span>
-                    &bull; Faixa Ideal de Referência: <span class="font-bold text-gray-700 dark:text-gray-300">{{ $hFaixa }}</span>
+                    &bull; Valor Ideal de Referência: <span
+                        class="font-bold text-gray-700 dark:text-gray-300">{{ $hFaixa }}</span>
                 </div>
             </x-slot>
 
             <!-- Corpo do Modal -->
             <div class="space-y-6">
                 <!-- Widget do Gráfico de Linha -->
-                <div
-                    class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
                     @livewire(
                         \App\Filament\Widgets\ExameEvolucaoChartWidget::class,
                         [
@@ -243,25 +240,21 @@
                                         </td>
                                         <td class="px-4 py-3">
                                             @if ($hItem->status_normalidade === 'normal')
-                                                <span
-                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                                                <x-filament::badge color="success" size="sm">
                                                     Normal
-                                                </span>
+                                                </x-filament::badge>
                                             @elseif ($hItem->status_normalidade === 'baixo')
-                                                <span
-                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                                <x-filament::badge color="danger" size="sm">
                                                     Baixo
-                                                </span>
+                                                </x-filament::badge>
                                             @elseif ($hItem->status_normalidade === 'alto')
-                                                <span
-                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                                <x-filament::badge color="danger" size="sm">
                                                     Alto
-                                                </span>
+                                                </x-filament::badge>
                                             @else
-                                                <span
-                                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
+                                                <x-filament::badge color="info" size="sm">
                                                     Informativo
-                                                </span>
+                                                </x-filament::badge>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400 italic">
@@ -271,15 +264,11 @@
                                             <div class="flex items-center justify-end gap-2">
                                                 {{ ($this->editarItemAction)(['itemId' => $hItem->id]) }}
 
-                                                <x-filament::icon-button
-                                                    type="button"
+                                                <x-filament::icon-button type="button"
                                                     wire:click="excluirItem({{ $hItem->id }})"
                                                     wire:confirm="Tem certeza que deseja excluir esta medição?"
-                                                    icon="heroicon-o-trash"
-                                                    color="danger"
-                                                    size="sm"
-                                                    tooltip="Excluir medição"
-                                                />
+                                                    icon="heroicon-o-trash" color="danger" size="sm"
+                                                    tooltip="Excluir medição" />
                                             </div>
                                         </td>
                                     </tr>

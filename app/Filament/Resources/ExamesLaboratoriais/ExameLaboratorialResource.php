@@ -27,9 +27,9 @@ class ExameLaboratorialResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Exames Laboratoriais';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configurações';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
-    protected static ?int $navigationSort = 300;
+    protected static ?int $navigationSort = 106;
 
     public static function form(Schema $schema): Schema
     {

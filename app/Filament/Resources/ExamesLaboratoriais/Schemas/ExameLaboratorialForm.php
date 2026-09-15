@@ -36,11 +36,9 @@ class ExameLaboratorialForm
                 ->schema([
                     TextInput::make('nome_parametro')
                         ->label('Nome do Parâmetro')
+                        ->default('Resultado')
                         ->required()
                         ->placeholder('Ex: Hemoglobina, Plaquetas, Resultado'),
-                    TextInput::make('unidade_medida')
-                        ->label('Unidade de Medida')
-                        ->placeholder('Ex: g/dL, mg/dL, /mm³'),
                     TextInput::make('valor_minimo_ideal')
                         ->label('Valor Mínimo Ideal')
                         ->numeric()
@@ -51,6 +49,31 @@ class ExameLaboratorialForm
                         ->numeric()
                         ->step('0.01')
                         ->nullable(),
+                    TextInput::make('unidade_medida')
+                        ->label('Unidade de Medida')
+                        ->placeholder('Ex: g/dL, mg/dL, /mm³')
+                        ->datalist([
+                            'g/dL',
+                            'mg/dL',
+                            'µL',
+                            '/mm³',
+                            'mil/mm³',
+                            '10^6/µL',
+                            '%',
+                            'UI/L',
+                            'U/L',
+                            'mIU/mL',
+                            'µUI/mL',
+                            'ng/mL',
+                            'ng/dL',
+                            'pg/mL',
+                            'pg',
+                            'fL',
+                            'mEq/L',
+                            'mmol/L',
+                            'mm/h',
+                            'g/L',
+                        ]),
                 ])
                 ->columns(4)
                 ->columnSpanFull()

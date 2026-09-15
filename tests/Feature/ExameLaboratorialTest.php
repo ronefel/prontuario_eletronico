@@ -134,6 +134,7 @@ test('calcula resumo de parametros e tendencia percentual em ExamesPaciente', fu
 
     $itemResumo = $resumo->first();
     expect($itemResumo->ultimo_valor)->toBe(95.0);
-    expect($itemResumo->tendencia_texto)->toBe('↑ 19%');
+    expect($itemResumo->penultimo_valor)->toBe(80.0);
+    expect($itemResumo->status_penultimo)->toBe('normal');
     expect($itemResumo->is_exame_simples)->toBeTrue();
 });

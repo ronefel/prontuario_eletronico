@@ -56,16 +56,17 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                     ->placeholder('Selecione um exame do catálogo...')
                     ->options(ExameLaboratorial::where('ativo', true)->orderBy('nome')->pluck('nome', 'id'))
                     ->required()
+                    ->searchable()
                     ->live()
                     ->afterStateUpdated(function ($state, $set) {
-                        if (! $state) {
+                        if (!$state) {
                             $set('itens', []);
 
                             return;
                         }
 
                         $exame = ExameLaboratorial::with('parametros')->find($state);
-                        if (! $exame) {
+                        if (!$exame) {
                             $set('itens', []);
 
                             return;
@@ -123,7 +124,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                     ->columnSpanFull(),
             ])
             ->action(function (array $data) {
-                if (! $this->paciente) {
+                if (!$this->paciente) {
                     Notification::make()->title('Paciente não identificado.')->danger()->send();
 
                     return;
@@ -167,7 +168,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ->modalSubmitActionLabel('Salvar Alterações')
             ->fillForm(function (array $arguments) {
                 $item = ExameResultadoItem::with('registro')->find($arguments['itemId'] ?? null);
-                if (! $item) {
+                if (!$item) {
                     return [];
                 }
 
@@ -196,7 +197,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ])
             ->action(function (array $data) {
                 $item = ExameResultadoItem::with('registro')->find($data['item_id'] ?? null);
-                if (! $item) {
+                if (!$item) {
                     return;
                 }
 
@@ -252,7 +253,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
     public function getResumoParametrosProperty()
     {
-        if (! $this->paciente) {
+        if (!$this->paciente) {
             return collect();
         }
 
@@ -280,23 +281,14 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                 continue;
             }
 
+            /** @var ExameResultadoItem $ultimo */
             $ultimo = $itens->first();
+            $ultimo->setRelation('parametro', $param);
+
+            /** @var ExameResultadoItem|null $penultimo */
             $penultimo = $itens->skip(1)->first();
-
-            $tendenciaTexto = '-';
-            if ($penultimo && (float) $penultimo->valor_resultado > 0) {
-                $vUltimo = (float) $ultimo->valor_resultado;
-                $vPenultimo = (float) $penultimo->valor_resultado;
-                $variacao = (($vUltimo - $vPenultimo) / $vPenultimo) * 100;
-
-                if (abs($variacao) >= 1.0) {
-                    $percentual = (int) round(abs($variacao));
-                    if ($variacao > 0) {
-                        $tendenciaTexto = "↑ {$percentual}%";
-                    } else {
-                        $tendenciaTexto = "↓ {$percentual}%";
-                    }
-                }
+            if ($penultimo) {
+                $penultimo->setRelation('parametro', $param);
             }
 
             $qtdParametros = $param->exame?->parametros()->count() ?? 1;
@@ -325,8 +317,9 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                 'ultimo_valor' => $ultimo->valor_resultado,
                 'status_normalidade' => $ultimo->status_normalidade,
                 'data_ultima_coleta' => $ultimo->registro?->data_exame,
-                'tendencia_texto' => $tendenciaTexto,
                 'penultimo_valor' => $penultimo?->valor_resultado,
+                'status_penultimo' => $penultimo ? $penultimo->status_normalidade : null,
+                'data_penultima_coleta' => $penultimo?->registro?->data_exame,
                 'total_medicoes' => $itens->count(),
             ]);
         }
@@ -336,12 +329,12 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
     public function getHistoricoParametroSelecionadoProperty()
     {
-        if (! $this->paciente || ! $this->selectedParametroId) {
+        if (!$this->paciente || !$this->selectedParametroId) {
             return null;
         }
 
         $parametro = ExameParametro::with('exame')->find($this->selectedParametroId);
-        if (! $parametro) {
+        if (!$parametro) {
             return null;
         }
 
