@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BiorressonanciaController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\LaudoEvolutivoController;
 use App\Http\Controllers\MascaraController;
 use App\Http\Controllers\ProntuarioController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,10 @@ Route::get('/login', function () {
 Route::get('/prontuario/print/{id}', [ProntuarioController::class, 'print'])
     ->middleware('auth')
     ->name('prontuario.print');
+
+Route::get('/laudo-evolutivo/print/{pacienteId}', [LaudoEvolutivoController::class, 'imprimir'])
+    ->middleware('auth')
+    ->name('laudo-evolutivo.print');
 
 Route::get('/biorressonancia/print/{id}', [BiorressonanciaController::class, 'print'])
     ->middleware('auth')

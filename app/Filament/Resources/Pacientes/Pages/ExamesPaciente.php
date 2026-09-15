@@ -16,10 +16,12 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Support\Enums\Width;
 
 class ExamesPaciente extends Page implements HasActions, HasForms
 {
@@ -41,6 +43,69 @@ class ExamesPaciente extends Page implements HasActions, HasForms
         }
     }
 
+    public function imprimirLaudoEvolutivoAction(): Action
+    {
+        return Action::make('imprimirLaudoEvolutivo')
+            ->label('Laudo Evolutivo')
+            ->icon('heroicon-o-printer')
+            ->color('gray')
+            ->outlined()
+            ->modalHeading('Imprimir Laudo Evolutivo')
+            ->modalSubmitActionLabel('Imprimir')
+            ->modalWidth(Width::ExtraSmall)
+            ->schema([
+                ToggleButtons::make('layout')
+                    ->label('Layout')
+                    ->options([
+                        'P' => 'Retrato',
+                        'L' => 'Paisagem',
+                    ])
+                    ->default('P')
+                    ->grouped()
+                    ->reactive()
+                    ->disabled(fn ($get) => $get('paper_size') === 'A5noA4'),
+                ToggleButtons::make('paper_size')
+                    ->label('Tamanho do Papel')
+                    ->options([
+                        'A4' => 'A4',
+                        'A5' => 'A5',
+                        'A5noA4' => 'A5 no A4',
+                    ])
+                    ->default('A4')
+                    ->grouped()
+                    ->reactive(),
+            ])
+            ->action(function (array $data) {
+                if (! $this->paciente) {
+                    Notification::make()->title('Paciente não identificado.')->danger()->send();
+
+                    return;
+                }
+
+                $temExames = ExameRegistro::where('paciente_id', $this->paciente->id)
+                    ->whereHas('itens')
+                    ->exists();
+
+                if (! $temExames) {
+                    Notification::make()
+                        ->title('Nenhum exame laboratorial registrado para este paciente.')
+                        ->warning()
+                        ->send();
+
+                    return;
+                }
+
+                $url = route('laudo-evolutivo.print', [
+                    'pacienteId' => $this->paciente->id,
+                    'layout' => $data['layout'] ?? 'P',
+                    'paper_size' => $data['paper_size'] ?? 'A4',
+                ]);
+
+                $this->dispatch('openUrlInNewTab', ['url' => $url]);
+                $this->js("window.open('{$url}', '_blank');");
+            });
+    }
+
     public function lancarResultadoAction(): Action
     {
         return Action::make('lancarResultado')
@@ -59,14 +124,14 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                     ->searchable()
                     ->live()
                     ->afterStateUpdated(function ($state, $set) {
-                        if (!$state) {
+                        if (! $state) {
                             $set('itens', []);
 
                             return;
                         }
 
                         $exame = ExameLaboratorial::with('parametros')->find($state);
-                        if (!$exame) {
+                        if (! $exame) {
                             $set('itens', []);
 
                             return;
@@ -84,7 +149,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
                             $itens[] = [
                                 'exame_parametro_id' => $param->id,
-                                'nome_parametro' => $param->nome_parametro . $unidade . $faixa,
+                                'nome_parametro' => $param->nome_parametro.$unidade.$faixa,
                                 'valor_resultado' => null,
                             ];
                         }
@@ -124,7 +189,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                     ->columnSpanFull(),
             ])
             ->action(function (array $data) {
-                if (!$this->paciente) {
+                if (! $this->paciente) {
                     Notification::make()->title('Paciente não identificado.')->danger()->send();
 
                     return;
@@ -168,7 +233,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ->modalSubmitActionLabel('Salvar Alterações')
             ->fillForm(function (array $arguments) {
                 $item = ExameResultadoItem::with('registro')->find($arguments['itemId'] ?? null);
-                if (!$item) {
+                if (! $item) {
                     return [];
                 }
 
@@ -197,7 +262,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ])
             ->action(function (array $data) {
                 $item = ExameResultadoItem::with('registro')->find($data['item_id'] ?? null);
-                if (!$item) {
+                if (! $item) {
                     return;
                 }
 
@@ -253,7 +318,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
     public function getResumoParametrosProperty()
     {
-        if (!$this->paciente) {
+        if (! $this->paciente) {
             return collect();
         }
 
@@ -296,7 +361,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
             $min = $param->valor_minimo_ideal;
             $max = $param->valor_maximo_ideal;
-            $unidade = $param->unidade_medida ? ' ' . $param->unidade_medida : '';
+            $unidade = $param->unidade_medida ? ' '.$param->unidade_medida : '';
 
             $faixaIdeal = '-';
             if ($min !== null && $max !== null) {
@@ -324,17 +389,20 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ]);
         }
 
-        return $resumo->sortBy(['exame_nome', 'parametro_nome']);
+        return $resumo->sortBy([
+            ['exame_nome', 'asc'],
+            ['parametro_id', 'asc'],
+        ])->values();
     }
 
     public function getHistoricoParametroSelecionadoProperty()
     {
-        if (!$this->paciente || !$this->selectedParametroId) {
+        if (! $this->paciente || ! $this->selectedParametroId) {
             return null;
         }
 
         $parametro = ExameParametro::with('exame')->find($this->selectedParametroId);
-        if (!$parametro) {
+        if (! $parametro) {
             return null;
         }
 
@@ -353,5 +421,22 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             'parametro' => $parametro,
             'itens' => $itens,
         ];
+    }
+
+    public function formatarValorResultado(?float $valor): string
+    {
+        if ($valor === null) {
+            return '-';
+        }
+
+        // Se for um número inteiro, não deve usar casas decimais
+        if (round($valor, 4) == round($valor, 0)) {
+            return number_format($valor, 0, ',', '.');
+        }
+
+        // Formata com até 2 casas decimais e remove zeros desnecessários à direita (ex.: 45,5 em vez de 45,50)
+        $formatado = number_format($valor, 2, ',', '.');
+
+        return rtrim(rtrim($formatado, '0'), ',');
     }
 }

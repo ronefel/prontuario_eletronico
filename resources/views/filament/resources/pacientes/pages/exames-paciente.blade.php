@@ -9,7 +9,8 @@
             </h2>
         </div>
 
-        <div>
+        <div class="flex items-center gap-3">
+            {{ $this->imprimirLaudoEvolutivoAction }}
             {{ $this->lancarResultadoAction }}
         </div>
     </div>
@@ -82,7 +83,7 @@
                                         @endif
                                         <div class="flex items-center gap-2">
                                             <span class="text-sm font-extrabold text-gray-900 dark:text-white">
-                                                {{ number_format($resumo->ultimo_valor, 2, ',', '.') }}{{ $unidade }}
+                                                {{ $this->formatarValorResultado($resumo->ultimo_valor) }}{{ $unidade }}
                                             </span>
 
                                             @if ($resumo->status_normalidade === 'normal')
@@ -118,7 +119,7 @@
                                             @endif
                                             <div class="flex items-center gap-2">
                                                 <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                    {{ number_format($resumo->penultimo_valor, 2, ',', '.') }}{{ $unidade }}
+                                                    {{ $this->formatarValorResultado($resumo->penultimo_valor) }}{{ $unidade }}
                                                 </span>
 
                                                 @if ($resumo->status_penultimo === 'normal')
@@ -236,7 +237,7 @@
                                             {{ $hItem->registro->data_exame ? $hItem->registro->data_exame->format('d/m/Y') : '-' }}
                                         </td>
                                         <td class="px-4 py-3 font-extrabold text-gray-900 dark:text-white">
-                                            {{ number_format($hItem->valor_resultado, 2, ',', '.') }}{{ $hUnidade }}
+                                            {{ $this->formatarValorResultado($hItem->valor_resultado) }}{{ $hUnidade }}
                                         </td>
                                         <td class="px-4 py-3">
                                             @if ($hItem->status_normalidade === 'normal')
@@ -284,3 +285,16 @@
     <!-- Modals de Ações do Filament -->
     <x-filament-actions::modals />
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.addEventListener('openUrlInNewTab', function(event) {
+                const url = event.detail?.[0]?.url || event.detail?.url;
+                if (url) {
+                    window.open(url, '_blank');
+                }
+            });
+        });
+    </script>
+@endpush
