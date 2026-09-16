@@ -12,7 +12,8 @@
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "^3.1",
-        "mpdf/mpdf": "^8.3"
+        "mpdf/mpdf": "^8.3",
+        "stancl/tenancy": "^3.10"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.6",
@@ -50,7 +51,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --timeout=0 --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve --host=localhost\" \"php artisan queue:listen --timeout=0 --tries=1\" \"npm run dev\" --names='server,queue,vite'"
         ],
         "test": [
             "@php artisan config:clear --ansi",

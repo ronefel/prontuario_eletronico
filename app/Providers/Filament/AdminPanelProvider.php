@@ -21,6 +21,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -82,6 +84,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([])
             ->middleware([
+                InitializeTenancyBySubdomain::class,
+                PreventAccessFromCentralDomains::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

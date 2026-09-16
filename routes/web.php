@@ -1,46 +1,22 @@
 <?php
 
-use App\Http\Controllers\BiorressonanciaController;
-use App\Http\Controllers\FileController;
-use App\Http\Controllers\LaudoEvolutivoController;
-use App\Http\Controllers\MascaraController;
-use App\Http\Controllers\ProntuarioController;
 use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes (Central & Global Fallback)
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
-    return redirect('/admin');
-});
+    if (function_exists('tenant') && tenant()) {
+        return redirect('/admin');
+    }
 
-Route::get('/login', function () {
-    return redirect()->route('filament.admin.auth.login');
-})->name('login');
-
-Route::get('/prontuario/print/{id}', [ProntuarioController::class, 'print'])
-    ->middleware('auth')
-    ->name('prontuario.print');
-
-Route::get('/laudo-evolutivo/print/{pacienteId}', [LaudoEvolutivoController::class, 'imprimir'])
-    ->middleware('auth')
-    ->name('laudo-evolutivo.print');
-
-Route::get('/biorressonancia/print/{id}', [BiorressonanciaController::class, 'print'])
-    ->middleware('auth')
-    ->name('biorressonancia.print');
-
-Route::get('/list-mascaras', [MascaraController::class, 'index'])
-    ->middleware('auth')
-    ->name('mascaras.index');
-
-Route::get('/files/{name}', [FileController::class, 'serve'])
-    ->middleware('auth')
-    ->name('files.serve');
-use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\NotaFiscalImpressaoController;
-
-Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
-    ->middleware('auth')
-    ->name('inventario.print');
-
-Route::get('/notas-fiscais/impressao/{id}', [NotaFiscalImpressaoController::class, 'imprimir'])
-    ->middleware('auth')
-    ->name('notas-fiscais.impressao');
+    return redirect('/central');
+})->middleware([
+    'web',
+    'universal',
+    InitializeTenancyBySubdomain::class,
+]);

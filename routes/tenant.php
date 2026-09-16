@@ -1,0 +1,61 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Http\Controllers\BiorressonanciaController;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\LaudoEvolutivoController;
+use App\Http\Controllers\MascaraController;
+use App\Http\Controllers\NotaFiscalImpressaoController;
+use App\Http\Controllers\ProntuarioController;
+use Illuminate\Support\Facades\Route;
+use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+
+/*
+|--------------------------------------------------------------------------
+| Tenant Routes
+|--------------------------------------------------------------------------
+|
+| Rotas operadas exclusivamente sob o subdomínio da clínica.
+|
+*/
+
+Route::middleware([
+    'web',
+    InitializeTenancyBySubdomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+    Route::get('/login', function () {
+        return redirect()->route('filament.admin.auth.login');
+    })->name('login');
+
+    Route::get('/prontuario/print/{id}', [ProntuarioController::class, 'print'])
+        ->middleware('auth')
+        ->name('prontuario.print');
+
+    Route::get('/laudo-evolutivo/print/{pacienteId}', [LaudoEvolutivoController::class, 'imprimir'])
+        ->middleware('auth')
+        ->name('laudo-evolutivo.print');
+
+    Route::get('/biorressonancia/print/{id}', [BiorressonanciaController::class, 'print'])
+        ->middleware('auth')
+        ->name('biorressonancia.print');
+
+    Route::get('/list-mascaras', [MascaraController::class, 'index'])
+        ->middleware('auth')
+        ->name('mascaras.index');
+
+    Route::get('/files/{name}', [FileController::class, 'serve'])
+        ->middleware('auth')
+        ->name('files.serve');
+
+    Route::get('/inventario/print/{id}', [InventarioController::class, 'imprimirRelatorio'])
+        ->middleware('auth')
+        ->name('inventario.print');
+
+    Route::get('/notas-fiscais/impressao/{id}', [NotaFiscalImpressaoController::class, 'imprimir'])
+        ->middleware('auth')
+        ->name('notas-fiscais.impressao');
+});
