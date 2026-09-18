@@ -34,14 +34,14 @@ class ExameResultadoItem extends BaseModel
     {
         $parametro = $this->parametro;
         if (! $parametro) {
-            return 'informativo';
+            return '';
         }
 
         $min = $parametro->valor_minimo_ideal;
         $max = $parametro->valor_maximo_ideal;
 
         if ($min === null && $max === null) {
-            return 'informativo';
+            return '';
         }
 
         $valor = (float) $this->valor_resultado;
@@ -63,7 +63,7 @@ class ExameResultadoItem extends BaseModel
             'baixo' => 'Baixo',
             'alto' => 'Alto',
             'normal' => 'Normal',
-            default => 'Informativo',
+            default => '',
         };
     }
 

@@ -98,10 +98,6 @@
                                                 <x-filament::badge color="danger" size="sm">
                                                     Alto
                                                 </x-filament::badge>
-                                            @else
-                                                <x-filament::badge color="info" size="sm">
-                                                    Informativo
-                                                </x-filament::badge>
                                             @endif
                                         </div>
                                     </div>
@@ -133,10 +129,6 @@
                                                 @elseif ($resumo->status_penultimo === 'alto')
                                                     <x-filament::badge color="danger" size="sm">
                                                         Alto
-                                                    </x-filament::badge>
-                                                @elseif ($resumo->status_penultimo === 'informativo')
-                                                    <x-filament::badge color="info" size="sm">
-                                                        Informativo
                                                     </x-filament::badge>
                                                 @endif
                                             </div>
@@ -173,17 +165,6 @@
             $hData = $this->historicoParametroSelecionado;
             $hParam = $hData->parametro;
             $hUnidade = $hParam->unidade_medida ? " ({$hParam->unidade_medida})" : '';
-            $hMin = $hParam->valor_minimo_ideal;
-            $hMax = $hParam->valor_maximo_ideal;
-
-            $hFaixa = '-';
-            if ($hMin !== null && $hMax !== null) {
-                $hFaixa = "{$hMin} a {$hMax}{$hUnidade}";
-            } elseif ($hMin !== null) {
-                $hFaixa = ">= {$hMin}{$hUnidade}";
-            } elseif ($hMax !== null) {
-                $hFaixa = "<= {$hMax}{$hUnidade}";
-            }
         @endphp
 
         <x-filament::modal id="modal-historico-evolucao" width="4xl" display-classes="block">
@@ -198,7 +179,7 @@
                 <div class="text-xs text-gray-500 dark:text-gray-400">
                     <span class="text-primary-600 font-semibold uppercase">{{ $hParam->exame->nome ?? 'Exame' }}</span>
                     &bull; Valor Ideal de Referência: <span
-                        class="font-bold text-gray-700 dark:text-gray-300">{{ $hFaixa }}</span>
+                        class="font-bold text-gray-700 dark:text-gray-300">{{ $hParam->faixaIdeal }}</span>
                 </div>
             </x-slot>
 
@@ -252,10 +233,6 @@
                                                 <x-filament::badge color="danger" size="sm">
                                                     Alto
                                                 </x-filament::badge>
-                                            @else
-                                                <x-filament::badge color="info" size="sm">
-                                                    Informativo
-                                                </x-filament::badge>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-gray-500 dark:text-gray-400 italic">
@@ -288,8 +265,8 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            window.addEventListener('openUrlInNewTab', function(event) {
+        document.addEventListener('DOMContentLoaded', function () {
+            window.addEventListener('openUrlInNewTab', function (event) {
                 const url = event.detail?.[0]?.url || event.detail?.url;
                 if (url) {
                     window.open(url, '_blank');

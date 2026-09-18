@@ -32,4 +32,22 @@ class ExameParametro extends BaseModel
     {
         return $this->hasMany(ExameResultadoItem::class, 'exame_parametro_id');
     }
+
+    public function getFaixaIdealAttribute()
+    {
+        $Min = $this->valor_minimo_ideal;
+        $Max = $this->valor_maximo_ideal;
+        $Unidade = $this->unidade_medida ?? '';
+
+        $Faixa = '-';
+        if ($Min !== null && $Max !== null) {
+            $Faixa = "{$Min} a {$Max}{$Unidade}";
+        } elseif ($Min !== null) {
+            $Faixa = ">= {$Min}{$Unidade}";
+        } elseif ($Max !== null) {
+            $Faixa = "<= {$Max}{$Unidade}";
+        }
+
+        return $Faixa;
+    }
 }

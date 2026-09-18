@@ -21,6 +21,9 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Width;
 
 class ExamesPaciente extends Page implements HasActions, HasForms
@@ -122,6 +125,7 @@ class ExamesPaciente extends Page implements HasActions, HasForms
                     ->options(ExameLaboratorial::where('ativo', true)->orderBy('nome')->pluck('nome', 'id'))
                     ->required()
                     ->searchable()
+                    ->preload()
                     ->live()
                     ->afterStateUpdated(function ($state, $set) {
                         if (! $state) {
@@ -139,53 +143,57 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
                         $itens = [];
                         foreach ($exame->parametros as $param) {
-                            $unidade = $param->unidade_medida ? " ({$param->unidade_medida})" : '';
-                            $faixa = '';
-                            if ($param->valor_minimo_ideal !== null || $param->valor_maximo_ideal !== null) {
-                                $min = $param->valor_minimo_ideal ?? 'N/A';
-                                $max = $param->valor_maximo_ideal ?? 'N/A';
-                                $faixa = " [Faixa ideal: {$min} a {$max}]";
-                            }
+                            $unidade = $param->unidade_medida ?: null;
 
                             $itens[] = [
                                 'exame_parametro_id' => $param->id,
-                                'nome_parametro' => $param->nome_parametro.$unidade.$faixa,
+                                'nome_parametro' => $param->nome_parametro,
+                                'unidade_medida' => $unidade,
+                                'faixa_referencia' => $param->faixaIdeal,
                                 'valor_resultado' => null,
                             ];
                         }
 
                         $set('itens', $itens);
-                    }),
-                DatePicker::make('data_exame')
-                    ->label('Data da Coleta/Exame')
-                    ->default(now())
-                    ->maxDate(now())
-                    ->required(),
-                Textarea::make('observacoes')
-                    ->label('Observações')
-                    ->placeholder('Anotações médicas, nome do laboratório, etc.')
-                    ->rows(2)
+                    })
                     ->columnSpanFull(),
-                Repeater::make('itens')
-                    ->label('Preenchimento dos Parâmetros do Exame')
-                    ->schema([
-                        Hidden::make('exame_parametro_id'),
-                        TextInput::make('nome_parametro')
-                            ->label('Parâmetro')
-                            ->disabled()
-                            ->dehydrated(false)
-                            ->columnSpan(2),
-                        TextInput::make('valor_resultado')
-                            ->label('Resultado Numérico')
-                            ->numeric()
-                            ->step('0.01')
-                            ->required()
-                            ->columnSpan(1),
-                    ])
-                    ->columns(3)
-                    ->addable(false)
-                    ->deletable(false)
-                    ->reorderable(false)
+                Group::make([
+                    Grid::make(['default' => 1, 'sm' => 2])
+                        ->schema([
+                            DatePicker::make('data_exame')
+                                ->label('Data da Coleta/Exame')
+                                ->default(now())
+                                ->maxDate(now())
+                                ->required(),
+                        ]),
+                    Repeater::make('itens')
+                        ->hiddenLabel()
+                        ->schema([
+                            Hidden::make('exame_parametro_id'),
+                            Hidden::make('nome_parametro'),
+                            Hidden::make('unidade_medida'),
+                            Hidden::make('faixa_referencia'),
+                            TextInput::make('valor_resultado')
+                                ->label(fn (Get $get): string => (string) ($get('nome_parametro') ?? 'Resultado'))
+                                ->helperText(fn (Get $get): ?string => $get('faixa_referencia'))
+                                ->suffix(fn (Get $get): ?string => $get('unidade_medida'))
+                                ->placeholder('Informe o valor')
+                                ->numeric()
+                                ->step('0.01')
+                                ->required(),
+                        ])
+                        ->grid(['default' => 1, 'md' => 2])
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->columnSpanFull(),
+                    Textarea::make('observacoes')
+                        ->label('Observações')
+                        ->placeholder('Anotações médicas, nome do laboratório, etc.')
+                        ->rows(2)
+                        ->columnSpanFull(),
+                ])
+                    ->visible(fn (Get $get): bool => filled($get('exame_id')))
                     ->columnSpanFull(),
             ])
             ->action(function (array $data) {
@@ -359,26 +367,13 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             $qtdParametros = $param->exame?->parametros()->count() ?? 1;
             $isExameSimples = ($qtdParametros === 1) || (strtolower(trim($param->nome_parametro)) === 'resultado');
 
-            $min = $param->valor_minimo_ideal;
-            $max = $param->valor_maximo_ideal;
-            $unidade = $param->unidade_medida ? ' '.$param->unidade_medida : '';
-
-            $faixaIdeal = '-';
-            if ($min !== null && $max !== null) {
-                $faixaIdeal = "{$min} a {$max}{$unidade}";
-            } elseif ($min !== null) {
-                $faixaIdeal = ">= {$min}{$unidade}";
-            } elseif ($max !== null) {
-                $faixaIdeal = "<= {$max}{$unidade}";
-            }
-
             $resumo->push((object) [
                 'parametro_id' => $param->id,
                 'exame_nome' => $param->exame->nome ?? 'Exame',
                 'parametro_nome' => $param->nome_parametro,
                 'unidade_medida' => $param->unidade_medida,
                 'is_exame_simples' => $isExameSimples,
-                'faixa_ideal' => $faixaIdeal,
+                'faixa_ideal' => $param->faixaIdeal,
                 'ultimo_valor' => $ultimo->valor_resultado,
                 'status_normalidade' => $ultimo->status_normalidade,
                 'data_ultima_coleta' => $ultimo->registro?->data_exame,
