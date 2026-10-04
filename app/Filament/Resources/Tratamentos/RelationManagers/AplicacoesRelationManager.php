@@ -89,13 +89,12 @@ class AplicacoesRelationManager extends RelationManager
                             $quantidadeNecessaria = $item->quantidade;
                             $produtoId = $produto->id;
 
-                            // Buscar lotes VÁLIDOS (ativos, não vencidos, com saldo > 0)
+                            // Buscar lotes VÁLIDOS (ativos, não vencidos)
                             // Ordenados por validade (FIFO)
                             $lotes = Lote::where('produto_id', $produtoId)
                                 ->where('status', 'ativo')
                                 ->where('data_validade', '>=', now())
                                 ->get()
-                                ->filter(fn ($lote) => $lote->quantidade_atual > 0)
                                 ->sortBy('data_validade');
 
                             $quantidadeAtendida = 0;
@@ -105,22 +104,42 @@ class AplicacoesRelationManager extends RelationManager
                                     break;
                                 }
 
-                                $saldoLote = $lote->quantidade_atual;
-                                $quantidadeFaltante = $quantidadeNecessaria - $quantidadeAtendida;
+                                $saldoLote = max(0, $lote->quantidade_atual);
+                                if ($saldoLote <= 0) {
+                                    continue;
+                                }
 
+                                $quantidadeFaltante = $quantidadeNecessaria - $quantidadeAtendida;
                                 $quantidadeParaPegar = min($saldoLote, $quantidadeFaltante);
 
                                 $novosItens[] = [
                                     'lote_id' => $lote->id,
                                     'quantidade' => $quantidadeParaPegar,
-                                    // 'saldo_lote' => $saldoLote, // Opcional, se o campo existir no repeater, mas é dinâmico
                                 ];
 
                                 $quantidadeAtendida += $quantidadeParaPegar;
                             }
 
+                            // Se ainda não atendeu toda a quantidade necessária e existem lotes cadastrados
+                            if ($quantidadeAtendida < $quantidadeNecessaria && $lotes->isNotEmpty()) {
+                                $quantidadeFaltante = $quantidadeNecessaria - $quantidadeAtendida;
+                                $loteDestino = $lotes->first();
+
+                                $indiceLote = collect($novosItens)->search(fn ($item) => $item['lote_id'] === $loteDestino->id);
+                                if ($indiceLote !== false) {
+                                    $novosItens[$indiceLote]['quantidade'] += $quantidadeFaltante;
+                                } else {
+                                    $novosItens[] = [
+                                        'lote_id' => $loteDestino->id,
+                                        'quantidade' => $quantidadeFaltante,
+                                    ];
+                                }
+
+                                $quantidadeAtendida += $quantidadeFaltante;
+                            }
+
                             if ($quantidadeAtendida < $quantidadeNecessaria) {
-                                $produtosFaltantes[] = "{$produto->nome} (Faltam ".($quantidadeNecessaria - $quantidadeAtendida).')';
+                                $produtosFaltantes[] = "{$produto->nome} (Sem lotes ativos/válidos disponíveis)";
                             }
                         }
 
@@ -134,8 +153,8 @@ class AplicacoesRelationManager extends RelationManager
                         if (! empty($produtosFaltantes)) {
                             Notification::make()
                                 ->warning()
-                                ->title('Estoque Insuficiente para o Kit')
-                                ->body('Os seguintes produtos não possuem estoque suficiente para completar o kit:<br>'.implode('<br>', $produtosFaltantes))
+                                ->title('Lotes não encontrados para o Kit')
+                                ->body('Os seguintes produtos não possuem lotes ativos ou válidos:<br>'.implode('<br>', $produtosFaltantes))
                                 ->persistent()
                                 ->send();
                         }
@@ -154,21 +173,16 @@ class AplicacoesRelationManager extends RelationManager
                             ->relationship(
                                 'lote',
                                 'numero_lote',
-                                fn ($query, Get $get) => $query
+                                fn ($query) => $query
                                     ->join('produtos', 'lotes.produto_id', '=', 'produtos.id')
                                     ->where('lotes.status', 'ativo')
                                     ->where('lotes.data_validade', '>=', now())
-                                    ->whereRaw('(SELECT SUM(quantidade) FROM movimentacoes WHERE lote_id = lotes.id AND deleted_at IS NULL) > 0')
-                                    ->whereNotIn('lotes.id', collect($get('../../itens'))
-                                        ->pluck('lote_id')
-                                        ->filter(fn ($id) => $id !== $get('lote_id')) // Mantém o atual
-                                        ->toArray()
-                                    )
                                     ->select('lotes.*')
                             )
-                            ->getOptionLabelFromRecordUsing(fn (Lote $lote) => "{$lote->produto->nome} - Lote: {$lote->numero_lote} (Venc: {$lote->data_validade?->format('d/m/Y')})")
+                            ->getOptionLabelFromRecordUsing(fn (?Lote $lote) => $lote ? "{$lote->produto?->nome} - Lote: {$lote->numero_lote} (Venc: {$lote->data_validade?->format('d/m/Y')})" : '')
                             ->searchable(['numero_lote', 'produtos.nome'])
                             ->preload()
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->reactive()
                             ->afterStateUpdated(fn ($state, Set $set) => $set('saldo_lote', Lote::find($state)->quantidade_atual ?? 0))
                             ->required()
