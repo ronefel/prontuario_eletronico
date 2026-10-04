@@ -52,7 +52,6 @@ class EstoqueBaixoWidget extends TableWidget
             ->recordUrl(fn ($record) => route('filament.admin.resources.produtos.edit', $record))
             ->emptyStateHeading('Nenhum produto com estoque baixo')
             ->emptyStateDescription('Todos os produtos estão acima do estoque mínimo.')
-            ->defaultSort('nome')
-            ->paginated(false);
+            ->defaultSort('nome');
     }
 }

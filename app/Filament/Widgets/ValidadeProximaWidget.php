@@ -93,7 +93,6 @@ class ValidadeProximaWidget extends TableWidget
             ->recordUrl(fn ($record) => route('filament.admin.resources.lotes.edit', $record))
             ->emptyStateHeading('Nenhum lote vencido ou com validade próxima')
             ->emptyStateDescription('Nenhum lote está vencido ou vence nos próximos 30 dias.')
-            ->defaultSort('data_validade')
-            ->paginated(false);
+            ->defaultSort('data_validade');
     }
 }
