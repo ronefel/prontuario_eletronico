@@ -53,31 +53,6 @@ class ExamesPaciente extends Page implements HasActions, HasForms
             ->icon('heroicon-o-printer')
             ->color('gray')
             ->outlined()
-            ->modalHeading('Imprimir Laudo Evolutivo')
-            ->modalSubmitActionLabel('Imprimir')
-            ->modalWidth(Width::ExtraSmall)
-            ->schema([
-                ToggleButtons::make('layout')
-                    ->label('Layout')
-                    ->options([
-                        'P' => 'Retrato',
-                        'L' => 'Paisagem',
-                    ])
-                    ->default('P')
-                    ->grouped()
-                    ->reactive()
-                    ->disabled(fn ($get) => $get('paper_size') === 'A5noA4'),
-                ToggleButtons::make('paper_size')
-                    ->label('Tamanho do Papel')
-                    ->options([
-                        'A4' => 'A4',
-                        'A5' => 'A5',
-                        'A5noA4' => 'A5 no A4',
-                    ])
-                    ->default('A4')
-                    ->grouped()
-                    ->reactive(),
-            ])
             ->action(function (array $data) {
                 if (! $this->paciente) {
                     Notification::make()->title('Paciente não identificado.')->danger()->send();
@@ -100,12 +75,11 @@ class ExamesPaciente extends Page implements HasActions, HasForms
 
                 $url = route('laudo-evolutivo.print', [
                     'pacienteId' => $this->paciente->id,
-                    'layout' => $data['layout'] ?? 'P',
-                    'paper_size' => $data['paper_size'] ?? 'A4',
+                    'layout' => 'P',
+                    'paper_size' => 'A4',
                 ]);
 
                 $this->dispatch('openUrlInNewTab', ['url' => $url]);
-                $this->js("window.open('{$url}', '_blank');");
             });
     }
 

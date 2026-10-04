@@ -9,6 +9,7 @@ use App\Models\Exame;
 use App\Models\Paciente;
 use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -16,6 +17,7 @@ use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Routing\Route;
@@ -37,6 +39,8 @@ class Biorressonancia extends Page
 
     public array $tableData = [];
 
+    public string $modoSelecao = 'checkbox';
+
     public static function route(string $path): PageRegistration
     {
         return new PageRegistration(
@@ -51,8 +55,15 @@ class Biorressonancia extends Page
     {
         $this->paciente = Paciente::findOrFail($record);
         $this->isMobile = AgentHelper::isMobile();
+        $this->modoSelecao = session('biorressonancia_modo_selecao', 'checkbox');
 
         $this->getExameData();
+    }
+
+    public function alternarModoSelecao(string $modo): void
+    {
+        $this->modoSelecao = in_array($modo, ['checkbox', 'select']) ? $modo : 'checkbox';
+        session(['biorressonancia_modo_selecao' => $this->modoSelecao]);
     }
 
     // public function getBreadcrumbs(): array
@@ -71,6 +82,54 @@ class Biorressonancia extends Page
     //             ->url(route('filament.admin.resources.pacientes.prontuario', ['record' => $this->paciente->id])),
     //     ];
     // }
+
+    protected function obterEsquemaTestadores($categorias): array
+    {
+        if ($this->modoSelecao === 'select') {
+            return [
+                Grid::make(1)
+                    ->schema(
+                        $categorias->map(function ($categoria) {
+                            return Select::make('testadores_'.$categoria->id)
+                                ->label($categoria->nome)
+                                ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
+                                    return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
+                                }))
+                                ->multiple()
+                                ->extraAlpineAttributes([
+                                    'x-init' => 'window.configurarLimpezaBuscaSelect && window.configurarLimpezaBuscaSelect($data)',
+                                ]);
+                        })->toArray()
+                    ),
+            ];
+        }
+
+        return [
+            Grid::make(1)
+                ->schema(
+                    $categorias->map(function ($categoria) {
+                        return Section::make($categoria->nome)
+                            ->schema([
+                                CheckboxList::make('testadores_'.$categoria->id)
+                                    ->hiddenLabel()
+                                    ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
+                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
+                                    }))
+                                    ->searchable()
+                                    ->bulkToggleable()
+                                    ->columns([
+                                        'default' => 1,
+                                        'sm' => 2,
+                                        'lg' => 3,
+                                    ]),
+                            ])
+                            ->collapsible()
+                            ->collapsed()
+                            ->compact();
+                    })->toArray()
+                ),
+        ];
+    }
 
     public function createExameAction(): Action
     {
@@ -97,24 +156,7 @@ class Biorressonancia extends Page
                                 ->required(),
                         ]),
                 ],
-                [
-                    Grid::make(1)
-                        ->schema(
-                            // Mapear as categorias para criar selects múltiplos para cada categoria
-                            $categorias->map(function ($categoria) {
-                                return Select::make('testadores_'.$categoria->id)
-                                    ->label($categoria->nome) // Nome da categoria como label
-                                    ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
-                                        // Concatena número e nome
-                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
-                                    }))
-                                    ->multiple()
-                                    ->extraAlpineAttributes([
-                                        'x-init' => 'configurarLimpezaBuscaSelect($data)',
-                                    ]);
-                            })->toArray()
-                        ),
-                ]
+                $this->obterEsquemaTestadores($categorias)
             ))
             ->action(function (array $data): void {
                 $this->createExame($data);
@@ -176,23 +218,7 @@ class Biorressonancia extends Page
                                 ->required(),
                         ]),
                 ],
-                [
-                    Grid::make(1)
-                        ->schema(
-                            // Adicione a lógica para carregar testadores aqui
-                            $categorias->map(function ($categoria) {
-                                return Select::make('testadores_'.$categoria->id)
-                                    ->label($categoria->nome)
-                                    ->options($categoria->testadores->pluck('nome', 'id')->mapWithKeys(function ($nome, $id) use ($categoria) {
-                                        return [$id => $categoria->testadores->find($id)->numero.' - '.$nome];
-                                    }))
-                                    ->multiple()
-                                    ->extraAlpineAttributes([
-                                        'x-init' => 'configurarLimpezaBuscaSelect($data)',
-                                    ]);
-                            })->toArray()
-                        ),
-                ]
+                $this->obterEsquemaTestadores($categorias)
             ))
             ->fillForm(function (array $arguments) {
                 // Encontre o exame pelo ID passado nos argumentos, carregando os testadores

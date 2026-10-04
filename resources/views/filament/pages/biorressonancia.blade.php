@@ -1,8 +1,25 @@
 <x-filament-panels::page>
     <div>
-        <div class="flex gap-1">
-            {{ $this->createExameAction }}
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex gap-1 items-center">
+                {{ $this->createExameAction }}
+            </div>
 
+            <div class="inline-flex items-center p-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-700 shadow-xs">
+                <span class="text-xs text-gray-500 dark:text-gray-400 px-2 select-none">Modo:</span>
+                <button type="button"
+                    wire:click="alternarModoSelecao('checkbox')"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-150 {{ $modoSelecao === 'checkbox' ? 'bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 shadow-sm font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200' }}">
+                    <x-filament::icon icon="heroicon-o-list-bullet" class="h-4 w-4" />
+                    <span>Lista (Checkbox)</span>
+                </button>
+                <button type="button"
+                    wire:click="alternarModoSelecao('select')"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-150 {{ $modoSelecao === 'select' ? 'bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 shadow-sm font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200' }}">
+                    <x-filament::icon icon="heroicon-o-magnifying-glass" class="h-4 w-4" />
+                    <span>Busca Rápida (Select)</span>
+                </button>
+            </div>
         </div>
 
         @if ($datas)
@@ -55,6 +72,7 @@
     </div>
     <x-filament-actions::modals />
 
+    @script
     <script>
         window.configurarLimpezaBuscaSelect = function(componente) {
             var tentarConfigurar = function(restantes) {
@@ -88,4 +106,5 @@
             tentarConfigurar(10);
         };
     </script>
+    @endscript
 </x-filament-panels::page>
