@@ -11,13 +11,13 @@
                     wire:click="alternarModoSelecao('checkbox')"
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-150 {{ $modoSelecao === 'checkbox' ? 'bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 shadow-sm font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200' }}">
                     <x-filament::icon icon="heroicon-o-list-bullet" class="h-4 w-4" />
-                    <span>Lista (Checkbox)</span>
+                    <span>Lista</span>
                 </button>
                 <button type="button"
                     wire:click="alternarModoSelecao('select')"
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all duration-150 {{ $modoSelecao === 'select' ? 'bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 shadow-sm font-semibold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200' }}">
                     <x-filament::icon icon="heroicon-o-magnifying-glass" class="h-4 w-4" />
-                    <span>Busca Rápida (Select)</span>
+                    <span>Busca Rápida</span>
                 </button>
             </div>
         </div>
