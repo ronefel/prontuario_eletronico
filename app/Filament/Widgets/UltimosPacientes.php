@@ -21,7 +21,7 @@ class UltimosPacientes extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-users class="h-5 w-5" /> Últimos 5 Pacientes Atendidos</div>')))
+            ->heading(new HtmlString(Blade::render('<div class="flex items-center gap-2"><x-heroicon-o-users class="h-5 w-5" /> Últimos Pacientes Atendidos</div>')))
             ->query(function () {
                 $atendimentos = DB::table('prontuarios')
                     ->select('paciente_id', 'data as data_atendimento')
@@ -39,8 +39,7 @@ class UltimosPacientes extends TableWidget
                     ->select('pacientes.*', DB::raw('MAX(atendimentos.data_atendimento) as data'))
                     ->joinSub($atendimentos, 'atendimentos', 'pacientes.id', '=', 'atendimentos.paciente_id')
                     ->groupBy('pacientes.id')
-                    ->orderBy('data', 'desc')
-                    ->limit(5);
+                    ->orderBy('data', 'desc');
             })
             ->columns([
                 TextColumn::make('nome')
@@ -53,7 +52,6 @@ class UltimosPacientes extends TableWidget
             ->recordUrl(
                 fn (Paciente $record): string => route('filament.admin.pages.consultorio.{paciente}', ['paciente' => $record->id]),
             )
-            ->defaultSort('data', 'desc')
-            ->paginated(false);
+            ->defaultSort('data', 'desc');
     }
 }

@@ -10,6 +10,8 @@ use Livewire\Attributes\Reactive;
 
 class ExameEvolucaoChartWidget extends ChartWidget
 {
+    protected static bool $isDiscovered = false;
+
     protected ?string $heading = '';
 
     protected ?string $maxHeight = '300px';
