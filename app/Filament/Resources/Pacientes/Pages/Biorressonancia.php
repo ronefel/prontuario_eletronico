@@ -322,9 +322,12 @@ class Biorressonancia extends Page
         }
         // Obter as datas exclusivas dos exames (para usar como cabeçalho)
         $this->datas = $exames->map(function ($exame) {
+            $dataExame = Carbon::parse($exame->data);
+
             return [
                 'id' => $exame->id, // Retorna o ID do exame
-                'data' => Carbon::parse($exame->data)->format('d/m'), // Formata a data
+                'data' => $dataExame->format('d/m'), // Formata a data (dia/mês)
+                'ano' => $dataExame->format('Y'), // Formata o ano
             ];
         });
 

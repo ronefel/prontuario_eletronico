@@ -21,7 +21,8 @@
                                         tooltip="Imprimir" size="xs" tag="a" target="_blank"
                                         label="Filament" />
                                 </div>
-                                {{ $data['data'] }}
+                                <div>{{ $data['data'] }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-normal">{{ $data['ano'] }}</div>
                             </th>
                         @endforeach
                     </tr>
